@@ -48,6 +48,20 @@ class Test_eads:
         eads.add_sample("new_sample", list(range(6)))
         assert "new_sample" in eads.get_samples()
 
+    def test_remove_adsorbate(self):
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        eads.remove_adsorbate("*CO2")
+        assert "*CO2" not in eads.get_adsorbates()
+
+    def test_remove_sample(self):
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        eads.remove_sample("Cu@g-C3N4")
+        assert "Cu@g-C3N4" not in eads.get_samples()
+
     def test_sort_df(self):
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         eads = Eads(test_df)

@@ -69,11 +69,13 @@ class Eads:
         else:
             self.df.loc[name] = energies
 
-    def remove_adsorbates(self) -> None:
-        pass
+    def remove_adsorbate(self, name: str) -> None:
+        """Remove an adsorbate (column)."""
+        self.df.drop(columns=name, inplace=True)
 
-    def remove_samples(self) -> None:
-        pass
+    def remove_sample(self, name: str) -> None:
+        """Remove a sample (row)."""
+        self.df.drop(index=name, inplace=True)
 
     def get_adsorbates(self) -> list[str]:
         """Get adsorbate names from column headers."""
