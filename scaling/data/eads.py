@@ -5,17 +5,17 @@ import pandas as pd
 
 
 class Eads:
-    """Handle adsorption energies for linear scaling relations.
+    """Handle adsorption energies as pandas.DataFrame.
 
     Expect data as a pd.DataFrame in the following format:
-                   *CO2   *COOH  ...  *OCH3  *O     *OH
-        Cu@g-C3N4  0.89   4.37   ...  3.98  -1.73   0.17
-        Ni@C2N    -4.57  -4.95  ...  -0.93  -2.81  -3.21
-        ...
-        Pt@SiO2   -2.36   3.69   ...  3.12   0.29   4.84
-        Au@Al2O3   2.15  -2.35  ...   1.36   1.07   4.56
+                   *CO2   *COOH  ...   *OCH3  *O     *OH
+        Cu@g-C3N4  0.89   4.37   ...   3.98  -1.73   0.17
+        Ni@C2N    -4.57  -4.95   ...  -0.93  -2.81  -3.21
+        ......
+        Pt@SiO2   -2.36   3.69   ...   3.12   0.29   4.84
+        Au@Al2O3   2.15  -2.35   ...   1.36   1.07   4.56
 
-    Note:
+    where:
         - Column headers (0th row) should be adsorbate names.
         - Row headers (0th column) should be sample names.
 
@@ -42,11 +42,32 @@ class Eads:
 
         return True
 
-    def add_adsorbates(self) -> None:
-        pass
+    def add_adsorbate(self, name: str, energies: list[float]) -> None:
+        """Append a new adsorbate column."""
+        # Check new entry length
+        if len(energies) != len(self.df):
+            raise ValueError(
+                "New adsorbate energies length doesn't match others."
+            )
 
-    def add_samples(self) -> None:
-        pass
+        if name in self.df.columns.values:
+            raise ValueError(f"Adsorbate {name} already exists.")
+
+        else:
+            self.df[name] = energies
+
+    def add_sample(self, name: str, energies: list[float]) -> None:
+        """Append a new sample row."""
+        if len(energies) != len(self.df.columns):
+            raise ValueError(
+                "New sample energies length doesn't match others."
+            )
+
+        if name in self.df.index:
+            raise ValueError(f"Sample {name} already exists.")
+
+        else:
+            self.df.loc[name] = energies
 
     def remove_adsorbates(self) -> None:
         pass

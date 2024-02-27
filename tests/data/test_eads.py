@@ -34,6 +34,20 @@ class Test_eads:
             "Cu@g-C3N4", "Ni@C2N", "Fe@BN", "Co@BN", "Pt@SiO2", "Au@Al2O3"
         ]
 
+    def test_add_adsorbate(self):
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        eads.add_adsorbate("new_adsorbate", list(range(6)))
+        assert "new_adsorbate" in eads.get_adsorbates()
+
+    def test_add_sample(self):
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        eads.add_sample("new_sample", list(range(6)))
+        assert "new_sample" in eads.get_samples()
+
     def test_sort_df(self):
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         eads = Eads(test_df)
