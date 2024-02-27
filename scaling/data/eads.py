@@ -25,15 +25,34 @@ class Eads:
 
     def __init__(self, df: pd.DataFrame) -> None:
         """Initialize the Eads class with a DataFrame."""
-        # Check and take arg: df
-        if isinstance(df, pd.DataFrame):
+        # Take and check arg: df
+        self.df = df
+        self._check_df()
+
+    def _check_df(self) -> bool:
+        """Check the types of df and elements."""
+        if isinstance(self.df, pd.DataFrame):
             try:
-                self.df = df.astype(float)
+                self.df = self.df.astype(float)
             except ValueError as e:
                 raise ValueError(f"Please double-check input data: {e}.")
 
         else:
             raise TypeError("Expect data as pd.DataFrame type.")
+
+        return True
+
+    def add_adsorbates(self) -> None:
+        pass
+
+    def add_samples(self) -> None:
+        pass
+
+    def remove_adsorbates(self) -> None:
+        pass
+
+    def remove_samples(self) -> None:
+        pass
 
     def get_adsorbates(self) -> list[str]:
         """Get adsorbate names from column headers."""
@@ -42,3 +61,20 @@ class Eads:
     def get_samples(self) -> list[str]:
         """Get sample names from row headers."""
         return self.df.index.tolist()
+
+    def sort_df(self, targets: list[str] = ["column", "row"]) -> None:
+        """Sort columns/rows of df."""
+        if not set(targets) <= {"column", "row"}:
+            raise ValueError(
+                "Invalid target values. Should be 'column', 'row', or both."
+            )
+
+        if "column" in targets:
+            self.df = self.df.sort_index(axis=1)
+
+        if "row" in targets:
+            self.df = self.df.sort_index()
+
+    def set_groups(self) -> None:
+        # TODO
+        pass

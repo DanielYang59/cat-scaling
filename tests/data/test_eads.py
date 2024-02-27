@@ -33,3 +33,16 @@ class Test_eads:
         assert samples == [
             "Cu@g-C3N4", "Ni@C2N", "Fe@BN", "Co@BN", "Pt@SiO2", "Au@Al2O3"
         ]
+
+    def test_sort_df(self):
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+        eads.sort_df(targets=["column", "row"])
+
+        assert eads.get_adsorbates() == [
+            "*CO", "*CO2", "*COOH", "*O", "*OCH3", "*OH"
+        ]
+
+        assert eads.get_samples() == [
+            "Au@Al2O3", "Co@BN", "Cu@g-C3N4", "Fe@BN", "Ni@C2N", "Pt@SiO2"
+        ]
