@@ -74,3 +74,15 @@ class Test_eads:
         assert eads.get_samples() == [
             "Au@Al2O3", "Co@BN", "Cu@g-C3N4", "Fe@BN", "Ni@C2N", "Pt@SiO2"
         ]
+
+    def test_set_groups(self):
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        example_groups = {
+            "carbon": ["*CO2", "*CO"],
+            "oxygen": ["*O", "*OH"],
+            "hydrogen": ["*H"],
+        }
+
+        eads.set_groups(example_groups)

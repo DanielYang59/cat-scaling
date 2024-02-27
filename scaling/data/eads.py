@@ -25,6 +25,7 @@ class Eads:
 
     def __init__(self, df: pd.DataFrame) -> None:
         """Initialize the Eads class with a DataFrame."""
+
         # Take and check arg: df
         self.df = df
         self._check_df()
@@ -42,6 +43,7 @@ class Eads:
             TypeError: If the input data is not of type pd.DataFrame.
             ValueError: If conversion of DataFrame elements to float fails.
         """
+
         if isinstance(self.df, pd.DataFrame):
             try:
                 self.df = self.df.astype(float)
@@ -65,6 +67,7 @@ class Eads:
             ValueError: If the length of the new adsorbate energies doesn't
                 match the number of samples, or if the adsorbate exists.
         """
+
         # Check new entry length
         if len(energies) != len(self.df):
             raise ValueError(
@@ -89,6 +92,7 @@ class Eads:
             ValueError: If the length of the new sample energies doesn't match
                 the number of adsorbates, or if the sample name already exists.
         """
+
         if len(energies) != len(self.df.columns):
             raise ValueError(
                 "New sample energies length doesn't match others."
@@ -106,6 +110,7 @@ class Eads:
         Args:
             name (str): The name of the adsorbate column to be removed.
         """
+
         self.df.drop(columns=name, inplace=True)
 
     def remove_sample(self, name: str) -> None:
@@ -114,18 +119,22 @@ class Eads:
         Args:
             name (str): The name of the sample row to be removed.
         """
+
         self.df.drop(index=name, inplace=True)
 
     def get_adsorbates(self) -> list[str]:
         """Get adsorbate names from column headers."""
+
         return self.df.columns.values.tolist()
 
     def get_samples(self) -> list[str]:
         """Get sample names from row headers."""
+
         return self.df.index.tolist()
 
     def sort_df(self, targets: list[str] = ["column", "row"]) -> None:
         """Sort columns/rows of df."""
+
         if not set(targets) <= {"column", "row"}:
             raise ValueError(
                 "Invalid target values. Should be 'column', 'row', or both."
@@ -137,7 +146,29 @@ class Eads:
         if "row" in targets:
             self.df = self.df.sort_index()
 
-    def set_groups(self, grouping: list[list[str]]) -> None:
-        """Group adsorbate by their names."""
-        # TODO
-        pass
+    def set_groups(self, groups: dict[str, list[str]]) -> None:
+        """Group adsorbates by specified names.
+
+        Args:
+            groups (dict[str, list[str]]): A dictionary defining groups where
+                keys are group names and values are lists of
+                adsorbate names belonging to each group.
+
+        Raises:
+            RuntimeError: If the adsorbates in the provided groups do not
+                match the adsorbates in the DataFrame.
+
+        Example groups:
+            {
+                "carbon": ["*CO2", "*CO"],
+                "oxygen": ["*O", "*OH"],
+                "hydrogen": ["*H"],
+            }
+        """
+
+        # Check groups members
+        total = [element for elements in groups.values() for element in elements]
+        if self.get_adsorbates().sort() != total.sort():
+            raise RuntimeError("Double check group members.")
+
+        self.groups = groups
