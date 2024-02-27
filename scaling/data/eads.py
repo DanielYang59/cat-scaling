@@ -30,7 +30,18 @@ class Eads:
         self._check_df()
 
     def _check_df(self) -> bool:
-        """Check the types of df and elements."""
+        """Check the validity of the self.df.
+
+        Ensures that the DataFrame is of type pd.DataFrame and attempts to
+            convert its elements to float type.
+
+        Returns:
+            bool: True if DataFrame is valid, False otherwise.
+
+        Raises:
+            TypeError: If the input data is not of type pd.DataFrame.
+            ValueError: If conversion of DataFrame elements to float fails.
+        """
         if isinstance(self.df, pd.DataFrame):
             try:
                 self.df = self.df.astype(float)
@@ -43,7 +54,17 @@ class Eads:
         return True
 
     def add_adsorbate(self, name: str, energies: list[float]) -> None:
-        """Append a new adsorbate column."""
+        """Append a new adsorbate column.
+
+        Args:
+            name (str): The name of the new adsorbate column.
+            energies (list[float]): List of energies corresponding to the
+                new adsorbate.
+
+        Raises:
+            ValueError: If the length of the new adsorbate energies doesn't
+                match the number of samples, or if the adsorbate exists.
+        """
         # Check new entry length
         if len(energies) != len(self.df):
             raise ValueError(
@@ -57,7 +78,17 @@ class Eads:
             self.df[name] = energies
 
     def add_sample(self, name: str, energies: list[float]) -> None:
-        """Append a new sample row."""
+        """Append a new sample row.
+
+        Args:
+            name (str): The name of the new sample row.
+            energies (list[float]): List of energies corresponding to
+                the new sample.
+
+        Raises:
+            ValueError: If the length of the new sample energies doesn't match
+                the number of adsorbates, or if the sample name already exists.
+        """
         if len(energies) != len(self.df.columns):
             raise ValueError(
                 "New sample energies length doesn't match others."
@@ -70,11 +101,19 @@ class Eads:
             self.df.loc[name] = energies
 
     def remove_adsorbate(self, name: str) -> None:
-        """Remove an adsorbate (column)."""
+        """Remove an adsorbate (column).
+
+        Args:
+            name (str): The name of the adsorbate column to be removed.
+        """
         self.df.drop(columns=name, inplace=True)
 
     def remove_sample(self, name: str) -> None:
-        """Remove a sample (row)."""
+        """Remove a sample (row).
+
+        Args:
+            name (str): The name of the sample row to be removed.
+        """
         self.df.drop(index=name, inplace=True)
 
     def get_adsorbates(self) -> list[str]:
@@ -98,6 +137,7 @@ class Eads:
         if "row" in targets:
             self.df = self.df.sort_index()
 
-    def set_groups(self) -> None:
+    def set_groups(self, grouping: list[list[str]]) -> None:
+        """Group adsorbate by their names."""
         # TODO
         pass
