@@ -31,14 +31,19 @@ The hybrid method:
 
 from scaling.data import Eads
 from scaling.relation import Relation
+from scaling.relation.descriptors import DescriptorManager
+
+from typing import Optional
 
 VALID_METHODS = {"traditional", "hybrid"}
 
 
 class Builder:
+    """Build scaling relation."""
     def __init__(
         self,
         data: Eads,
+        descriptor_manager: DescriptorManager,
         method: str = "traditional",
     ) -> None:
         # Check arg: data
@@ -46,6 +51,7 @@ class Builder:
             raise TypeError("Expect data as 'Eads' type")
 
         self.data = data
+        self.descriptor_manager = descriptor_manager
         self.method = method
 
     @property

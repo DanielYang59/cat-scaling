@@ -24,8 +24,9 @@ Coefficient matrix:
 """
 
 
-import warnings
 from typing import Optional
+
+from scaling.relation.descriptors import DescriptorManager
 
 
 class Relation:
@@ -37,7 +38,7 @@ class Relation:
     def __init__(
         self,
         coefficients: dict[str, list[float]],
-        descriptors: Optional[list[str]] = None,
+        descriptor_manager: DescriptorManager,
         metrics: Optional[dict[str, float]] = None,
     ) -> None:
         """Initialize Relation with coefficients.
@@ -45,15 +46,15 @@ class Relation:
         Args:
             coefficients (dict[str, list[float]]): Dictionary mapping
                 species names to lists of coefficients.
-            descriptors (Optional[list[str]]): List of descriptors used
-                for scaling relations. Defaults to None.
+            descriptor_manager (Optional[list[str]]): Managing descriptors
+                used for scaling relations.
             metrics (Optional[dict[str, float]]): Evaluation metrics
                 (MAE/R2 or such) of this Relation. Defaults to None.
         """
 
         # Set properties
         self.coefficients = coefficients
-        self.descriptors = descriptors
+        self.descriptor_manager = descriptor_manager
         self.metrics = metrics
 
     @property
@@ -85,29 +86,6 @@ class Relation:
             raise ValueError("All coefficients must have the same length")
 
         self._coefficients = coefficients
-
-    @property
-    def descriptors(self) -> Optional[list[str]]:
-        """Descriptors used for scaling relations."""
-
-        return self._descriptors
-
-    @descriptors.setter
-    def descriptors(self, descriptors: Optional[list[str]]):
-        if descriptors is not None:
-            if not isinstance(descriptors, list):
-                raise TypeError("Descriptors must be a list of strings.")
-
-            if not all(isinstance(desc, str) for desc in descriptors):
-                raise TypeError("Each descriptor must be a string.")
-
-            if len(descriptors) != len(set(descriptors)):
-                raise ValueError("Duplicate descriptors are not allowed.")
-
-            if len(descriptors) > 2:
-                warnings.warn(f"Got {len(descriptors)} descriptors.")
-
-        self._descriptors = descriptors
 
     @property
     def dim(self) -> int:
