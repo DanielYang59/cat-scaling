@@ -89,40 +89,6 @@ class Eads:
 
         return self.data.index.tolist()
 
-    @property
-    def groups(self):
-        """Group adsorbates by specified names.
-
-        Args:
-            groups (dict[str, list[str]]): A dictionary defining groups where
-                keys are group names and values are lists of
-                adsorbate names belonging to each group.
-
-        Raises:
-            RuntimeError: If the adsorbates in the provided groups do not
-                match the adsorbates in the DataFrame.
-
-        Example:
-            {
-                "carbon": ["*CO2", "*CO"],
-                "oxygen": ["*O", "*OH"],
-                "hydrogen": ["*H"],
-            }
-        """
-        return self._groups
-
-    @groups.setter
-    def groups(self, groups: dict[str, list[str]]):
-        # Check groups members
-        if groups is not None:
-            total = [
-                element for elements in groups.values() for element in elements
-            ]
-            if self.adsorabtes.sort() != total.sort():
-                raise RuntimeError("Double check group members.")
-
-        self._groups = groups
-
     def add_adsorbate(self, name: str, energies: list[float]) -> None:
         """Append a new adsorbate column.
 
