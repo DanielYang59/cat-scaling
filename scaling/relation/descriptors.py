@@ -1,4 +1,5 @@
 """Manage descriptors used for scaling relations."""
+# TODO: this may be unnecessary
 
 import warnings
 from typing import Optional
