@@ -33,13 +33,12 @@ from scaling.data import Eads
 from scaling.relation import Relation
 from scaling.relation.descriptors import DescriptorManager
 
-from typing import Optional
-
 VALID_METHODS = {"traditional", "hybrid"}
 
 
 class Builder:
     """Build scaling relation."""
+
     def __init__(
         self,
         data: Eads,

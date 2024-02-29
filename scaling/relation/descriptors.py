@@ -1,6 +1,5 @@
 """Manage descriptors used for scaling relations."""
 
-
 import warnings
 from typing import Optional
 
@@ -17,6 +16,7 @@ class DescriptorManager:
         TypeError: If any element of descriptors is not a string.
         ValueError: If duplicate descriptors are provided.
     """
+
     def __init__(self):
         self._descriptors = None
 
