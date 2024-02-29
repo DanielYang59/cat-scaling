@@ -32,14 +32,13 @@ The hybrid method:
 from scaling.data import Eads
 from scaling.relation import Relation
 
+VALID_METHODS = {"traditional", "hybrid"}
+
 
 class Builder:
-    valid_methods = {"traditional", "hybrid"}
-
     def __init__(
         self,
         data: Eads,
-        descriptors: list[str],
         method: str = "traditional",
     ) -> None:
         # Check arg: data
@@ -47,26 +46,7 @@ class Builder:
             raise TypeError("Expect data as 'Eads' type")
 
         self.data = data
-        self.descriptors = descriptors
         self.method = method
-
-    @property
-    def descriptors(self) -> list[str]:
-        """Descriptors used for building the Relation."""
-
-        return self._descriptors
-
-    @descriptors.setter
-    def descriptors(self, descriptors: list[str]):
-        # Check data type
-        if not all(isinstance(descriptor, str) for descriptor in descriptors):
-            raise TypeError("Descriptors must be a list of strings")
-
-        # Check for duplicate
-        if len(descriptors) != len(set(descriptors)):
-            raise ValueError("Descriptors must not contain duplicates")
-
-        self._descriptors = descriptors
 
     @property
     def method(self) -> str:
@@ -83,17 +63,16 @@ class Builder:
     @method.setter
     def method(self, method: str):
         # Check method validity
-        if method.lower() not in self.valid_methods:
+        if method.lower() not in VALID_METHODS:
             raise ValueError(
-                f"Unsupported build method, support: {self.valid_methods}"
+                f"Unsupported build method, support: {VALID_METHODS}"
             )
 
         self._method = method.lower()
 
-    def build(self) -> Relation:
-        if self.method == "traditional":
-            pass
+    def build_traditional(self) -> Relation:
+        pass
 
-        # Hybrid method
-        else:
-            pass  # TODO Not implemented
+    def build_hybrid(self) -> Relation:
+        # Also need to return mixing ratio
+        pass
