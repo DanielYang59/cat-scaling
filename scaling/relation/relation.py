@@ -22,6 +22,9 @@ Coefficient matrix:
     Eads X  =  aX                 bX             .......    cX
 """
 
+# TODO: unit test needs update to test "metrics"
+
+
 from typing import Optional
 
 
@@ -49,10 +52,10 @@ class Relation:
         """
 
         # Set coefficients and dim
-        self._coefficients = coefficients
+        self.coefficients = coefficients
 
         # Set metrics
-        self._metrics = metrics
+        self.metrics = metrics
 
     @property
     def coefficients(self) -> dict[str, list[float]]:
@@ -83,13 +86,12 @@ class Relation:
             raise ValueError("All coefficients must have the same length")
 
         self._coefficients = coefficients
-        self._dim = lengths[0] - 1  # read-only
 
     @property
     def dim(self) -> int:
         """Dimensionality (as number of descriptors)(read-only)."""
 
-        return self._dim
+        return len(next(iter(self.coefficients.values()))) - 1
 
     @property
     def metrics(self) -> dict[str, float] | None:
@@ -106,12 +108,14 @@ class Relation:
                 "R2": 0.2,
             }
         """
+
         # Check data types
-        if not isinstance(metrics, dict):
-            raise TypeError("metric should be a dict.")
+        if metrics is not None:
+            if not isinstance(metrics, dict):
+                raise TypeError("metric should be a dict.")
 
-        for value in metrics.values():
-            if not isinstance(value, float):
-                raise TypeError("metric values should be float.")
+            for value in metrics.values():
+                if not isinstance(value, float):
+                    raise TypeError("metric values should be float.")
 
-        self._metrics = metrics
+            self._metrics = metrics
