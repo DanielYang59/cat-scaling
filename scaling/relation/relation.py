@@ -45,8 +45,10 @@ class Relation:
         Args:
             coefficients (dict[str, list[float]]): Dictionary mapping
                 species names to lists of coefficients.
-            TODO:
-
+            descriptors (Optional[list[str]]): List of descriptors used
+                for scaling relations. Defaults to None.
+            metrics (Optional[dict[str, float]]): Evaluation metrics
+                (MAE/R2 or such) of this Relation. Defaults to None.
         """
 
         # Set properties
