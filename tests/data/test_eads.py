@@ -71,7 +71,14 @@ class Test_eads:
         eads = Eads(test_df)
         eads.sort_data(targets=["column", "row"])
 
-        assert eads.adsorabtes == ["*CO", "*CO2", "*COOH", "*O", "*OCH3", "*OH"]
+        assert eads.adsorabtes == [
+            "*CO",
+            "*CO2",
+            "*COOH",
+            "*O",
+            "*OCH3",
+            "*OH",
+        ]
 
         assert eads.samples == [
             "Au@Al2O3",

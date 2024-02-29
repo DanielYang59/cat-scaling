@@ -58,4 +58,6 @@ class Test_relation:
         with pytest.raises(ValueError) as excinfo:
             Relation(invalid_coef)
 
-        assert str(excinfo.value) == "All coefficients must have the same length"
+        assert (
+            str(excinfo.value) == "All coefficients must have the same length"
+        )

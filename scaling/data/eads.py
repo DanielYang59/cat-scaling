@@ -115,7 +115,9 @@ class Eads:
     def groups(self, groups: dict[str, list[str]]):
         # Check groups members
         if groups is not None:
-            total = [element for elements in groups.values() for element in elements]
+            total = [
+                element for elements in groups.values() for element in elements
+            ]
             if self.adsorabtes.sort() != total.sort():
                 raise RuntimeError("Double check group members.")
 
@@ -136,7 +138,9 @@ class Eads:
 
         # Check new entry length
         if len(energies) != len(self.data):
-            raise ValueError("New adsorbate energies length doesn't match others.")
+            raise ValueError(
+                "New adsorbate energies length doesn't match others."
+            )
 
         if name in self.data.columns.values:
             raise ValueError(f"Adsorbate {name} already exists.")
@@ -158,7 +162,9 @@ class Eads:
         """
 
         if len(energies) != len(self.data.columns):
-            raise ValueError("New sample energies length doesn't match others.")
+            raise ValueError(
+                "New sample energies length doesn't match others."
+            )
 
         if name in self.data.index:
             raise ValueError(f"Sample {name} already exists.")
