@@ -1,3 +1,4 @@
+# TODO: unit test needs update to test "metrics" and "descriptors"
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -22,9 +23,8 @@ Coefficient matrix:
     Eads X  =  aX                 bX             .......    cX
 """
 
-# TODO: unit test needs update to test "metrics"
 
-
+import warnings
 from typing import Optional
 
 
@@ -37,6 +37,7 @@ class Relation:
     def __init__(
         self,
         coefficients: dict[str, list[float]],
+        descriptors: Optional[list[str]] = None,
         metrics: Optional[dict[str, float]] = None,
     ) -> None:
         """Initialize Relation with coefficients.
@@ -44,17 +45,13 @@ class Relation:
         Args:
             coefficients (dict[str, list[float]]): Dictionary mapping
                 species names to lists of coefficients.
+            TODO:
 
-        Raises:
-            TypeError: If coefficients is not a dictionary, species name
-                is not a string, or coefficients are not floats.
-            ValueError: If coefficients lists have different lengths.
         """
 
-        # Set coefficients and dim
+        # Set properties
         self.coefficients = coefficients
-
-        # Set metrics
+        self.descriptors = descriptors
         self.metrics = metrics
 
     @property
@@ -88,20 +85,43 @@ class Relation:
         self._coefficients = coefficients
 
     @property
+    def descriptors(self) -> Optional[list[str]]:
+        """Descriptors used for scaling relations."""
+
+        return self._descriptors
+
+    @descriptors.setter
+    def descriptors(self, descriptors: Optional[list[str]]):
+        if descriptors is not None:
+            if not isinstance(descriptors, list):
+                raise TypeError("Descriptors must be a list of strings.")
+
+            if not all(isinstance(desc, str) for desc in descriptors):
+                raise TypeError("Each descriptor must be a string.")
+
+            if len(descriptors) != len(set(descriptors)):
+                raise ValueError("Duplicate descriptors are not allowed.")
+
+            if len(descriptors) > 2:
+                warnings.warn(f"Got {len(descriptors)} descriptors.")
+
+        self._descriptors = descriptors
+
+    @property
     def dim(self) -> int:
         """Dimensionality (as number of descriptors)(read-only)."""
 
         return len(next(iter(self.coefficients.values()))) - 1
 
     @property
-    def metrics(self) -> dict[str, float] | None:
+    def metrics(self) -> Optional[dict[str, float]]:
         """Evaluation metrics (MAE/R2 or such) of this Relation."""
 
         return self._metrics
 
     @metrics.setter
-    def metrics(self, metrics: dict[str, float]):
-        """Set metrics, which is expect to be a 'name': 'error' dict,
+    def metrics(self, metrics: Optional[dict[str, float]]):
+        """Set metrics, which is expect to be a "name: error" dict,
         for example:
             metrics = {
                 "MAE": 0.1,
