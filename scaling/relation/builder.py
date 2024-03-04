@@ -30,7 +30,7 @@ The hybrid method:
 """
 
 # TODO: set "ratios" as property
-# TODO: use consistent "adsorbate" and "species"
+# TODO: use consistent "adsorbate" and "species" naming
 
 import warnings
 from math import isclose
@@ -132,12 +132,12 @@ class Builder:
             descriptors (each as a np.ndarray) and their mixing ratios
             (for example [0.2, 0.8]). Then the composite descriptor is
             constructed as:
-                comp_descriptor = 0.2 * descriptor_A + 0.8 * descriptor_B
+                comp_des = 0.2 * descriptor_A + 0.8 * descriptor_B
 
             2. Perform linear regression:
             The composite descriptor would be used to perform linear
-            regressions with each adsorbate. For each adsorbate, there
-            would be a coefficient, an intercept and a metrics score:
+            regressions with each adsorbate (target). For each adsorbate,
+            there would be a coefficient, an intercept and a metrics score:
                 coef, intercept, score = LinearRegression(*)
 
             3. Map scaling coefficients to original descriptors:
@@ -146,6 +146,16 @@ class Builder:
             the origin descriptors, which is straightforward:
                 Multiple the coefficients with corresponding ratios,
                 and leave the intercept unchanged.
+
+        In a more mathematical manner:
+        TODO: format this formula block
+            1. The composite descriptor:
+                comp_des = cof_A * A + ... + cof_N * N
+
+            2. After a linear regression:
+                target = slope * comp_des + intercept
+
+            (where comp_des, A, N and target are arrays)
         """
 
         # Check arg: ratios
@@ -174,13 +184,15 @@ class Builder:
             # Perform linear regression
             _comp_des = composite_descriptor
             _target = self.data.get_adsorbate(species)
+
             reg = LinearRegression().fit(_comp_des, _target)
 
             # Map scaling coefficients to original descriptors
             _coefs = [reg.coef_ * ratio for ratio in ratios]
-            _coefs.append(reg.intercept_)  # append intercept
 
             # Collect final results
+            _coefs.append(reg.intercept_)
+
             coefficients[species] = _coefs
             metrics[species] = reg.score(_comp_des, _target)
 
