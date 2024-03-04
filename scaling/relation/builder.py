@@ -126,16 +126,26 @@ class Builder:
 
     @property
     def groups(self) -> Optional[dict[str, list[str]]]:
-        """TODO:
+        """The groups of species, needed for traditional method.
 
+        This property returns a dictionary where the keys are descriptor names
+        and the values are lists of species belonging to each group.
+
+        Returns:
+            Optional[dict[str, list[str]]]: A dictionary where keys are
+            descriptor names and values are lists of species belonging to each
+            group. Returns None if groups are not defined.
         """
+
         return self._groups
 
     @groups.setter
     def groups(self, groups: Optional[dict[str, list[str]]]):
         if groups is not None:
-            # TODO:
-            pass
+            # Check for duplicates in each value list
+            for value_list in groups.values():
+                if len(set(value_list)) != len(value_list):
+                    raise ValueError("Duplicate species found in group.")
 
         self._groups = groups
 
@@ -283,11 +293,8 @@ class Builder:
 
     # def build_traditional(self, groups: dict[str, list[str]]) -> Relation:
     #     """Build scaling relations the traditional way.
-
     #     groups: key is adsorbate name, value is target descriptors
-
     #     """
-
     #     pass
 
     # def build_hybrid(self) -> Relation:
