@@ -29,7 +29,6 @@ The hybrid method:
         - The resulting Relation is compatible with the traditional method.
 """
 
-# TODO: set "ratios" as property
 # TODO: use consistent "adsorbate" and "species" naming
 
 import warnings
@@ -52,6 +51,7 @@ class Builder:
         self,
         data: Eads,
         descriptors: Optional[list[str]] = None,
+        groups: Optional[dict[str, list[str]]] = None,
         method: str = "traditional",
     ) -> None:
         # Check arg: data
@@ -60,6 +60,7 @@ class Builder:
 
         self.data = data
         self.descriptors = descriptors
+        self.groups = groups
         self.method = method
 
     @property
@@ -86,6 +87,59 @@ class Builder:
         self._descriptors = descriptors
 
     @property
+    def ratios(self) -> Optional[dict[str, list[float]]]:
+        """Mixing ratios of descriptors for each species.
+
+        This property returns a dictionary where the keys are species names
+        and the values are lists of mixing ratios corresponding to
+        each descriptor.
+
+        Returns:
+            Optional[dict[str, list[float]]]: A dictionary mapping species
+            names to lists of mixing ratios, None if ratios are not defined.
+        """
+
+        return self._ratios
+
+    @ratios.setter
+    def ratios(self, ratios: Optional[dict[str, list[float]]]):
+        if ratios is not None:
+            # Check if all values are lists of floats and have the same length
+            list_lengths = set()
+            for value in ratios.values():
+                # Check if the value is a list
+                if not isinstance(value, list):
+                    raise ValueError("Each value must be a list.")
+
+                # Check if all elements in the list are floats
+                if not all(isinstance(elem, float) for elem in value):
+                    raise ValueError("Each list must contain only floats.")
+
+                # Store the length of the list
+                list_lengths.add(len(value))
+
+            # Check if all ratios have the same length
+            if len(list_lengths) > 1:
+                raise ValueError("All lists must have the same length.")
+
+        self._ratios = ratios
+
+    @property
+    def groups(self) -> Optional[dict[str, list[str]]]:
+        """TODO:
+
+        """
+        return self._groups
+
+    @groups.setter
+    def groups(self, groups: Optional[dict[str, list[str]]]):
+        if groups is not None:
+            # TODO:
+            pass
+
+        self._groups = groups
+
+    @property
     def method(self) -> str:
         """Method used to build the Relation.
         Current supported methods:
@@ -97,6 +151,7 @@ class Builder:
 
     @method.setter
     def method(self, method: str):
+
         # Check method validity
         if method.lower() not in VALID_METHODS:
             raise ValueError(
@@ -104,6 +159,47 @@ class Builder:
             )
 
         self._method = method.lower()
+
+    def _make_composite_descriptor(
+        self,
+        names: list[str],
+        ratios: list[float],
+    ) -> np.ndarray:
+        """Create a composite descriptor from child descriptors.
+
+        This method constructs a composite descriptor from a list of child
+        descriptors and their corresponding mixing ratios.
+
+        Parameters:
+            names (list[str]): List of names of the child descriptors.
+            ratios (list[float]): List of mixing ratios corresponding to
+                child descriptors.
+
+        Returns:
+            np.ndarray: The composite descriptor as a numpy array.
+
+        Raises:
+            ValueError: If the ratios do not sum to 1.0 or
+                if the lengths of names and ratios do not match.
+        """
+
+        # Check arg: ratios
+        if not isclose(sum(ratios), 1.0, abs_tol=1e-04):
+            raise ValueError("Ratios should sum to 1.0.")
+
+        # Check descriptors and ratios length
+        if len(names) != len(ratios):
+            raise ValueError("Descriptors and ratios length mismatch.")
+
+        # Fetch child descriptors
+        child_descriptors = np.array(
+            [self.data.get_adsorbate(species) for species in names]
+        )
+
+        # Construct composite descriptor (from child descriptors)
+        return np.sum(
+            child_descriptors * np.array(ratios)[:, np.newaxis], axis=0
+        )
 
     def _builder(
         self,
@@ -147,8 +243,8 @@ class Builder:
                 Multiple the coefficients with corresponding ratios,
                 and leave the intercept unchanged.
 
-        In a more mathematical manner:
-        TODO: format this formula block
+        In a more "mathematical" manner:
+        TODO: format this formula block (latex?)
             1. The composite descriptor:
                 comp_des = cof_A * A + ... + cof_N * N
 
@@ -157,23 +253,9 @@ class Builder:
 
             (where comp_des, A, N and target are arrays)
         """
-
-        # Check arg: ratios
-        if not isclose(sum(ratios), 1.0, abs_tol=1e-04):
-            raise ValueError("Ratios should sum to 1.0.")
-
-        # Check descriptors and ratios length
-        if len(descriptors) != len(ratios):
-            raise ValueError("Descriptors and ratios length mismatch.")
-
-        # Fetch child descriptors
-        child_descriptors = np.array(
-            [self.data.get_adsorbate(species) for species in descriptors]
-        )
-
-        # Construct composite descriptor (from child descriptors)
-        composite_descriptor = np.sum(
-            child_descriptors * np.array(ratios)[:, np.newaxis], axis=0
+        # Construct composite descriptor
+        composite_descriptor = self._make_composite_descriptor(
+            descriptors, ratios
         )
 
         # Perform linear regressions for each species
@@ -199,10 +281,14 @@ class Builder:
         # Build Relation
         return Relation(coefficients, metrics)
 
-    # def build_traditional(self, groups: []) -> Relation:
+    # def build_traditional(self, groups: dict[str, list[str]]) -> Relation:
+    #     """Build scaling relations the traditional way.
+
+    #     groups: key is adsorbate name, value is target descriptors
+
+    #     """
 
     #     pass
 
     # def build_hybrid(self) -> Relation:
-    #     # NOTE: Also need to return (set) mixing ratio
     #     pass
