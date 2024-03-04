@@ -1,5 +1,8 @@
 """Pytest unit test for class Eads."""
 
+# TODO: use a single setup method
+
+import numpy as np
 import pandas as pd
 
 from scaling.data.eads import Eads
@@ -15,18 +18,17 @@ class Test_eads:
 
         assert isinstance(eads.data, pd.DataFrame)
 
-    def test_get_adsorbates(self):
+    def test_property_adsorbates_samples(self):
+        # Setup
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         eads = Eads(test_df)
 
+        # Test property: adsorbates
         adsorbates = eads.adsorabtes
 
         assert adsorbates == ["*CO2", "*COOH", "*CO", "*OCH3", "*O", "*OH"]
 
-    def test_get_samples(self):
-        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
-        eads = Eads(test_df)
-
+        # Test property: samples
         samples = eads.samples
 
         assert samples == [
@@ -37,6 +39,25 @@ class Test_eads:
             "Pt@SiO2",
             "Au@Al2O3",
         ]
+
+    def test_get_adsorbate_sample(self):
+        # Setup
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        # Test method: get_adsorbate
+        col = eads.get_adsorbate("*CO")
+
+        assert np.array_equal(
+            col, np.array([3.64, -1.45, 1.51, 0.52, 1.74, -3.97])
+        )
+
+        # Test method: get_sample
+        row = eads.get_sample("Cu@g-C3N4")
+
+        assert np.array_equal(
+            row, np.array([0.89, 4.37, 3.64, 3.98, -1.73, 0.17])
+        )
 
     def test_add_adsorbate(self):
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])

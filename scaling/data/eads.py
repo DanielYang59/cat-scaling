@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+import numpy as np
 import pandas as pd
 
 
@@ -89,6 +90,36 @@ class Eads:
 
         return self.data.index.tolist()
 
+    def get_adsorbate(self, name: str) -> np.ndarray:
+        """
+        Get the column for a given adsorbate name.
+
+        Parameters:
+            name (str): The name of the adsorbate.
+
+        Returns:
+            np.ndarray: An array containing the adsorbate data as floats.
+        """
+
+        # Get the column index
+        col_index = self.data.columns.get_loc(name)
+
+        # Extract the column data as a numpy array of floats
+        return self.data.iloc[:, col_index].values
+
+    def get_sample(self, name: str) -> np.ndarray:
+        """
+        Get the row for a given sample name.
+
+        Parameters:
+            name (str): The name of the sample.
+
+        Returns:
+            np.ndarray: An array containing the sample data as floats.
+        """
+
+        return self.data.loc[name].values
+
     def add_adsorbate(self, name: str, energies: list[float]) -> None:
         """Append a new adsorbate column.
 
@@ -156,7 +187,7 @@ class Eads:
 
         self.data.drop(index=name, inplace=True)
 
-    def sort_data(self, targets: list[str] = ["column", "row"]) -> None:
+    def sort_data(self, targets: list[str] = ("column", "row")) -> None:
         """Sort columns/rows of data."""
 
         if not set(targets) <= {"column", "row"}:
