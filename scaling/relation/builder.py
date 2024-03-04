@@ -29,9 +29,15 @@ The hybrid method:
         - The resulting Relation is compatible with the traditional method.
 """
 
+# TODO: set "ratios" as property
+# TODO: use consistent "adsorbate" and "species"
+
 import warnings
 from math import isclose
 from typing import Optional
+
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 from scaling.data import Eads
 from scaling.relation import Relation
@@ -85,8 +91,6 @@ class Builder:
         Current supported methods:
             traditional: Use a fix descriptor ratio
             hybrid: Dynamically determine optimal mixing ratio
-
-        TODO: this docstring could be made more detailed
         """
 
         return self._method
@@ -106,10 +110,23 @@ class Builder:
         descriptors: list[str],
         ratios: list[float],
     ) -> Relation:
-        """Unit worker for building scaling relations.
+        """Core worker for building scaling relations.
+
+        Parameters:
+        descriptors (list[str]): Descriptor names.
+        ratios (list[float]): Mixing ratios corresponding
+            to descriptors.
+
+        Returns:
+            Relation: An instance of Relation containing scaling coefficients
+                and metrics.
+
+        Raises:
+            ValueError: If the ratios do not sum to 1.0 or if the lengths of
+                descriptors and ratios do not match.
 
         How this builder works:
-            1. Composite descriptor construction:
+            1. Construct composite descriptor:
             First a composite descriptor is constructed for actual linear
             regression process. For example there may be two nominated
             descriptors (each as a np.ndarray) and their mixing ratios
@@ -117,7 +134,7 @@ class Builder:
             constructed as:
                 comp_descriptor = 0.2 * descriptor_A + 0.8 * descriptor_B
 
-            2. Linear regressions:
+            2. Perform linear regression:
             The composite descriptor would be used to perform linear
             regressions with each adsorbate. For each adsorbate, there
             would be a coefficient, an intercept and a metrics score:
@@ -130,30 +147,50 @@ class Builder:
                 Multiple the coefficients with corresponding ratios,
                 and leave the intercept unchanged.
         """
-        # Check arg: descriptors
-        if len(descriptors) != len(set(descriptors)):
-            raise ValueError("Duplicate found in descriptors.")
 
         # Check arg: ratios
         if not isclose(sum(ratios), 1.0, abs_tol=1e-04):
             raise ValueError("Ratios should sum to 1.0.")
 
+        # Check descriptors and ratios length
         if len(descriptors) != len(ratios):
             raise ValueError("Descriptors and ratios length mismatch.")
 
-        # Fetch child descriptors and compile a composite descriptor
-        # NOTE:
+        # Fetch child descriptors
+        child_descriptors = np.array(
+            [self.data.get_adsorbate(species) for species in descriptors]
+        )
 
-        # Perform linear regression
+        # Construct composite descriptor (from child descriptors)
+        composite_descriptor = np.sum(
+            child_descriptors * np.array(ratios)[:, np.newaxis], axis=0
+        )
 
-        # Compile and return parameters
+        # Perform linear regressions for each species
+        coefficients = {}
+        metrics = {}
 
-    def build_traditional(self, groups: []) -> Relation:
-        # NOTE: ?maybe? Don't group at runtime (instead at final return time)
-        # NOTE: Skip descriptor itself
+        for species in self.data.adsorbates:
+            # Perform linear regression
+            _comp_des = composite_descriptor
+            _target = self.data.get_adsorbate(species)
+            reg = LinearRegression().fit(_comp_des, _target)
 
-        pass
+            # Map scaling coefficients to original descriptors
+            _coefs = [reg.coef_ * ratio for ratio in ratios]
+            _coefs.append(reg.intercept_)  # append intercept
+
+            # Collect final results
+            coefficients[species] = _coefs
+            metrics[species] = reg.score(_comp_des, _target)
+
+        # Build Relation
+        return Relation(coefficients, metrics)
+
+    # def build_traditional(self, groups: []) -> Relation:
+
+    #     pass
 
     # def build_hybrid(self) -> Relation:
-    #     # NOTE: Also need to return mixing ratio
+    #     # NOTE: Also need to return (set) mixing ratio
     #     pass
