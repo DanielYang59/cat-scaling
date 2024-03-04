@@ -1,3 +1,5 @@
+from math import isclose
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -79,11 +81,28 @@ class Test_builder:
 
         assert np.allclose(comp_des_2, np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5]))
 
-    # def test_builder(self):
-    #     # Prepare descriptors
-    #     descriptors = ["*A", "*D"]
+    def test_builder(self):
+        # Prepare descriptors
+        descriptors = [
+            "*A",
+        ]
+        groups = {
+            "*A": [
+                "*B",
+            ],
+        }
 
-    #     builder = Builder(
-    #         self.eads,
-    #         descriptors,
-    #     )
+        builder = Builder(self.eads, groups=groups)
+
+        # Test fit *B with *A
+        relation = builder._builder(
+            descriptors,
+            ratios=[
+                1.0,
+            ],
+        )
+
+        # Check regression results
+        assert relation.dim == 1
+        assert isclose(relation.metrics["*B"], 1, abs_tol=0.01)
+        assert np.allclose(relation.coefficients["*B"], [10, 0])

@@ -275,18 +275,20 @@ class Builder:
 
         for species in self.data.adsorbates:
             # Perform linear regression
-            _comp_des = composite_descriptor
-            _target = self.data.get_adsorbate(species)
+            _comp_des = composite_descriptor.reshape(-1, 1)
+            _target = self.data.get_adsorbate(species).reshape(-1, 1)
 
             reg = LinearRegression().fit(_comp_des, _target)
 
-            # Map scaling coefficients to original descriptors
-            _coefs = [reg.coef_ * ratio for ratio in ratios]
+            # Map scaling coefficients to original descriptors,
+            # and there should be only one coefficient (the
+            # composite descriptor)
+            _coefs = [reg.coef_[0] * ratio for ratio in ratios]
 
-            # Collect final results
-            _coefs.append(reg.intercept_)
+            # Collect results (cast to floats)
+            _coefs.append(reg.intercept_[0])
 
-            coefficients[species] = _coefs
+            coefficients[species] = [float(i) for i in _coefs]
             metrics[species] = reg.score(_comp_des, _target)
 
         # Build Relation
