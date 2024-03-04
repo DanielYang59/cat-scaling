@@ -26,8 +26,6 @@ Coefficient matrix:
 
 from typing import Optional
 
-from scaling.relation.descriptors import DescriptorManager
-
 
 class Relation:
     """Describe linear scaling relations with a coefficient matrix,
@@ -38,7 +36,6 @@ class Relation:
     def __init__(
         self,
         coefficients: dict[str, list[float]],
-        descriptor_manager: DescriptorManager,
         metrics: Optional[dict[str, float]] = None,
     ) -> None:
         """Initialize Relation with coefficients.
@@ -54,7 +51,6 @@ class Relation:
 
         # Set properties
         self.coefficients = coefficients
-        self.descriptor_manager = descriptor_manager
         self.metrics = metrics
 
     @property
