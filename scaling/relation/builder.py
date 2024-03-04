@@ -39,7 +39,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 from scaling.data import Eads
-from scaling.relation import Relation
+from scaling.relation.relation import Relation
 
 VALID_METHODS = {"traditional", "hybrid"}
 
