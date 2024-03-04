@@ -187,7 +187,7 @@ class Eads:
 
         self.data.drop(index=name, inplace=True)
 
-    def sort_data(self, targets: list[str] = ("column", "row")) -> None:
+    def sort_data(self, targets: list[str] = ["column", "row"]) -> None:
         """Sort columns/rows of data."""
 
         if not set(targets) <= {"column", "row"}:

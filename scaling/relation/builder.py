@@ -51,6 +51,7 @@ class Builder:
         self,
         data: Eads,
         descriptors: Optional[list[str]] = None,
+        ratios: Optional[dict[str, list[float]]] = None,
         groups: Optional[dict[str, list[str]]] = None,
         method: str = "traditional",
     ) -> None:
@@ -60,6 +61,7 @@ class Builder:
 
         self.data = data
         self.descriptors = descriptors
+        self.ratios = ratios
         self.groups = groups
         self.method = method
 
@@ -161,7 +163,6 @@ class Builder:
 
     @method.setter
     def method(self, method: str):
-
         # Check method validity
         if method.lower() not in VALID_METHODS:
             raise ValueError(
@@ -170,14 +171,14 @@ class Builder:
 
         self._method = method.lower()
 
-    def _make_composite_descriptor(
+    def _build_composite_descriptor(
         self,
         names: list[str],
         ratios: list[float],
     ) -> np.ndarray:
-        """Create a composite descriptor from child descriptors.
+        """Build a composite descriptor from child descriptors.
 
-        This method constructs a composite descriptor from a list of child
+        This method build a composite descriptor from a list of child
         descriptors and their corresponding mixing ratios.
 
         Parameters:
@@ -232,12 +233,12 @@ class Builder:
                 descriptors and ratios do not match.
 
         How this builder works:
-            1. Construct composite descriptor:
-            First a composite descriptor is constructed for actual linear
+            1. Build composite descriptor:
+            First a composite descriptor is built for actual linear
             regression process. For example there may be two nominated
             descriptors (each as a np.ndarray) and their mixing ratios
             (for example [0.2, 0.8]). Then the composite descriptor is
-            constructed as:
+            built as:
                 comp_des = 0.2 * descriptor_A + 0.8 * descriptor_B
 
             2. Perform linear regression:
@@ -263,8 +264,8 @@ class Builder:
 
             (where comp_des, A, N and target are arrays)
         """
-        # Construct composite descriptor
-        composite_descriptor = self._make_composite_descriptor(
+        # Build composite descriptor
+        composite_descriptor = self._build_composite_descriptor(
             descriptors, ratios
         )
 
