@@ -1,4 +1,4 @@
-# TODO: unit test needs update to test "metrics" and "descriptors"
+# TODO: unit test needs update to test "metrics"
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -97,11 +97,11 @@ class Relation:
 
     @metrics.setter
     def metrics(self, metrics: Optional[dict[str, float]]):
-        """Set metrics, which is expect to be a "name: error" dict,
+        """Set metrics, which is expect to be a "species: error" dict,
         for example:
             metrics = {
-                "MAE": 0.1,
-                "R2": 0.2,
+                "*CO": 0.8,
+                "*OH": 0.9,
             }
         """
 
