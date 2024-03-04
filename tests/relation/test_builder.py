@@ -8,7 +8,7 @@ from scaling.utils import PROJECT_ROOT
 
 
 class Test_builder:
-    test_data_csv = PROJECT_ROOT / "tests" / "data" / "relation_data.csv"
+    test_data_csv = PROJECT_ROOT / "tests" / "relation" / "relation_data.csv"
 
     @pytest.fixture(autouse=True)
     def setup_data_load(self):
@@ -43,6 +43,10 @@ class Test_builder:
             method,
         )
 
+    def test_invalid_properties(self):
+        # TODO
+        pass
+
     def test_build_composite_descriptor(self):
         # Prepare descriptors
         descriptors = ["*A", "*D"]
@@ -52,12 +56,14 @@ class Test_builder:
             descriptors,
         )
 
+        # Sum of *A and *D should be zeros
         comp_des_0 = builder._build_composite_descriptor(
             names=["*A", "*D"], ratios=[0.5, 0.5]
         )
 
         assert np.allclose(comp_des_0, np.zeros(6))
 
+        # Should be just *D
         comp_des_1 = builder._build_composite_descriptor(
             names=["*A", "*D"], ratios=[0, 1]
         )
@@ -66,11 +72,18 @@ class Test_builder:
             comp_des_1, np.array([0, -0.1, -0.2, -0.3, -0.4, -0.5])
         )
 
+        # Should be just *A
         comp_des_2 = builder._build_composite_descriptor(
             names=["*A", "*D"], ratios=[1, 0]
         )
 
         assert np.allclose(comp_des_2, np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5]))
 
-    def test_builder(self):
-        pass
+    # def test_builder(self):
+    #     # Prepare descriptors
+    #     descriptors = ["*A", "*D"]
+
+    #     builder = Builder(
+    #         self.eads,
+    #         descriptors,
+    #     )

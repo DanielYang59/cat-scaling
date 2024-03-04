@@ -294,9 +294,9 @@ class Builder:
 
     # def build_traditional(self, groups: dict[str, list[str]]) -> Relation:
     #     """Build scaling relations the traditional way.
-    #     groups: key is adsorbate name, value is target descriptors
     #     """
-    #     pass
+    #     # Check descriptors and ratios
+    #     assert self.descriptors and self.ratios
 
     # def build_hybrid(self) -> Relation:
     #     pass
