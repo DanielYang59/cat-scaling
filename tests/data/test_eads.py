@@ -20,7 +20,7 @@ class Test_eads:
 
     def test_property_adsorbates_samples(self, setup_class):
         # Test property: adsorbates
-        adsorbates = self.eads.adsorabtes
+        adsorbates = self.eads.adsorbates
 
         assert adsorbates == ["*CO2", "*COOH", "*CO", "*OCH3", "*O", "*OH"]
 
@@ -53,7 +53,7 @@ class Test_eads:
 
     def test_add_adsorbate(self, setup_class):
         self.eads.add_adsorbate("new_adsorbate", list(range(6)))
-        assert "new_adsorbate" in self.eads.adsorabtes
+        assert "new_adsorbate" in self.eads.adsorbates
 
     def test_add_sample(self, setup_class):
         self.eads.add_sample("new_sample", list(range(6)))
@@ -61,7 +61,7 @@ class Test_eads:
 
     def test_remove_adsorbate(self, setup_class):
         self.eads.remove_adsorbate("*CO2")
-        assert "*CO2" not in self.eads.adsorabtes
+        assert "*CO2" not in self.eads.adsorbates
 
     def test_remove_sample(self, setup_class):
         self.eads.remove_sample("Cu@g-C3N4")
@@ -70,7 +70,7 @@ class Test_eads:
     def test_sort_df(self, setup_class):
         self.eads.sort_data(targets=["column", "row"])
 
-        assert self.eads.adsorabtes == [
+        assert self.eads.adsorbates == [
             "*CO",
             "*CO2",
             "*COOH",

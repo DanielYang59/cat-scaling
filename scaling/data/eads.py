@@ -79,7 +79,7 @@ class Eads:
         self._data = data
 
     @property
-    def adsorabtes(self) -> list[str]:
+    def adsorbates(self) -> list[str]:
         """Adsorbate names (from column headers)."""
 
         return self.data.columns.values.tolist()
