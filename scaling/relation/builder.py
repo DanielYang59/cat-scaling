@@ -281,7 +281,6 @@ class Builder:
                 scores[ratio] = metrics
 
             # Rerun regression with the optimal ratio
-            # pylint: disable=W0640
             opt_ratio = max(scores, key=lambda k: scores[k])
 
             opt_ratios = {
@@ -298,7 +297,7 @@ class Builder:
             coefficients_dict[ads] = coefs
             intercepts_dict[ads] = intercept
             metrics_dict[ads] = metrics
-            ratios_dict = opt_ratios
+            ratios_dict[ads] = opt_ratios
 
         return Relation(
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
