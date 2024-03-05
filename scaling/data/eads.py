@@ -28,12 +28,7 @@ class Eads:
     def __init__(
         self,
         data: pd.DataFrame,
-        groups: Optional[
-            dict[
-                str,
-                list[str],
-            ]
-        ] = None,
+        groups: Optional[dict[str, list[str]]] = None,
     ) -> None:
         """Initialize the Eads class with a DataFrame."""
 
@@ -125,10 +120,7 @@ class Eads:
         col_index = self.data.columns.get_loc(name)
 
         # Extract the column data as a numpy array of floats
-        return self.data.iloc[
-            :,
-            col_index,
-        ].values
+        return self.data.iloc[:, col_index,].values
 
     def get_sample(
         self,
@@ -213,10 +205,7 @@ class Eads:
             name (str): The name of the adsorbate column to be removed.
         """
 
-        self.data.drop(
-            columns=name,
-            inplace=True,
-        )
+        self.data.drop(columns=name, inplace=True)
 
     def remove_sample(
         self,
@@ -235,10 +224,7 @@ class Eads:
 
     def sort_data(
         self,
-        targets: list[str] = [
-            "column",
-            "row",
-        ],
+        targets: list[str] = ["column", "row"],
     ) -> None:
         """Sort columns/rows of data."""
 
