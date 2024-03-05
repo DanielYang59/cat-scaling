@@ -35,8 +35,16 @@ class Relation:
 
     def __init__(
         self,
-        coefficients: dict[str, list[float]],
-        metrics: Optional[dict[str, float]] = None,
+        coefficients: dict[
+            str,
+            list[float],
+        ],
+        metrics: Optional[
+            dict[
+                str,
+                float,
+            ]
+        ] = None,
     ) -> None:
         """Initialize Relation with coefficients.
 
@@ -54,26 +62,52 @@ class Relation:
         self.metrics = metrics
 
     @property
-    def coefficients(self) -> dict[str, list[float]]:
+    def coefficients(
+        self,
+    ) -> dict[
+        str,
+        list[float],
+    ]:
         """Coefficient matrix."""
 
         return self._coefficients
 
     @coefficients.setter
-    def coefficients(self, coefficients: dict[str, list[float]]):
+    def coefficients(
+        self,
+        coefficients: dict[
+            str,
+            list[float],
+        ],
+    ):
         """Set coefficients and calculate dim."""
 
         # Check data types
-        if not isinstance(coefficients, dict):
+        if not isinstance(
+            coefficients,
+            dict,
+        ):
             raise TypeError("Coefficients must be a dictionary")
 
-        for key, value in coefficients.items():
-            if not isinstance(key, str):
+        for (
+            key,
+            value,
+        ) in coefficients.items():
+            if not isinstance(
+                key,
+                str,
+            ):
                 raise TypeError("Species name must be strings")
-            if not isinstance(value, list):
+            if not isinstance(
+                value,
+                list,
+            ):
                 raise TypeError("Input coefficients must be lists")
             for item in value:
-                if not isinstance(item, float):
+                if not isinstance(
+                    item,
+                    float,
+                ):
                     raise TypeError("Coefficients must be floats")
 
         # Check coefficient length consistency
@@ -84,19 +118,36 @@ class Relation:
         self._coefficients = coefficients
 
     @property
-    def dim(self) -> int:
+    def dim(
+        self,
+    ) -> int:
         """Dimensionality (as number of descriptors)(read-only)."""
 
         return len(next(iter(self.coefficients.values()))) - 1
 
     @property
-    def metrics(self) -> Optional[dict[str, float]]:
+    def metrics(
+        self,
+    ) -> Optional[
+        dict[
+            str,
+            float,
+        ]
+    ]:
         """Evaluation metrics (MAE/R2 or such) of this Relation."""
 
         return self._metrics
 
     @metrics.setter
-    def metrics(self, metrics: Optional[dict[str, float]]):
+    def metrics(
+        self,
+        metrics: Optional[
+            dict[
+                str,
+                float,
+            ]
+        ],
+    ):
         """Set metrics, which is expect to be a "species: error" dict,
         for example:
             metrics = {
@@ -107,11 +158,17 @@ class Relation:
 
         # Check data types
         if metrics is not None:
-            if not isinstance(metrics, dict):
+            if not isinstance(
+                metrics,
+                dict,
+            ):
                 raise TypeError("metric should be a dict.")
 
             for value in metrics.values():
-                if not isinstance(value, float):
+                if not isinstance(
+                    value,
+                    float,
+                ):
                     raise TypeError("metric values should be float.")
 
             self._metrics = metrics

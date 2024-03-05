@@ -28,7 +28,12 @@ class Eads:
     def __init__(
         self,
         data: pd.DataFrame,
-        groups: Optional[dict[str, list[str]]] = None,
+        groups: Optional[
+            dict[
+                str,
+                list[str],
+            ]
+        ] = None,
     ) -> None:
         """Initialize the Eads class with a DataFrame."""
 
@@ -37,7 +42,9 @@ class Eads:
         self.groups = groups
 
     @property
-    def data(self) -> pd.DataFrame:
+    def data(
+        self,
+    ) -> pd.DataFrame:
         """Eads data as a pd.DataFrame.
 
         Expect data in the following format (as a pd.DataFrame):
@@ -56,7 +63,10 @@ class Eads:
         return self._data
 
     @data.setter
-    def data(self, data: pd.DataFrame):
+    def data(
+        self,
+        data: pd.DataFrame,
+    ):
         """Check and set self.data.
 
         Ensures that the DataFrame is of type pd.DataFrame and attempts to
@@ -67,7 +77,10 @@ class Eads:
             ValueError: If conversion of DataFrame elements to float fails.
         """
 
-        if isinstance(data, pd.DataFrame):
+        if isinstance(
+            data,
+            pd.DataFrame,
+        ):
             try:
                 data = data.astype(float)
             except ValueError as e:
@@ -79,18 +92,25 @@ class Eads:
         self._data = data
 
     @property
-    def adsorbates(self) -> list[str]:
+    def adsorbates(
+        self,
+    ) -> list[str]:
         """Adsorbate names (from column headers)."""
 
         return self.data.columns.values.tolist()
 
     @property
-    def samples(self) -> list[str]:
+    def samples(
+        self,
+    ) -> list[str]:
         """Sample names (from row headers)."""
 
         return self.data.index.tolist()
 
-    def get_adsorbate(self, name: str) -> np.ndarray:
+    def get_adsorbate(
+        self,
+        name: str,
+    ) -> np.ndarray:
         """
         Get the column for a given adsorbate name.
 
@@ -105,9 +125,15 @@ class Eads:
         col_index = self.data.columns.get_loc(name)
 
         # Extract the column data as a numpy array of floats
-        return self.data.iloc[:, col_index].values
+        return self.data.iloc[
+            :,
+            col_index,
+        ].values
 
-    def get_sample(self, name: str) -> np.ndarray:
+    def get_sample(
+        self,
+        name: str,
+    ) -> np.ndarray:
         """
         Get the row for a given sample name.
 
@@ -120,7 +146,11 @@ class Eads:
 
         return self.data.loc[name].values
 
-    def add_adsorbate(self, name: str, energies: list[float]) -> None:
+    def add_adsorbate(
+        self,
+        name: str,
+        energies: list[float],
+    ) -> None:
         """Append a new adsorbate column.
 
         Args:
@@ -145,7 +175,11 @@ class Eads:
         else:
             self.data[name] = energies
 
-    def add_sample(self, name: str, energies: list[float]) -> None:
+    def add_sample(
+        self,
+        name: str,
+        energies: list[float],
+    ) -> None:
         """Append a new sample row.
 
         Args:
@@ -169,28 +203,49 @@ class Eads:
         else:
             self.data.loc[name] = energies
 
-    def remove_adsorbate(self, name: str) -> None:
+    def remove_adsorbate(
+        self,
+        name: str,
+    ) -> None:
         """Remove an adsorbate (column).
 
         Args:
             name (str): The name of the adsorbate column to be removed.
         """
 
-        self.data.drop(columns=name, inplace=True)
+        self.data.drop(
+            columns=name,
+            inplace=True,
+        )
 
-    def remove_sample(self, name: str) -> None:
+    def remove_sample(
+        self,
+        name: str,
+    ) -> None:
         """Remove a sample (row).
 
         Args:
             name (str): The name of the sample row to be removed.
         """
 
-        self.data.drop(index=name, inplace=True)
+        self.data.drop(
+            index=name,
+            inplace=True,
+        )
 
-    def sort_data(self, targets: list[str] = ["column", "row"]) -> None:
+    def sort_data(
+        self,
+        targets: list[str] = [
+            "column",
+            "row",
+        ],
+    ) -> None:
         """Sort columns/rows of data."""
 
-        if not set(targets) <= {"column", "row"}:
+        if not set(targets) <= {
+            "column",
+            "row",
+        }:
             raise ValueError(
                 "Invalid target values. Should be 'column', 'row', or both."
             )
