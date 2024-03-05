@@ -32,6 +32,7 @@ class Relation:
     """Describe linear scaling relations with a coefficient matrix,
     the dimensionality would be calculated on the fly. A metrics
     dict is optional but suggested.
+    # TODO: docstring needs update (added multiple properties)
     """
 
     def __init__(

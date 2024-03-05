@@ -39,8 +39,6 @@ from sklearn.linear_model import LinearRegression
 from scaling.data import Eads
 from scaling.relation.relation import Relation
 
-VALID_METHODS = {"traditional", "hybrid"}
-
 
 class Builder:
     """Build scaling relation."""
@@ -48,34 +46,12 @@ class Builder:
     def __init__(
         self,
         data: Eads,
-        method: str = "traditional",
     ) -> None:
         # Check arg: data
         if not isinstance(data, Eads):
             raise TypeError("Expect data as 'Eads' type")
 
         self.data = data
-        self.method = method
-
-    @property
-    def method(self) -> str:
-        """Method used to build the Relation.
-        Current supported methods:
-            traditional: Use a fix descriptor ratio
-            hybrid: Dynamically determine optimal mixing ratio
-        """
-
-        return self._method
-
-    @method.setter
-    def method(self, method: str):
-        # Check method validity
-        if method.lower() not in VALID_METHODS:
-            raise ValueError(
-                f"Unsupported build method, support: {VALID_METHODS}"
-            )
-
-        self._method = method.lower()
 
     def _build_composite_descriptor(
         self, spec_ratios: dict[str, float]

@@ -19,10 +19,8 @@ class Test_builder:
         self.eads = Eads(test_df)
 
     def test_properties(self):
-        # Property: method
-        method = "traditional"
-
-        Builder(self.eads, method)
+        # TODO: need update
+        pass
 
     def test_invalid_properties(self):
         # TODO
