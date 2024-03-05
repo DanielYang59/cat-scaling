@@ -29,8 +29,9 @@ The hybrid method:
         - The resulting Relation is compatible with the traditional method.
 """
 
-# TODO: the handling (which method take it) of properties like "descriptors"
-# or "groups" or "ratio" is still quite weird, need to think about this.
+# TODO: move "ratios" from Builder to Relation
+
+# TODO: update positioning of properties "groups", "descriptors"
 
 # TODO: use consistent "adsorbate" and "species" naming
 
@@ -283,19 +284,44 @@ class Builder:
         assert len(coefs) == len(ratios)
         return coefs, intercept, metrics
 
-    # def build_traditional(
-    #     self,
-    #     groups: dict[str, list[str]],
-    # ) -> Relation:
-    #     """Build scaling relations the traditional way."""
-    #     # Check descriptors and ratios
-    #     if not self.descriptors and self.ratios:
-    #         raise ValueError(
-    #             "Cannot build traditionally without descriptors and ratios."
-    #         )
-        # TODO: maybe _build don't need to compile results into Relation
+    def build_traditional(
+        self,
+        groups: dict[str, list[str]],
+    ) -> Relation:
+        """Build scaling relations the traditional way.
 
-        #
+        Builds scaling relations using the traditional approach, where
+        each species is scaled by a single descriptor.
+
+        Parameters:
+            groups (dict[str, list[str]]): A dictionary where keys represent
+                descriptor names and values represent lists of species
+                associated with that descriptor.
+
+        Returns:
+            Relation: A Relation object containing coefficients and metrics
+                of the scaling relations.
+        """
+
+        # Build for each species
+        coefficients = {}
+        metrics = {}
+
+        for descriptor, species in enumerate(groups):
+            for single_spec in species:
+                coefs, intercept, metrics = self._builder(
+                    spec_name=single_spec,
+                    ratios={descriptor: 1.0},
+                )
+
+                # Collect intercept into coefficients
+                coefs.append(intercept)
+
+                # Collect results
+                coefficients[single_spec] = coefs
+                metrics[single_spec] = metrics
+
+        return Relation(coefficients, metrics)
 
     # def build_hybrid(self) -> Relation:
     #     pass
