@@ -78,7 +78,7 @@ class Test_builder:
         # Test build *B with descriptor *A
         relation = builder.build_traditional(groups={"*A": ["*B"]})
 
-        # Check regression results
+        # Check scaling results
         assert relation.dim == 1  # only one descriptor *B
         assert np.allclose(relation.coefficients["*B"], [10], atol=0.01)
         assert isclose(relation.intercepts["*B"], 0, abs_tol=0.01)
@@ -88,4 +88,28 @@ class Test_builder:
         assert isclose(relation.ratios["*B"]["*A"], 1.0, abs_tol=0.01)
 
     def test_build_adaptive(self):
-        pass
+        """Test build with adaptive descriptor method.
+
+        Descriptor A: [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+        Descriptor D: [0, -0.1, -0.2, -0.3, -0.4, -0.5]
+
+        As such *A and *D are strongly correlated, it's thus
+        expected a composite descriptor with (*A * 1 + *D * 0)
+        to be the most suitable descriptor.
+        """
+        # Prepare Builder
+        builder = Builder(self.eads)
+
+        # Test with adaptive descriptors *A and *B
+        relation = builder.build_adaptive(
+            descriptors=["*A", "*D"], step_length=1
+        )
+
+        # Check scaling results
+        assert relation.dim == 2
+
+        assert np.allclose(relation.coefficients["*A"], [0, -1], atol=0.01)
+        assert isclose(relation.intercepts["*A"], 0, abs_tol=0.01)
+        assert isclose(relation.metrics["*A"], 1.0, abs_tol=0.01)
+
+        assert isclose(relation.ratios["*B"]["*D"], 1, abs_tol=0.01)
