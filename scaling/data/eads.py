@@ -120,7 +120,7 @@ class Eads:
         col_index = self.data.columns.get_loc(name)
 
         # Extract the column data as a numpy array of floats
-        return self.data.iloc[:, col_index,].values
+        return self.data.iloc[:, col_index].values
 
     def get_sample(
         self,

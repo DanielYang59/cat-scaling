@@ -44,10 +44,7 @@ from sklearn.linear_model import LinearRegression
 from scaling.data import Eads
 from scaling.relation.relation import Relation
 
-VALID_METHODS = {
-    "traditional",
-    "hybrid",
-}
+VALID_METHODS = {"traditional", "hybrid"}
 
 
 class Builder:
@@ -57,25 +54,12 @@ class Builder:
         self,
         data: Eads,
         descriptors: Optional[list[str]] = None,
-        ratios: Optional[
-            dict[
-                str,
-                list[float],
-            ]
-        ] = None,
-        groups: Optional[
-            dict[
-                str,
-                list[str],
-            ]
-        ] = None,
+        ratios: Optional[dict[str, list[float]]] = None,
+        groups: Optional[dict[str, list[str]]] = None,
         method: str = "traditional",
     ) -> None:
         # Check arg: data
-        if not isinstance(
-            data,
-            Eads,
-        ):
+        if not isinstance(data, Eads):
             raise TypeError("Expect data as 'Eads' type")
 
         self.data = data
@@ -85,32 +69,18 @@ class Builder:
         self.method = method
 
     @property
-    def descriptors(
-        self,
-    ) -> Optional[list[str]]:
+    def descriptors(self) -> Optional[list[str]]:
         """Descriptors used for scaling relations."""
 
         return self._descriptors
 
     @descriptors.setter
-    def descriptors(
-        self,
-        descriptors: Optional[list[str]],
-    ):
+    def descriptors(self, descriptors: Optional[list[str]]):
         if descriptors is not None:
-            if not isinstance(
-                descriptors,
-                list,
-            ):
+            if not isinstance(descriptors, list):
                 raise TypeError("Descriptors must be a list of strings.")
 
-            if not all(
-                isinstance(
-                    desc,
-                    str,
-                )
-                for desc in descriptors
-            ):
+            if not all(isinstance(desc, str) for desc in descriptors):
                 raise TypeError("Each descriptor must be a string.")
 
             if len(descriptors) != len(set(descriptors)):
@@ -122,14 +92,7 @@ class Builder:
         self._descriptors = descriptors
 
     @property
-    def ratios(
-        self,
-    ) -> Optional[
-        dict[
-            str,
-            list[float],
-        ]
-    ]:
+    def ratios(self) -> Optional[dict[str, list[float]]]:
         """Mixing ratios of descriptors for each species.
 
         This property returns a dictionary where the keys are species names
@@ -144,34 +107,17 @@ class Builder:
         return self._ratios
 
     @ratios.setter
-    def ratios(
-        self,
-        ratios: Optional[
-            dict[
-                str,
-                list[float],
-            ]
-        ],
-    ):
+    def ratios(self, ratios: Optional[dict[str, list[float]]]):
         if ratios is not None:
             # Check if all values are lists of floats and have the same length
             list_lengths = set()
             for value in ratios.values():
                 # Check if the value is a list
-                if not isinstance(
-                    value,
-                    list,
-                ):
+                if not isinstance(value, list):
                     raise ValueError("Each value must be a list.")
 
                 # Check if all elements in the list are floats
-                if not all(
-                    isinstance(
-                        elem,
-                        float,
-                    )
-                    for elem in value
-                ):
+                if not all(isinstance(elem, float) for elem in value):
                     raise ValueError("Each list must contain only floats.")
 
                 # Store the length of the list
@@ -184,14 +130,7 @@ class Builder:
         self._ratios = ratios
 
     @property
-    def groups(
-        self,
-    ) -> Optional[
-        dict[
-            str,
-            list[str],
-        ]
-    ]:
+    def groups(self) -> Optional[dict[str, list[str]]]:
         """The groups of species, needed for traditional method.
 
         This property returns a dictionary where the keys are descriptor names
@@ -206,15 +145,7 @@ class Builder:
         return self._groups
 
     @groups.setter
-    def groups(
-        self,
-        groups: Optional[
-            dict[
-                str,
-                list[str],
-            ]
-        ],
-    ):
+    def groups(self, groups: Optional[dict[str, list[str]]]):
         if groups is not None:
             # Check for duplicates in each value list
             for value_list in groups.values():
@@ -224,9 +155,7 @@ class Builder:
         self._groups = groups
 
     @property
-    def method(
-        self,
-    ) -> str:
+    def method(self) -> str:
         """Method used to build the Relation.
         Current supported methods:
             traditional: Use a fix descriptor ratio
@@ -236,10 +165,7 @@ class Builder:
         return self._method
 
     @method.setter
-    def method(
-        self,
-        method: str,
-    ):
+    def method(self, method: str):
         # Check method validity
         if method.lower() not in VALID_METHODS:
             raise ValueError(
@@ -250,10 +176,7 @@ class Builder:
 
     def _build_composite_descriptor(
         self,
-        spec_ratios: dict[
-            str,
-            float,
-        ],
+        spec_ratios: dict[str, float],
     ) -> np.ndarray:
         """Build a composite descriptor from child descriptors.
 
@@ -272,11 +195,7 @@ class Builder:
         """
 
         # Check arg: spec_ratios
-        if not isclose(
-            sum(spec_ratios.values()),
-            1.0,
-            abs_tol=1e-04,
-        ):
+        if not isclose(sum(spec_ratios.values()), 1.0, abs_tol=1e-04):
             raise ValueError("Ratios should sum to 1.0.")
 
         # Fetch child descriptors
@@ -299,10 +218,7 @@ class Builder:
 
     def _builder(
         self,
-        ratios: dict[
-            str,
-            float,
-        ],
+        ratios: dict[str, float],
     ) -> Relation:
         """Core worker for building scaling relations.
 
@@ -359,19 +275,10 @@ class Builder:
 
         for species in self.data.adsorbates:
             # Perform linear regression
-            _comp_des = composite_descriptor.reshape(
-                -1,
-                1,
-            )
-            _target = self.data.get_adsorbate(species).reshape(
-                -1,
-                1,
-            )
+            _comp_des = composite_descriptor.reshape(-1, 1)
+            _target = self.data.get_adsorbate(species).reshape(-1, 1)
 
-            reg = LinearRegression().fit(
-                _comp_des,
-                _target,
-            )
+            reg = LinearRegression().fit(_comp_des, _target)
 
             # Collect results
             # Map scaling coefficients to original descriptors
@@ -382,22 +289,13 @@ class Builder:
             _coefs.append(reg.intercept_[0])
 
             coefficients[species] = [float(i) for i in _coefs]
-            metrics[species] = reg.score(
-                _comp_des,
-                _target,
-            )
+            metrics[species] = reg.score(_comp_des, _target)
 
-        return Relation(
-            coefficients,
-            metrics,
-        )
+        return Relation(coefficients, metrics)
 
     def build_traditional(
         self,
-        groups: dict[
-            str,
-            list[str],
-        ],
+        groups: dict[str, list[str]],
     ) -> Relation:
         """Build scaling relations the traditional way."""
         # Check descriptors and ratios
