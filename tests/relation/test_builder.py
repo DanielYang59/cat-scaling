@@ -19,38 +19,19 @@ class Test_builder:
         self.eads = Eads(test_df)
 
     def test_properties(self):
-        # Property: descriptors
-        descriptors = ["*CO", "*OH"]
-
-        # # Property: ratios
-        # ratios = {
-        #     "*COOH": [0.2, 0.8],
-        #     "*O": [0.2, 0.8],
-        # }
-
-        # Property: groups
-        groups = {
-            "*CO": ["*CO2", "*COOH"],
-            "*OH": ["*O", "OCH3"],
-        }
-
         # Property: method
         method = "traditional"
 
-        Builder(self.eads, descriptors, groups, method)
+        Builder(self.eads, method)
 
     def test_invalid_properties(self):
         # TODO
         pass
 
     def test_build_composite_descriptor(self):
-        # Prepare descriptors
-        descriptors = ["*A", "*D"]
-
-        builder = Builder(self.eads, descriptors)
+        builder = Builder(self.eads)
 
         # Sum of *A and *D should be zeros
-
         ratios = {"*A": 0.5, "*D": 0.5}
         comp_des_0 = builder._build_composite_descriptor(ratios)
 
@@ -97,3 +78,6 @@ class Test_builder:
         assert np.allclose(relation.coefficients["*B"], [10], atol=0.01)
         assert isclose(relation.intercepts["*B"], 0, abs_tol=0.01)
         assert isclose(relation.metrics["*B"], 1.0, abs_tol=0.01)
+
+        # Check descriptor ratio
+        assert isclose(relation.ratios["*B"]["*A"], 1.0, abs_tol=0.01)

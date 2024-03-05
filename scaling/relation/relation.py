@@ -1,4 +1,4 @@
-# TODO: unit test needs update to test "metrics"
+# TODO: unit test needs update to test properties
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -24,6 +24,7 @@ Coefficient matrix:
 """
 
 
+from math import isclose
 from typing import Optional
 
 
@@ -38,6 +39,7 @@ class Relation:
         coefficients: dict[str, list[float]],
         intercepts: dict[str, float],
         metrics: Optional[dict[str, float]] = None,
+        ratios: Optional[dict[str, dict[str, float]]] = None,
     ) -> None:
         """Initialize Relation with coefficients.
 
@@ -48,12 +50,16 @@ class Relation:
                 species names to intercept.
             metrics (Optional[dict[str, float]]): Evaluation metrics
                 (MAE/R2 or such) of this Relation. Defaults to None.
+            ratios (Optional[dict[str, dict[str, float]]]): The keys
+                are species names and the values are lists of
+                mixing ratios corresponding to each descriptor.
         """
 
         # Set properties
         self.coefficients = coefficients
         self.intercepts = intercepts
         self.metrics = metrics
+        self.ratios = ratios
 
     @property
     def coefficients(self) -> dict[str, list[float]]:
@@ -135,3 +141,47 @@ class Relation:
                     raise TypeError("metric values should be float.")
 
             self._metrics = metrics
+
+    @property
+    def ratios(self) -> Optional[dict[str, dict[str, float]]]:
+        """Mixing ratios of descriptors for each species.
+
+        Returns:
+            Optional[dict[str, dict[float]]]: a dictionary where the keys
+                are species names and the values are dict of
+                mixing ratios.
+
+        Example:
+            ratios = {
+                "*COOH": {"*CO": 0.25, "*OH": 0.75},
+                }
+            means for species *COOH, two descriptors *CO and *OH are used,
+            and their ratios are 0.25 and 0.75 respectively.
+        """
+
+        return self._ratios
+
+    @ratios.setter
+    def ratios(self, ratios: Optional[dict[str, dict[str, float]]]):
+        if ratios is not None:
+            # Check if all ratio are dict and have the same length
+            dict_lengths = set()
+            for ratio_dict in ratios.values():
+                # Check if the ratio_dict is a dict
+                if not isinstance(ratio_dict, dict):
+                    raise ValueError("Each ratio_dict must be a dict.")
+
+                # Check if ratios sum to one
+                if not isclose(sum(ratio_dict.values()), 1.0, abs_tol=0.01):
+                    raise ValueError(
+                        "Ratios for each species should sum to one."
+                    )
+
+                # Store the length of the dict
+                dict_lengths.add(len(ratio_dict))
+
+            # Check if ratios dict have the same length
+            if len(dict_lengths) > 1:
+                raise ValueError("Ratio dict must have the same length.")
+
+        self._ratios = ratios

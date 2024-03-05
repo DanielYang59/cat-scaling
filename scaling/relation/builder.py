@@ -29,15 +29,9 @@ The hybrid method:
         - The resulting Relation is compatible with the traditional method.
 """
 
-# TODO: move "ratios" from Builder to Relation
+# TODO: use consistent "species" naming over "adsorbate"?
 
-# TODO: revise positioning of properties "groups", "descriptors"
-
-# TODO: use consistent "species" naming over "adsorbate"
-
-import warnings
 from math import isclose
-from typing import Optional
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -54,9 +48,6 @@ class Builder:
     def __init__(
         self,
         data: Eads,
-        descriptors: Optional[list[str]] = None,
-        # ratios: Optional[dict[str, list[float]]] = None,
-        groups: Optional[dict[str, list[str]]] = None,
         method: str = "traditional",
     ) -> None:
         # Check arg: data
@@ -64,97 +55,7 @@ class Builder:
             raise TypeError("Expect data as 'Eads' type")
 
         self.data = data
-        self.descriptors = descriptors
-        # self.ratios = ratios
-        self.groups = groups
         self.method = method
-
-    @property
-    def descriptors(self) -> Optional[list[str]]:
-        """Descriptors used for scaling relations."""
-
-        return self._descriptors
-
-    @descriptors.setter
-    def descriptors(self, descriptors: Optional[list[str]]):
-        if descriptors is not None:
-            if not isinstance(descriptors, list):
-                raise TypeError("Descriptors must be a list of strings.")
-
-            if not all(isinstance(desc, str) for desc in descriptors):
-                raise TypeError("Each descriptor must be a string.")
-
-            if len(descriptors) != len(set(descriptors)):
-                raise ValueError("Duplicate descriptors are not allowed.")
-
-            if len(descriptors) > 2:
-                warnings.warn(f"Got {len(descriptors)} descriptors.")
-
-        self._descriptors = descriptors
-
-    # @property
-    # def ratios(self) -> Optional[dict[str, list[float]]]:
-    #     """Mixing ratios of descriptors for each species.
-
-    #     This property returns a dictionary where the keys are species names
-    #     and the values are lists of mixing ratios corresponding to
-    #     each descriptor.
-
-    #     Returns:
-    #         Optional[dict[str, list[float]]]: A dictionary mapping species
-    #         names to lists of mixing ratios, None if ratios are not defined.
-    #     """
-
-    #     return self._ratios
-
-    # @ratios.setter
-    # def ratios(self, ratios: Optional[dict[str, list[float]]]):
-    #     if ratios is not None:
-    #         # Check if all values are lists of floats and have the same
-    # length
-    #         list_lengths = set()
-    #         for value in ratios.values():
-    #             # Check if the value is a list
-    #             if not isinstance(value, list):
-    #                 raise ValueError("Each value must be a list.")
-
-    #             # Check if all elements in the list are floats
-    #             if not all(isinstance(elem, float) for elem in value):
-    #                 raise ValueError("Each list must contain only floats.")
-
-    #             # Store the length of the list
-    #             list_lengths.add(len(value))
-
-    #         # Check if all ratios have the same length
-    #         if len(list_lengths) > 1:
-    #             raise ValueError("All lists must have the same length.")
-
-    #     self._ratios = ratios
-
-    @property
-    def groups(self) -> Optional[dict[str, list[str]]]:
-        """The groups of species, needed for traditional method.
-
-        This property returns a dictionary where the keys are descriptor names
-        and the values are lists of species belonging to each group.
-
-        Returns:
-            Optional[dict[str, list[str]]]: A dictionary where keys are
-            descriptor names and values are lists of species belonging to each
-            group. Returns None if groups are not defined.
-        """
-
-        return self._groups
-
-    @groups.setter
-    def groups(self, groups: Optional[dict[str, list[str]]]):
-        if groups is not None:
-            # Check for duplicates in each value list
-            for value_list in groups.values():
-                if len(set(value_list)) != len(value_list):
-                    raise ValueError("Duplicate species found in group.")
-
-        self._groups = groups
 
     @property
     def method(self) -> str:
@@ -306,20 +207,25 @@ class Builder:
         coefficients_dict = {}
         intercepts_dict = {}
         metrics_dict = {}
+        ratios_dict = {}
 
         for descriptor, species in groups.items():
             for spec_name in species:
+                ratios = {descriptor: 1.0}  # single descriptor
                 coefs, intercept, metrics = self._builder(
                     spec_name=spec_name,
-                    ratios={descriptor: 1.0},
+                    ratios=ratios,
                 )
 
                 # Collect results
                 coefficients_dict[spec_name] = coefs
                 intercepts_dict[spec_name] = intercept
                 metrics_dict[spec_name] = metrics
+                ratios_dict[spec_name] = ratios
 
-        return Relation(coefficients_dict, intercepts_dict, metrics_dict)
+        return Relation(
+            coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
+        )
 
     # def build_hybrid(self) -> Relation:
     #     pass
