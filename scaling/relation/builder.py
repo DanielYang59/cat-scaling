@@ -54,7 +54,7 @@ class Builder:
         self,
         data: Eads,
         descriptors: Optional[list[str]] = None,
-        ratios: Optional[dict[str, list[float]]] = None,
+        # ratios: Optional[dict[str, list[float]]] = None,
         groups: Optional[dict[str, list[str]]] = None,
         method: str = "traditional",
     ) -> None:
@@ -64,7 +64,7 @@ class Builder:
 
         self.data = data
         self.descriptors = descriptors
-        self.ratios = ratios
+        # self.ratios = ratios
         self.groups = groups
         self.method = method
 
@@ -91,43 +91,43 @@ class Builder:
 
         self._descriptors = descriptors
 
-    @property
-    def ratios(self) -> Optional[dict[str, list[float]]]:
-        """Mixing ratios of descriptors for each species.
+    # @property
+    # def ratios(self) -> Optional[dict[str, list[float]]]:
+    #     """Mixing ratios of descriptors for each species.
 
-        This property returns a dictionary where the keys are species names
-        and the values are lists of mixing ratios corresponding to
-        each descriptor.
+    #     This property returns a dictionary where the keys are species names
+    #     and the values are lists of mixing ratios corresponding to
+    #     each descriptor.
 
-        Returns:
-            Optional[dict[str, list[float]]]: A dictionary mapping species
-            names to lists of mixing ratios, None if ratios are not defined.
-        """
+    #     Returns:
+    #         Optional[dict[str, list[float]]]: A dictionary mapping species
+    #         names to lists of mixing ratios, None if ratios are not defined.
+    #     """
 
-        return self._ratios
+    #     return self._ratios
 
-    @ratios.setter
-    def ratios(self, ratios: Optional[dict[str, list[float]]]):
-        if ratios is not None:
-            # Check if all values are lists of floats and have the same length
-            list_lengths = set()
-            for value in ratios.values():
-                # Check if the value is a list
-                if not isinstance(value, list):
-                    raise ValueError("Each value must be a list.")
+    # @ratios.setter
+    # def ratios(self, ratios: Optional[dict[str, list[float]]]):
+    #     if ratios is not None:
+    #         # Check if all values are lists of floats and have the same length
+    #         list_lengths = set()
+    #         for value in ratios.values():
+    #             # Check if the value is a list
+    #             if not isinstance(value, list):
+    #                 raise ValueError("Each value must be a list.")
 
-                # Check if all elements in the list are floats
-                if not all(isinstance(elem, float) for elem in value):
-                    raise ValueError("Each list must contain only floats.")
+    #             # Check if all elements in the list are floats
+    #             if not all(isinstance(elem, float) for elem in value):
+    #                 raise ValueError("Each list must contain only floats.")
 
-                # Store the length of the list
-                list_lengths.add(len(value))
+    #             # Store the length of the list
+    #             list_lengths.add(len(value))
 
-            # Check if all ratios have the same length
-            if len(list_lengths) > 1:
-                raise ValueError("All lists must have the same length.")
+    #         # Check if all ratios have the same length
+    #         if len(list_lengths) > 1:
+    #             raise ValueError("All lists must have the same length.")
 
-        self._ratios = ratios
+    #     self._ratios = ratios
 
     @property
     def groups(self) -> Optional[dict[str, list[str]]]:
@@ -175,8 +175,7 @@ class Builder:
         self._method = method.lower()
 
     def _build_composite_descriptor(
-        self,
-        spec_ratios: dict[str, float],
+        self, spec_ratios: dict[str, float]
     ) -> np.ndarray:
         """Build a composite descriptor from child descriptors.
 
@@ -209,31 +208,29 @@ class Builder:
         # Construct composite descriptor (from child descriptors)
         return np.sum(
             child_descriptors
-            * np.array(list(spec_ratios.values()))[
-                :,
-                np.newaxis,
-            ],
+            * np.array(list(spec_ratios.values()))[:, np.newaxis],
             axis=0,
         )
 
     def _builder(
-        self,
-        ratios: dict[str, float],
-    ) -> Relation:
+        self, spec_name: str, ratios: dict[str, float]
+    ) -> tuple[list[float], float, float]:
         """Core worker for building scaling relations.
 
         Parameters:
+        spec_name (str): name of the target species to build.
         ratios (dict[str, float]): Dict of species_name: ratio.
 
         Returns:
-            Relation: An instance of Relation containing scaling coefficients
-                and metrics.
+            coefs (list[float]): coefficients correspond to each descriptor
+            intercept (float): intercept
+            metrics (float): metrics
 
         Raises:
             ValueError: If the ratios do not sum to 1.0 or if the lengths of
                 descriptors and ratios do not match.
 
-        How this builder works:
+        How this works:
             1. Build composite descriptor:
             First a composite descriptor is built for actual linear
             regression process. For example there may be two nominated
@@ -244,8 +241,8 @@ class Builder:
 
             2. Perform linear regression:
             The composite descriptor would be used to perform linear
-            regressions with each adsorbate (target). For each adsorbate,
-            there would be a coefficient, an intercept and a metrics score:
+            regressions for each adsorbate (target), where there would
+            be a coefficient, an intercept and a metrics score:
                 coef, intercept, score = LinearRegression(*)
 
             3. Map scaling coefficients to original descriptors:
@@ -256,54 +253,46 @@ class Builder:
                 and leave the intercept unchanged.
 
         In a more "mathematical" manner:
-        TODO: format this formula block (latex?)
+            (where comp_des, A, N and target are arrays)
+            TODO: format this formula block (latex?)
             1. The composite descriptor:
                 comp_des = cof_A * A + ... + cof_N * N
 
             2. After a linear regression:
                 target = slope * comp_des + intercept
-
-            (where comp_des, A, N and target are arrays)
         """
 
         # Build composite descriptor
         composite_descriptor = self._build_composite_descriptor(ratios)
 
-        # Perform linear regressions for each species
-        coefficients = {}
-        metrics = {}
+        # Perform linear regression
+        _comp_des = composite_descriptor.reshape(-1, 1)
+        _target = self.data.get_adsorbate(spec_name).reshape(-1, 1)
 
-        for species in self.data.adsorbates:
-            # Perform linear regression
-            _comp_des = composite_descriptor.reshape(-1, 1)
-            _target = self.data.get_adsorbate(species).reshape(-1, 1)
+        reg = LinearRegression().fit(_comp_des, _target)
 
-            reg = LinearRegression().fit(_comp_des, _target)
+        # Collect results
+        # Map scaling coefficients to original descriptors
+        # As there is only the composite descriptor,
+        # there should be only one coefficient each species
+        coefs = [float(reg.coef_[0] * ratio) for ratio in ratios.values()]
+        intercept = float(reg.intercept_[0])
 
-            # Collect results
-            # Map scaling coefficients to original descriptors
-            # As there is only the composite descriptor,
-            # there should be only one coefficient each species
-            _coefs = [reg.coef_[0] * ratio for ratio in ratios.values()]
+        metrics = reg.score(_comp_des, _target)
 
-            _coefs.append(reg.intercept_[0])
+        assert len(coefs) == len(ratios)
+        return coefs, intercept, metrics
 
-            coefficients[species] = [float(i) for i in _coefs]
-            metrics[species] = reg.score(_comp_des, _target)
-
-        return Relation(coefficients, metrics)
-
-    def build_traditional(
-        self,
-        groups: dict[str, list[str]],
-    ) -> Relation:
-        """Build scaling relations the traditional way."""
-        # Check descriptors and ratios
-        if not self.descriptors and self.ratios:
-            raise ValueError(
-                "Cannot build traditionally without descriptors and ratios."
-            )
-        # DEBUG
+    # def build_traditional(
+    #     self,
+    #     groups: dict[str, list[str]],
+    # ) -> Relation:
+    #     """Build scaling relations the traditional way."""
+    #     # Check descriptors and ratios
+    #     if not self.descriptors and self.ratios:
+    #         raise ValueError(
+    #             "Cannot build traditionally without descriptors and ratios."
+    #         )
         # TODO: maybe _build don't need to compile results into Relation
 
         #
