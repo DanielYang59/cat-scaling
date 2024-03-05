@@ -93,5 +93,7 @@ class Test_builder:
         relation = builder.build_traditional(groups={"*A": ["*B"]})
 
         # Check regression results
-        assert np.allclose(relation.coefficients["*B"], [10, 0], atol=0.01)
+        assert relation.dim == 1
+        assert np.allclose(relation.coefficients["*B"], [10], atol=0.01)
+        assert isclose(relation.intercepts["*B"], 0, abs_tol=0.01)
         assert isclose(relation.metrics["*B"], 1.0, abs_tol=0.01)

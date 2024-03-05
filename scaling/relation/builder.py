@@ -304,6 +304,7 @@ class Builder:
 
         # Build for each species
         coefficients_dict = {}
+        intercepts_dict = {}
         metrics_dict = {}
 
         for descriptor, species in groups.items():
@@ -313,15 +314,12 @@ class Builder:
                     ratios={descriptor: 1.0},
                 )
 
-                # Collect intercept into coefficients
-                # TODO: separate intercept from coefficients in Relation
-                coefs.append(intercept)
-
                 # Collect results
                 coefficients_dict[spec_name] = coefs
+                intercepts_dict[spec_name] = intercept
                 metrics_dict[spec_name] = metrics
 
-        return Relation(coefficients_dict, metrics_dict)
+        return Relation(coefficients_dict, intercepts_dict, metrics_dict)
 
     # def build_hybrid(self) -> Relation:
     #     pass

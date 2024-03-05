@@ -36,6 +36,7 @@ class Relation:
     def __init__(
         self,
         coefficients: dict[str, list[float]],
+        intercepts: dict[str, float],
         metrics: Optional[dict[str, float]] = None,
     ) -> None:
         """Initialize Relation with coefficients.
@@ -43,12 +44,15 @@ class Relation:
         Args:
             coefficients (dict[str, list[float]]): Dictionary mapping
                 species names to lists of coefficients.
+            intercepts (dict[str, float]): Dictionary mapping
+                species names to intercept.
             metrics (Optional[dict[str, float]]): Evaluation metrics
                 (MAE/R2 or such) of this Relation. Defaults to None.
         """
 
         # Set properties
         self.coefficients = coefficients
+        self.intercepts = intercepts
         self.metrics = metrics
 
     @property
@@ -82,10 +86,24 @@ class Relation:
         self._coefficients = coefficients
 
     @property
+    def intercepts(self) -> dict[str, float]:
+        return self._intercepts
+
+    @intercepts.setter
+    def intercepts(self, intercepts: dict[str, float]):
+        if not isinstance(intercepts, dict):
+            raise TypeError("intercepts should be a dict.")
+
+        if not all(isinstance(value, float) for value in intercepts.values()):
+            raise TypeError("intercept value should be float.")
+
+        self._intercepts = intercepts
+
+    @property
     def dim(self) -> int:
         """Dimensionality (as number of descriptors)(read-only)."""
 
-        return len(next(iter(self.coefficients.values()))) - 1
+        return len(next(iter(self.coefficients.values())))
 
     @property
     def metrics(self) -> Optional[dict[str, float]]:
