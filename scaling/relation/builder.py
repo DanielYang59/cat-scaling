@@ -31,9 +31,9 @@ The hybrid method:
 
 # TODO: move "ratios" from Builder to Relation
 
-# TODO: update positioning of properties "groups", "descriptors"
+# TODO: revise positioning of properties "groups", "descriptors"
 
-# TODO: use consistent "adsorbate" and "species" naming
+# TODO: use consistent "species" naming over "adsorbate"
 
 import warnings
 from math import isclose
@@ -110,7 +110,8 @@ class Builder:
     # @ratios.setter
     # def ratios(self, ratios: Optional[dict[str, list[float]]]):
     #     if ratios is not None:
-    #         # Check if all values are lists of floats and have the same length
+    #         # Check if all values are lists of floats and have the same
+    # length
     #         list_lengths = set()
     #         for value in ratios.values():
     #             # Check if the value is a list
@@ -288,10 +289,8 @@ class Builder:
         self,
         groups: dict[str, list[str]],
     ) -> Relation:
-        """Build scaling relations the traditional way.
-
-        Builds scaling relations using the traditional approach, where
-        each species is scaled by a single descriptor.
+        """Build scaling relations the traditional way, where each species is
+        approximated by a single descriptor within each group.
 
         Parameters:
             groups (dict[str, list[str]]): A dictionary where keys represent
@@ -304,24 +303,25 @@ class Builder:
         """
 
         # Build for each species
-        coefficients = {}
-        metrics = {}
+        coefficients_dict = {}
+        metrics_dict = {}
 
-        for descriptor, species in enumerate(groups):
-            for single_spec in species:
+        for descriptor, species in groups.items():
+            for spec_name in species:
                 coefs, intercept, metrics = self._builder(
-                    spec_name=single_spec,
+                    spec_name=spec_name,
                     ratios={descriptor: 1.0},
                 )
 
                 # Collect intercept into coefficients
+                # TODO: separate intercept from coefficients in Relation
                 coefs.append(intercept)
 
                 # Collect results
-                coefficients[single_spec] = coefs
-                metrics[single_spec] = metrics
+                coefficients_dict[spec_name] = coefs
+                metrics_dict[spec_name] = metrics
 
-        return Relation(coefficients, metrics)
+        return Relation(coefficients_dict, metrics_dict)
 
     # def build_hybrid(self) -> Relation:
     #     pass

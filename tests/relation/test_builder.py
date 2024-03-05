@@ -76,12 +76,22 @@ class Test_builder:
 
         # Test fitting *B with *A
         coefs, intercept, metrics = builder._builder(
-            spec_name="*B",
-            ratios={"*A": 1}
-            )
+            spec_name="*B", ratios={"*A": 1}
+        )
 
         # Check regression results
         assert len(coefs) == 1
-        assert np.allclose(coefs, [10, ])
+        assert np.allclose(coefs, [10], atol=0.01)
         assert isclose(intercept, 0, abs_tol=0.01)
         assert isclose(metrics, 1, abs_tol=0.01)
+
+    def test_build_traditional(self):
+        # Prepare Builder
+        builder = Builder(self.eads)
+
+        # Test build *B with descriptor *A
+        relation = builder.build_traditional(groups={"*A": ["*B"]})
+
+        # Check regression results
+        assert np.allclose(relation.coefficients["*B"], [10, 0], atol=0.01)
+        assert isclose(relation.metrics["*B"], 1.0, abs_tol=0.01)
