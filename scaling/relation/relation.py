@@ -94,10 +94,14 @@ class Relation:
         if not isinstance(intercepts, dict):
             raise TypeError("intercepts should be a dict.")
 
-        if not all(isinstance(value, float) for value in intercepts.values()):
+        if not all(
+            isinstance(value, (int, float)) for value in intercepts.values()
+        ):
             raise TypeError("intercept value should be float.")
 
-        self._intercepts = intercepts
+        self._intercepts = {
+            key: float(value) for key, value in intercepts.items()
+        }
 
     @property
     def dim(self) -> int:

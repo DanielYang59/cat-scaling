@@ -9,16 +9,20 @@ class Test_relation:
             "a": [0.1, 0.2, 0.3],
             "b": [0.0, 0.1, 0.2],
         }
-        relation = Relation(test_coef)
 
-        assert relation.dim == 2
+        test_intercept = {"a": 0, "b": 1}
+
+        relation = Relation(test_coef, test_intercept)
+
+        assert relation.dim == len(test_coef["a"])
 
     def test_invalid_data_dtype(
         self,
     ):
         invalid_coef = []
+        test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef)
+            Relation(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Coefficients must be a dictionary"
 
@@ -27,8 +31,9 @@ class Test_relation:
             1: [1, 2, 3],
             "b": [0.1, 0.2, 0.3],
         }
+        test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef)
+            Relation(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Species name must be strings"
 
@@ -37,8 +42,9 @@ class Test_relation:
             "a": "1",
             "b": [0.1, 0.2, 0.3],
         }
+        test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef)
+            Relation(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Input coefficients must be lists"
 
@@ -49,8 +55,9 @@ class Test_relation:
             "a": ["1", "2"],
             "b": [0.1, 0.2, 0.3],
         }
+        test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef)
+            Relation(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Coefficients must be floats"
 
@@ -59,8 +66,9 @@ class Test_relation:
             "a": [0.1, 0.2],
             "b": [0.1, 0.2, 0.3],
         }
+        test_intercept = {"a": 0, "b": 1}
         with pytest.raises(ValueError) as excinfo:
-            Relation(invalid_coef)
+            Relation(invalid_coef, test_intercept)
 
         assert (
             str(excinfo.value) == "All coefficients must have the same length"
