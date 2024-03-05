@@ -14,7 +14,7 @@ The traditional method:
     the dimensionality of the problem from 7D to 2D.
     This reduction enables visualization and simplifies the analysis process.
 
-The hybrid method:
+The adaptive method:
     As discussed in my MPhil work (at https://arxiv.org/abs/2402.03876),
     recognizes that many species involved in the process include both oxygen
     and carbon. Therefore, it makes sense to include descriptors for both
@@ -29,8 +29,13 @@ The hybrid method:
         - The resulting Relation is compatible with the traditional method.
 """
 
-# TODO: use consistent "species" naming over "adsorbate"?
+# TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
+# is more specific and "species" is more general (which might be confusing
+# together with "sample")
 
+# TODO: builder should skip descriptors themselves
+
+import warnings
 from math import isclose
 
 import numpy as np
@@ -179,7 +184,6 @@ class Builder:
                 of the scaling relations.
         """
 
-        # Build for each species
         coefficients_dict = {}
         intercepts_dict = {}
         metrics_dict = {}
@@ -187,7 +191,9 @@ class Builder:
 
         for descriptor, species in groups.items():
             for spec_name in species:
+                # Build for each species
                 ratios = {descriptor: 1.0}  # single descriptor
+
                 coefs, intercept, metrics = self._builder(
                     spec_name=spec_name,
                     ratios=ratios,
@@ -203,5 +209,96 @@ class Builder:
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
         )
 
-    # def build_hybrid(self) -> Relation:
-    #     pass
+    def build_adaptive(
+        self, descriptors: list[str], step_length: float = 1.0
+    ) -> Relation:
+        """Build scaling relations with descriptors ratios determined on
+        the fly.
+
+        Parameters:
+            descriptors (list[str, str]): A list of the two descriptor names
+                for the scaling relations.
+            step_length (float, optional): A percentage value indicating the
+                step size for searching the optimal ratio. Defaults to 1.0.
+
+        Returns:
+            Relation: A Relation object containing coefficients, intercepts,
+                metrics, and the optimal ratios for the descriptors.
+
+        Raises:
+            ValueError: If the step_length is not a float or int, or if it's
+                not within the range (0, 100). If the number of descriptors
+                provided is not 2, or if there are duplicate descriptors.
+
+        Warnings:
+            If the step_length is greater than 5, a warning is issued
+            indicating that a large step length may harm accuracy.
+
+            If the step_length is less than 0.1, a warning is issued
+            indicating that a small step length may slow down searching.
+        """
+
+        # Check arg: step_length
+        if not isinstance(step_length, (float, int)) and 0 < step_length < 100:
+            raise ValueError(f"Illegal step length {step_length}.")
+
+        if step_length > 5:
+            warnings.warn("Large step length may harm accuracy.")
+
+        elif step_length < 0.1:
+            warnings.warn("Small step length may slow down searching.")
+
+        # Convert step_length to percentage
+        step_length = step_length / 100
+
+        # Check arg: descriptors
+        if len(descriptors) != 2:
+            raise ValueError("Expect two descriptors for adaptive method.")
+        if len(descriptors) != len(set(descriptors)):
+            raise ValueError("Duplicate descriptors not allowed.")
+
+        coefficients_dict = {}
+        intercepts_dict = {}
+        metrics_dict = {}
+        ratios_dict = {}
+
+        # Iterate over each adsorbate
+        for ads in self.data.adsorbates:
+            # Determine an optimal descriptor mixing ratio
+            scores = {}
+
+            for ratio in np.arange(0, 1 + step_length, step_length):
+                ratios = {
+                    descriptors[0]: ratio,
+                    descriptors[1]: 1 - ratio,
+                }
+
+                _coefs, _intercept, metrics = self._builder(
+                    spec_name=ads,
+                    ratios=ratios,
+                )
+
+                scores[ratio] = metrics
+
+            # Rerun regression with the optimal ratio
+            opt_ratio = max(scores, key=lambda k: scores[k])
+
+            opt_ratios = {
+                descriptors[0]: opt_ratio,
+                descriptors[1]: 1 - opt_ratio,
+            }
+
+            coefs, intercept, metrics = self._builder(
+                spec_name=ads,
+                ratios=opt_ratios,
+            )
+
+            # Collect results
+            coefficients_dict[ads] = coefs
+            intercepts_dict[ads] = intercept
+            metrics_dict[ads] = metrics
+            ratios_dict = opt_ratios
+
+        return Relation(
+            coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
+        )
