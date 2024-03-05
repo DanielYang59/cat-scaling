@@ -281,6 +281,7 @@ class Builder:
                 scores[ratio] = metrics
 
             # Rerun regression with the optimal ratio
+            # pylint: disable=W0640
             opt_ratio = max(scores, key=lambda k: scores[k])
 
             opt_ratios = {
