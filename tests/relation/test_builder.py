@@ -17,144 +17,73 @@ class Test_builder:
         self,
     ):
         # Data
-        test_df = pd.read_csv(
-            self.test_data_csv,
-            index_col=[0],
-            header=[0],
-        )
+        test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         self.eads = Eads(test_df)
 
     def test_properties(
         self,
     ):
         # Property: descriptors
-        descriptors = [
-            "*CO",
-            "*OH",
-        ]
+        descriptors = ["*CO", "*OH"]
 
         # Property: ratios
         ratios = {
-            "*COOH": [
-                0.2,
-                0.8,
-            ],
-            "*O": [
-                0.2,
-                0.8,
-            ],
+            "*COOH": [0.2, 0.8],
+            "*O": [0.2, 0.8],
         }
 
         # Property: groups
         groups = {
-            "*CO": [
-                "*CO2",
-                "*COOH",
-            ],
-            "*OH": [
-                "*O",
-                "OCH3",
-            ],
+            "*CO": ["*CO2", "*COOH"],
+            "*OH": ["*O", "OCH3"],
         }
 
         # Property: method
         method = "traditional"
 
-        Builder(
-            self.eads,
-            descriptors,
-            ratios,
-            groups,
-            method,
-        )
+        Builder(self.eads, descriptors, ratios, groups, method)
 
-    def test_invalid_properties(
-        self,
-    ):
+    def test_invalid_properties(self):
         # TODO
         pass
 
-    def test_build_composite_descriptor(
-        self,
-    ):
+    def test_build_composite_descriptor(self):
         # Prepare descriptors
-        descriptors = [
-            "*A",
-            "*D",
-        ]
+        descriptors = ["*A", "*D"]
 
-        builder = Builder(
-            self.eads,
-            descriptors,
-        )
+        builder = Builder(self.eads, descriptors)
 
         # Sum of *A and *D should be zeros
 
-        ratios = {
-            "*A": 0.5,
-            "*D": 0.5,
-        }
+        ratios = {"*A": 0.5, "*D": 0.5}
         comp_des_0 = builder._build_composite_descriptor(ratios)
 
-        assert np.allclose(
-            comp_des_0,
-            np.zeros(6),
-        )
+        assert np.allclose(comp_des_0, np.zeros(6))
 
         # Should be just *D
-        ratios = {
-            "*A": 0,
-            "*D": 1,
-        }
+        ratios = {"*A": 0, "*D": 1}
         comp_des_1 = builder._build_composite_descriptor(ratios)
 
         assert np.allclose(
             comp_des_1,
-            np.array(
-                [
-                    0,
-                    -0.1,
-                    -0.2,
-                    -0.3,
-                    -0.4,
-                    -0.5,
-                ]
-            ),
+            np.array([0, -0.1, -0.2, -0.3, -0.4, -0.5]),
         )
 
         # Should be just *A
-        ratios = {
-            "*A": 1,
-            "*D": 0,
-        }
+        ratios = {"*A": 1, "*D": 0}
         comp_des_2 = builder._build_composite_descriptor(ratios)
 
         assert np.allclose(
             comp_des_2,
-            np.array(
-                [
-                    0,
-                    0.1,
-                    0.2,
-                    0.3,
-                    0.4,
-                    0.5,
-                ]
-            ),
+            np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5]),
         )
 
     def test_builder(
         self,
     ):
         # Prepare descriptors
-        descriptors = [
-            "*A",
-        ]
-        groups = {
-            "*A": [
-                "*B",
-            ],
-        }
+        descriptors = ["*A"]
+        groups = {"*A": ["*B"]}
 
         builder = Builder(
             self.eads,
@@ -166,15 +95,5 @@ class Test_builder:
 
         # Check regression results
         assert relation.dim == 1
-        assert isclose(
-            relation.metrics["*B"],
-            1,
-            abs_tol=0.01,
-        )
-        assert np.allclose(
-            relation.coefficients["*B"],
-            [
-                10,
-                0,
-            ],
-        )
+        assert isclose(relation.metrics["*B"], 1, abs_tol=0.01)
+        assert np.allclose(relation.coefficients["*B"], [10, 0])
