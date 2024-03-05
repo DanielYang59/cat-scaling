@@ -159,7 +159,7 @@ class Builder:
         # Map scaling coefficients to original descriptors
         # As there is only the composite descriptor,
         # there should be only one coefficient each species
-        coefs = [float(reg.coef_[0] * ratio) for ratio in ratios.values()]
+        coefs = [float(reg.coef_[0][0] * ratio) for ratio in ratios.values()]
         intercept = float(reg.intercept_[0])
 
         metrics = reg.score(_comp_des, _target)
