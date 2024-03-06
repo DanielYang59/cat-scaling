@@ -1,6 +1,6 @@
 import pytest
 
-from scaling.data.reaction import ReactionStep, Species
+from scaling.data.reaction import Reaction, ReactionStep, Species
 
 
 class Test_species:
@@ -31,7 +31,7 @@ class Test_species:
             Species(name="test_species", adsorbed=True, state="invalid_state")
 
 
-class TestReactions:
+class Test_reactionstep:
     def test_init(self):
         reactants = {
             Species("CO2", True, state="NA"): 1,
@@ -40,11 +40,11 @@ class TestReactions:
         }
         products = {Species("COOH", True, state="NA"): 1}
 
-        reaction = ReactionStep(reactants, products)
+        reactionstep = ReactionStep(reactants, products)
 
         # Check if reactants and products are set correctly
-        assert reaction.reactants == reactants
-        assert reaction.products == products
+        assert reactionstep.reactants == reactants
+        assert reactionstep.products == products
 
     def test_invalid_reactants(self):
         with pytest.raises(TypeError):
@@ -68,3 +68,17 @@ class TestReactions:
         with pytest.warns(UserWarning):
             # Pass a negative stoichiometric number
             ReactionStep({Species("CO2", True, state="NA"): -1}, {})
+
+
+class Test_reaction:
+    def test_init(self):
+        reactants = {
+            Species("CO2", True, state="NA"): 1,
+            Species("H+", False, state="aq"): 1.0,
+            Species("e-", False, state="aq"): 1,
+        }
+        products = {Species("COOH", True, state="NA"): 1}
+
+        reactionstep = ReactionStep(reactants, products)
+
+        Reaction([reactionstep])

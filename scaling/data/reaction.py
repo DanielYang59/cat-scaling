@@ -50,6 +50,9 @@ class Species:
             and self.state == other.state
         )
 
+    def __hash__(self) -> int:
+        return hash((self.name, self.adsorbed, self.energy, self.state))
+
     @property
     def adsorbed(self) -> bool:
         """Whether the species is adsorbed on the surface."""
@@ -153,6 +156,14 @@ class ReactionStep:
             and self.products == other.products
         )
 
+    def __hash__(self) -> int:
+        return hash(
+            (
+                frozenset(self.reactants.items()),
+                frozenset(self.products.items()),
+            )
+        )
+
     @property
     def reactants(self) -> dict[Species, float]:
         """Reactants represented as dict{Species: float}."""
@@ -195,5 +206,21 @@ class ReactionStep:
 class Reaction:
     """Represent a complete Reaction, as a collection of ReactionStep."""
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, reaction_steps: list[ReactionStep]) -> None:
+        self.reaction_steps = reaction_steps
+
+    @property
+    def reaction_steps(self) -> list[ReactionStep]:
+        """Core attrib: collection of ReactionSteps."""
+
+        return self._reaction_steps
+
+    @reaction_steps.setter
+    def reaction_steps(self, reaction_steps: list[ReactionStep]):
+        if not all(isinstance(i, ReactionStep) for i in reaction_steps):
+            raise TypeError("Each step should be ReactionStep.")
+
+        if len(reaction_steps) != len(set(reaction_steps)):
+            raise ValueError("Duplicate ReactionStep found.")
+
+        self._reaction_steps = reaction_steps
