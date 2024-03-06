@@ -5,6 +5,7 @@ for surface reactions (Unlike the Reaction class from pymatgen, t), as such
 species names are treated as is (for example name "*CO2" is allowed).
 """
 
+import warnings
 from typing import Optional
 
 
@@ -67,9 +68,73 @@ class Species:
 
 
 class Reaction:
+    """Represent a surface reaction."""
+
     def __init__(
         self,
         reactants: dict[Species, float],
         products: dict[Species, float],
     ) -> None:
-        pass
+        """Initialize a Reaction object.
+
+        Args:
+            reactants (dict[Species, float]): A dictionary representing the
+                reactants of the reaction, where keys are instances of Species
+                class representing the reactant species and values are floats
+                representing the stoichiometric numbers.
+            products (dict[Species, float]): A dictionary representing the
+                products of the reaction, where keys are instances of Species
+                class representing the product species and values are floats
+                representing the stoichiometric numbers.
+
+        Attributes:
+            reactants (dict[Species, float]): Reactants represented as a dict
+                where keys are instances of Species class representing the
+                reactant species and values are floats
+                representing the stoichiometric numbers.
+            products (dict[Species, float]): Products represented as a dict
+                where keys are instances of Species class representing the
+                product species and values are floats representing the
+                stoichiometric numbers.
+        """
+
+        self.reactants = reactants
+        self.products = products
+
+    @property
+    def reactants(self) -> dict[Species, float]:
+        """Reactants represented as dict{Species: float}."""
+        return self._reactants
+
+    @reactants.setter
+    def reactants(self, reactants: dict[Species, float]):
+        for species, num in reactants.items():
+            if not isinstance(species, Species):
+                raise TypeError("Expect type Species for species.")
+
+            if not isinstance(num, (float, int)):
+                raise TypeError("Stoichiometric number should be float.")
+
+            if num < 0:
+                warnings.warn("Negative stoichiometric number found.")
+
+        self._reactants = {k: float(v) for k, v in reactants.items()}
+
+    @property
+    def products(self) -> dict[Species, float]:
+        """Products represented as dict{Species: float}."""
+        return self._products
+
+    @products.setter
+    def products(self, products: dict[Species, float]):
+        for species, num in products.items():
+            if not isinstance(species, Species):
+                raise TypeError("Expect type Species for species.")
+
+            if not isinstance(num, (float, int)):
+                raise TypeError("Stoichiometric number should be float.")
+
+            if num < 0:
+                warnings.warn("Negative stoichiometric number found.")
+
+        self._products = {k: float(v) for k, v in products.items()}
