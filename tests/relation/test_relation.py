@@ -16,6 +16,24 @@ class Test_relation:
 
         assert relation.dim == len(test_coef["a"])
 
+    def test_str(self):
+        test_coef = {
+            "a": [0.1, 0.2, 0.3],
+            "b": [0.0, 0.1, 0.2],
+        }
+
+        test_intercept = {"a": 0, "b": 1}
+
+        test_metrics = {"a": 0.8, "b": 0.9}
+
+        test_ratios = {"b": {"a": 1.0}}
+
+        relation = Relation(
+            test_coef, test_intercept, test_metrics, test_ratios
+        )
+
+        assert str(relation)
+
     def test_invalid_data_dtype(
         self,
     ):

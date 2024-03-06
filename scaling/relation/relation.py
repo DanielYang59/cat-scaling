@@ -1,4 +1,7 @@
 # TODO: unit test needs update to test properties
+
+# TODO: docstring needs update (added multiple properties)
+
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -32,7 +35,6 @@ class Relation:
     """Describe linear scaling relations with a coefficient matrix,
     the dimensionality would be calculated on the fly. A metrics
     dict is optional but suggested.
-    # TODO: docstring needs update (added multiple properties)
     """
 
     def __init__(
@@ -61,6 +63,39 @@ class Relation:
         self.intercepts = intercepts
         self.metrics = metrics
         self.ratios = ratios
+
+    def __str__(self) -> str:
+        """String representation of the Relation."""
+
+        # Add descriptors
+        string = f"Descriptors: {', '.join(self.coefficients.keys())}\n\n"
+
+        # Add coefficient matrix header
+        string += (
+            f"{'Adsorbate':<10}"
+            + "".join([f"coef_{n:<6}" for n in range(self.dim)])
+            + "intercept\n"
+        )
+
+        # Add coefficient matrix and intercept
+        for ads in self.coefficients.keys():
+            string += f"{ads:<10}"
+            string += " ".join([f"{i:<10.2f}" for i in self.coefficients[ads]])
+            string += f"{self.intercepts[ads]:<10.2f}\n"
+
+        # (Optional) Add metrics
+        if self.metrics is not None:
+            string += "\nAdsorbate Metrics\n"
+            for name, metric in self.metrics.items():
+                string += f"{name:<10}{metric:<10.2f}\n"
+
+        # (Optional) Add ratios
+        if self.ratios is not None:
+            string += "\nAdsorbate Ratios\n"
+            for name, ratios in self.ratios.items():
+                string += f"{name:<10}{ratios}\n"
+
+        return string
 
     @property
     def coefficients(self) -> dict[str, list[float]]:
