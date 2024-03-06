@@ -16,6 +16,7 @@ class Species:
         self,
         name: str,
         adsorbed: bool,
+        energy: Optional[float] = None,
         state: Optional[str] = None,
     ) -> None:
         """Initialize a Species object.
@@ -23,6 +24,7 @@ class Species:
         Args:
             name (str): The name of the species.
             adsorbed (bool): Whether the species is adsorbed on the surface.
+            energy (float): energy of the species.
             state (Optional[str], optional): The physical state of the species.
                 Valid states are {"g", "l", "s", "aq", "NA"}.
 
@@ -33,6 +35,7 @@ class Species:
 
         self.name = name
         self.adsorbed = adsorbed
+        self.energy = energy
         self.state = state
 
     @property
@@ -65,6 +68,23 @@ class Species:
             )
 
         self._state = state
+
+    @property
+    def energy(self) -> float:
+        """Energy for the species.
+
+        Note: for an adsorbed species, it's expect to use the free-species
+        energy for correct scaling Relation.
+        """
+
+        return self._energy
+
+    @energy.setter
+    def energy(self, energy: float):
+        if energy is not None and not isinstance(energy, (float, int)):
+            raise TypeError("Energy should be float.")
+
+        self._energy = float(energy) if energy is not None else None
 
 
 class Reaction:
