@@ -70,7 +70,7 @@ class Species:
         self._state = state
 
     @property
-    def energy(self) -> float:
+    def energy(self) -> Optional[float]:
         """Energy for the species.
 
         Note: for an adsorbed species, it's expect to use the free-species
@@ -80,9 +80,13 @@ class Species:
         return self._energy
 
     @energy.setter
-    def energy(self, energy: float):
-        if energy is not None and not isinstance(energy, (float, int)):
-            raise TypeError("Energy should be float.")
+    def energy(self, energy: Optional[float]):
+        if energy is not None:
+            if not isinstance(energy, (float, int)):
+                raise TypeError("Energy should be float.")
+
+            if energy > 0:
+                warnings.warn("Positive energy found.")
 
         self._energy = float(energy) if energy is not None else None
 
