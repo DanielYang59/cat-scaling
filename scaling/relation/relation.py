@@ -1,7 +1,5 @@
 # TODO: unit test needs update to test properties
 
-# TODO: docstring needs update (added multiple properties)
-
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -32,9 +30,19 @@ from typing import Optional
 
 
 class Relation:
-    """Describe linear scaling relations with a coefficient matrix,
-    the dimensionality would be calculated on the fly. A metrics
-    dict is optional but suggested.
+    """Describe linear scaling relations with a coefficient matrix.
+
+    Attributes:
+        coefficients (dict[str, list[float]]): Dict mapping
+            species names to coefficients.
+        intercepts (dict[str, float]): Dict mapping
+            species names to intercept.
+        dim (float): Dimensionality as the number of descriptors.
+        metrics (Optional[dict[str, float]]): Evaluation metrics
+            (MAE/R2 or such) of each species.
+        ratios (Optional[dict[str, dict[str, float]]]): The keys
+            are species names and the values are dict of
+            mixing ratios corresponding to each descriptor.
     """
 
     def __init__(
