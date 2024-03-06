@@ -17,6 +17,7 @@ class Species:
         name: str,
         adsorbed: bool,
         energy: Optional[float] = None,
+        correction: float = 0.0,
         state: Optional[str] = None,
     ) -> None:
         """Initialize a Species object.
@@ -36,6 +37,7 @@ class Species:
         self.name = name
         self.adsorbed = adsorbed
         self.energy = energy
+        self.correction = correction
         self.state = state
 
     def __eq__(self, other: Any) -> bool:
@@ -104,6 +106,19 @@ class Species:
                 warnings.warn("Positive energy found.")
 
         self._energy = float(energy) if energy is not None else None
+
+    @property
+    def correction(self) -> float:
+        """Optional correction terms, for example zero-point energies."""
+
+        return self._correction
+
+    @correction.setter
+    def correction(self, correction: float):
+        if not isinstance(correction, (float, int)):
+            raise TypeError("Correction should be float.")
+
+        self._correction = float(correction)
 
 
 class ReactionStep:
