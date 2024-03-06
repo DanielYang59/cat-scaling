@@ -1,30 +1,35 @@
-"""Class for representing a surface reaction.
+"""Classes for representing a surface reaction.
 
-Unlike the Reaction class from pymatgen, this object is oriented towards
-easier recording of stoichiometric number for surface reactions, as such
-species names are treated as is.
-
-Naming rules:
-- Species with name starting with "*" are treated as adsorbed species,
-    for example "*CO2".
-
-- Species with name ending with physical states including "_g", "_l", "_s"
-    and "_aq" are treated as free species, for example "H2_g".
-    # TODO: need to rethink about this
-
+This object is oriented towards easier recording of stoichiometric number
+for surface reactions (Unlike the Reaction class from pymatgen, t), as such
+species names are treated as is (for example name "*CO2" is allowed).
 """
-
 
 from typing import Optional
 
 
 class Species:
+    """Represent a species for a surface reaction."""
+
     def __init__(
         self,
         name: str,
         adsorbed: bool,
         state: Optional[str] = None,
     ) -> None:
+        """Initialize a Species object.
+
+        Args:
+            name (str): The name of the species.
+            adsorbed (bool): Whether the species is adsorbed on the surface.
+            state (Optional[str], optional): The physical state of the species.
+                Valid states are {"g", "l", "s", "aq", "NA"}.
+
+        Raises:
+            TypeError: If adsorbed is not a boolean.
+            ValueError: If provided state is not valid.
+        """
+
         self.name = name
         self.adsorbed = adsorbed
         self.state = state
@@ -68,4 +73,3 @@ class Reaction:
         products: dict[Species, float],
     ) -> None:
         pass
-
