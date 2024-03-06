@@ -4,6 +4,8 @@
 
 # TODO: module docstring needs update
 
+# TODO: add reaction info in DeltaERelation
+
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -30,6 +32,10 @@ Coefficient matrix:
 
 
 from math import isclose
+
+import numpy as np
+
+from pymatgen.analysis.reaction_calculator import Reaction
 
 
 class RelationBase:
@@ -251,9 +257,7 @@ class EadsRelation(RelationBase):
 
             # Check if ratios sum to one
             if not isclose(sum(ratio_dict.values()), 1.0, abs_tol=0.01):
-                raise ValueError(
-                    "Ratios for each species should sum to one."
-                )
+                raise ValueError("Ratios for each species should sum to one.")
 
             # Store the length of the dict
             dict_lengths.add(len(ratio_dict))
@@ -265,5 +269,66 @@ class EadsRelation(RelationBase):
         self._ratios = ratios
 
 
-class DeltaERelation(RelationBase):
-    """SuperClass for describing reaction (free) energy Relation."""
+class DeltaERelation:
+    """Class for describing reaction (free) energy Relation,
+    by a list of coefficient arrays, each correspond to a reaction step.
+
+    Args:
+        reaction (Reaction): The reaction associated with this energy relation.
+        coefficients (list[np.ndarray]): List of coefficient arrays
+            representing the energy change (DeltaE) scaling relation.
+            Each array corresponds to a reaction step and contains the
+            coefficients for the energy change.
+
+    Attributes:
+        coefficients (list[np.ndarray]): List of coefficient arrays
+            representing the energy change (DeltaE) scaling relation.
+            Each array corresponds to a reaction step and contains
+            the coefficients for the energy change.
+        reaction (Reaction): The reaction associated with this energy relation.
+    """
+
+    def __init__(
+        self,
+        reaction: Reaction,
+        coefficients: list[np.ndarray],
+    ) -> None:
+
+        self.coefficients = coefficients
+        self.reaction = reaction
+
+    @property
+    def coefficients(self) -> list[np.ndarray]:
+        """Energy change (DeltaE) scaling relation represented by a
+        list of coefficient arrays, each correspond to a reaction step.
+        """
+
+        return self._coefficients
+
+    @coefficients.setter
+    def coefficients(self, coefficients: list[np.ndarray]):
+        # Check if coefficients is a list
+        if not isinstance(coefficients, list):
+            raise TypeError("Coefficients should be a list.")
+
+        # Check if all elements in the list are numpy arrays
+        if not all(isinstance(arr, np.ndarray) for arr in coefficients):
+            raise TypeError("All coefficients should be numpy arrays.")
+
+        # Check if all arrays have the same length
+        if len(set(arr.shape[0] for arr in coefficients)) > 1:
+            raise ValueError("All coefficient arrays should have the same length.")
+
+        self._coefficients = coefficients
+
+    @property
+    def reaction(self) -> Reaction:
+        """Record a balanced chemical Reaction."""
+        return self._reaction
+
+    @reaction.setter
+    def reaction(self, reaction: Reaction):
+        if not isinstance(reaction, Reaction):
+            raise TypeError("Expect type Reaction.")
+
+        self._reaction = reaction
