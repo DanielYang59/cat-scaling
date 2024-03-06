@@ -91,8 +91,8 @@ class Species:
         self._energy = float(energy) if energy is not None else None
 
 
-class Reaction:
-    """Represent a surface reaction."""
+class ReactionStep:
+    """Represent a single reaction step for surface reaction."""
 
     def __init__(
         self,
@@ -162,3 +162,7 @@ class Reaction:
                 warnings.warn("Negative stoichiometric number found.")
 
         self._products = {k: float(v) for k, v in products.items()}
+
+
+class Reaction:
+    pass
