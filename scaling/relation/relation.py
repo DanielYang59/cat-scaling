@@ -34,7 +34,6 @@ Coefficient matrix:
 from math import isclose
 
 import numpy as np
-
 from pymatgen.analysis.reaction_calculator import Reaction
 
 
@@ -293,7 +292,6 @@ class DeltaERelation:
         reaction: Reaction,
         coefficients: list[np.ndarray],
     ) -> None:
-
         self.coefficients = coefficients
         self.reaction = reaction
 
@@ -317,7 +315,9 @@ class DeltaERelation:
 
         # Check if all arrays have the same length
         if len(set(arr.shape[0] for arr in coefficients)) > 1:
-            raise ValueError("All coefficient arrays should have the same length.")
+            raise ValueError(
+                "All coefficient arrays should have the same length."
+            )
 
         self._coefficients = coefficients
 
