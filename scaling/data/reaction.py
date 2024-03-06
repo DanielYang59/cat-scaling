@@ -6,7 +6,7 @@ species names are treated as is (for example name "*CO2" is allowed).
 """
 
 import warnings
-from typing import Optional
+from typing import Any, Optional
 
 
 class Species:
@@ -37,6 +37,18 @@ class Species:
         self.adsorbed = adsorbed
         self.energy = energy
         self.state = state
+
+    def __eq__(self, other: Any) -> bool:
+        """The equality comparison."""
+        if not isinstance(other, Species):
+            return False
+
+        return (
+            self.name == other.name
+            and self.adsorbed == other.adsorbed
+            and self.energy == other.energy
+            and self.state == other.state
+        )
 
     @property
     def adsorbed(self) -> bool:
@@ -92,14 +104,14 @@ class Species:
 
 
 class ReactionStep:
-    """Represent a single reaction step for surface reaction."""
+    """Represent a single reaction step for within a reaction."""
 
     def __init__(
         self,
         reactants: dict[Species, float],
         products: dict[Species, float],
     ) -> None:
-        """Initialize a Reaction object.
+        """Initialize a ReactionStep object.
 
         Args:
             reactants (dict[Species, float]): A dictionary representing the
@@ -124,6 +136,22 @@ class ReactionStep:
 
         self.reactants = reactants
         self.products = products
+
+    def __eq__(self, other: Any) -> bool:
+        """Equality comparison between two ReactionStep objects."""
+        if not isinstance(other, ReactionStep):
+            return False
+
+        if (
+            self.reactants == other.products
+            and self.products == other.reactants
+        ):
+            warnings.warn("Found a reverse reaction step.")
+
+        return (
+            self.reactants == other.reactants
+            and self.products == other.products
+        )
 
     @property
     def reactants(self) -> dict[Species, float]:
@@ -165,4 +193,7 @@ class ReactionStep:
 
 
 class Reaction:
-    pass
+    """Represent a complete Reaction, as a collection of ReactionStep."""
+
+    def __init__(self) -> None:
+        pass
