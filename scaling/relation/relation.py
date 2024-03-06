@@ -30,7 +30,8 @@ from typing import Optional
 
 
 class Relation:
-    """Describe linear scaling relations with a coefficient matrix.
+    """Describe adsorption energy linear scaling relations
+    with a coefficient matrix.
 
     Attributes:
         coefficients (dict[str, list[float]]): Dict mapping
@@ -137,6 +138,7 @@ class Relation:
 
     @property
     def intercepts(self) -> dict[str, float]:
+        """Intercept of scaling relation."""
         return self._intercepts
 
     @intercepts.setter
