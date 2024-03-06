@@ -2,6 +2,8 @@
 
 # TODO: property dim doesn't seem right (and test)
 
+# TODO: module docstring needs update
+
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -28,7 +30,6 @@ Coefficient matrix:
 
 
 from math import isclose
-from typing import Optional
 
 
 class RelationBase:
@@ -146,9 +147,9 @@ class EadsRelation(RelationBase):
             species names to coefficients.
         intercepts (dict[str, float]): Dict mapping
             species names to intercepts.
-        metrics (Optional[dict[str, float]]): Evaluation metrics
+        metrics (dict[str, float]): Evaluation metrics
             (MAE/R2 or such) of each species.
-        ratios (Optional[dict[str, dict[str, float]]]): The keys
+        ratios (dict[str, dict[str, float]]): The keys
             are species names and the values are dict of
             mixing ratios corresponding to each descriptor.
     """
@@ -157,8 +158,8 @@ class EadsRelation(RelationBase):
         self,
         coefficients: dict[str, list[float]],
         intercepts: dict[str, float],
-        metrics: dict[str, float] | None = None,
-        ratios: dict[str, dict[str, float]] | None = None,
+        metrics: dict[str, float],
+        ratios: dict[str, dict[str, float]],
     ) -> None:
         """Initialize EadsRelation with coefficients.
 
@@ -167,9 +168,9 @@ class EadsRelation(RelationBase):
                 species names to lists of coefficients.
             intercepts (dict[str, float]): Dictionary mapping
                 species names to intercept.
-            metrics (Optional[dict[str, float]]): Evaluation metrics
+            metrics (dict[str, float]): Evaluation metrics
                 (MAE/R2 or such) of this Relation.
-            ratios (Optional[dict[str, dict[str, float]]]): The keys
+            ratios (dict[str, dict[str, float]]): The keys
                 are species names and the values are lists of
                 mixing ratios corresponding to each descriptor.
         """
@@ -183,27 +184,25 @@ class EadsRelation(RelationBase):
 
         base_str = super().__str__()
 
-        # (Optional) Add metrics
-        if self.metrics is not None:
-            base_str += "\nAdsorbate Metrics\n"
-            for name, metric in self.metrics.items():
-                base_str += f"{name:<10}{metric:<10.2f}\n"
+        # Add metrics
+        base_str += "\nAdsorbate Metrics\n"
+        for name, metric in self.metrics.items():
+            base_str += f"{name:<10}{metric:<10.2f}\n"
 
-        # (Optional) Add ratios
-        if self.ratios is not None:
-            base_str += "\nAdsorbate Ratios\n"
-            for name, ratios in self.ratios.items():
-                base_str += f"{name:<10}{ratios}\n"
+        # Add ratios
+        base_str += "\nAdsorbate Ratios\n"
+        for name, ratios in self.ratios.items():
+            base_str += f"{name:<10}{ratios}\n"
         return base_str
 
     @property
-    def metrics(self) -> Optional[dict[str, float]]:
+    def metrics(self) -> dict[str, float]:
         """Evaluation metrics (MAE/R2 or such) of this Relation."""
 
         return self._metrics
 
     @metrics.setter
-    def metrics(self, metrics: Optional[dict[str, float]]):
+    def metrics(self, metrics: dict[str, float]):
         """Set metrics, which is expect to be a "species: error" dict,
         for example:
             metrics = {
@@ -213,22 +212,21 @@ class EadsRelation(RelationBase):
         """
 
         # Check data types
-        if metrics is not None:
-            if not isinstance(metrics, dict):
-                raise TypeError("metric should be a dict.")
+        if not isinstance(metrics, dict):
+            raise TypeError("metric should be a dict.")
 
-            for value in metrics.values():
-                if not isinstance(value, float):
-                    raise TypeError("metric values should be float.")
+        for value in metrics.values():
+            if not isinstance(value, float):
+                raise TypeError("metric values should be float.")
 
-            self._metrics = metrics
+        self._metrics = metrics
 
     @property
-    def ratios(self) -> Optional[dict[str, dict[str, float]]]:
+    def ratios(self) -> dict[str, dict[str, float]]:
         """Mixing ratios of descriptors for each species.
 
         Returns:
-            Optional[dict[str, dict[float]]]: a dictionary where the keys
+            dict[str, dict[float]]: a dictionary where the keys
                 are species names and the values are dict of
                 mixing ratios.
 
@@ -243,27 +241,26 @@ class EadsRelation(RelationBase):
         return self._ratios
 
     @ratios.setter
-    def ratios(self, ratios: Optional[dict[str, dict[str, float]]]):
-        if ratios is not None:
-            # Check if all ratio are dict and have the same length
-            dict_lengths = set()
-            for ratio_dict in ratios.values():
-                # Check if the ratio_dict is a dict
-                if not isinstance(ratio_dict, dict):
-                    raise ValueError("Each ratio_dict must be a dict.")
+    def ratios(self, ratios: dict[str, dict[str, float]]):
+        # Check if all ratio are dict and have the same length
+        dict_lengths = set()
+        for ratio_dict in ratios.values():
+            # Check if the ratio_dict is a dict
+            if not isinstance(ratio_dict, dict):
+                raise ValueError("Each ratio_dict must be a dict.")
 
-                # Check if ratios sum to one
-                if not isclose(sum(ratio_dict.values()), 1.0, abs_tol=0.01):
-                    raise ValueError(
-                        "Ratios for each species should sum to one."
-                    )
+            # Check if ratios sum to one
+            if not isclose(sum(ratio_dict.values()), 1.0, abs_tol=0.01):
+                raise ValueError(
+                    "Ratios for each species should sum to one."
+                )
 
-                # Store the length of the dict
-                dict_lengths.add(len(ratio_dict))
+            # Store the length of the dict
+            dict_lengths.add(len(ratio_dict))
 
-            # Check if ratios dict have the same length
-            if len(dict_lengths) > 1:
-                raise ValueError("Ratio dict must have the same length.")
+        # Check if ratios dict have the same length
+        if len(dict_lengths) > 1:
+            raise ValueError("Ratio dict must have the same length.")
 
         self._ratios = ratios
 
