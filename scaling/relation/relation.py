@@ -1,5 +1,7 @@
 # TODO: unit test needs update to test properties
 
+# TODO: property dim doesn't seem right (and test)
+
 """Describe linear scaling relations with a coefficient matrix.
 
 Linear scaling relations describe the adsorption energy of a species by a
@@ -29,8 +31,8 @@ from math import isclose
 from typing import Optional
 
 
-class Relation:
-    """Describe adsorption energy linear scaling relations
+class RelationBase:
+    """Base Class for describing linear scaling relations
     with a coefficient matrix.
 
     Attributes:
@@ -39,39 +41,25 @@ class Relation:
         intercepts (dict[str, float]): Dict mapping
             species names to intercept.
         dim (float): Dimensionality as the number of descriptors.
-        metrics (Optional[dict[str, float]]): Evaluation metrics
-            (MAE/R2 or such) of each species.
-        ratios (Optional[dict[str, dict[str, float]]]): The keys
-            are species names and the values are dict of
-            mixing ratios corresponding to each descriptor.
     """
 
     def __init__(
         self,
         coefficients: dict[str, list[float]],
         intercepts: dict[str, float],
-        metrics: Optional[dict[str, float]] = None,
-        ratios: Optional[dict[str, dict[str, float]]] = None,
     ) -> None:
-        """Initialize Relation with coefficients.
+        """Initialize with coefficients and intercepts.
 
         Args:
             coefficients (dict[str, list[float]]): Dictionary mapping
                 species names to lists of coefficients.
             intercepts (dict[str, float]): Dictionary mapping
                 species names to intercept.
-            metrics (Optional[dict[str, float]]): Evaluation metrics
-                (MAE/R2 or such) of this Relation. Defaults to None.
-            ratios (Optional[dict[str, dict[str, float]]]): The keys
-                are species names and the values are lists of
-                mixing ratios corresponding to each descriptor.
         """
 
         # Set properties
         self.coefficients = coefficients
         self.intercepts = intercepts
-        self.metrics = metrics
-        self.ratios = ratios
 
     def __str__(self) -> str:
         """String representation of the Relation."""
@@ -91,18 +79,6 @@ class Relation:
             string += f"{ads:<10}"
             string += " ".join([f"{i:<10.2f}" for i in self.coefficients[ads]])
             string += f"{self.intercepts[ads]:<10.2f}\n"
-
-        # (Optional) Add metrics
-        if self.metrics is not None:
-            string += "\nAdsorbate Metrics\n"
-            for name, metric in self.metrics.items():
-                string += f"{name:<10}{metric:<10.2f}\n"
-
-        # (Optional) Add ratios
-        if self.ratios is not None:
-            string += "\nAdsorbate Ratios\n"
-            for name, ratios in self.ratios.items():
-                string += f"{name:<10}{ratios}\n"
 
         return string
 
@@ -160,6 +136,65 @@ class Relation:
         """Dimensionality (as number of descriptors)(read-only)."""
 
         return len(next(iter(self.coefficients.values())))
+
+
+class EadsRelation(RelationBase):
+    """Superclass for describing adsorption (free) energy Relation.
+
+    Attributes:
+        coefficients (dict[str, list[float]]): Dict mapping
+            species names to coefficients.
+        intercepts (dict[str, float]): Dict mapping
+            species names to intercepts.
+        metrics (Optional[dict[str, float]]): Evaluation metrics
+            (MAE/R2 or such) of each species.
+        ratios (Optional[dict[str, dict[str, float]]]): The keys
+            are species names and the values are dict of
+            mixing ratios corresponding to each descriptor.
+    """
+
+    def __init__(
+        self,
+        coefficients: dict[str, list[float]],
+        intercepts: dict[str, float],
+        metrics: dict[str, float] | None = None,
+        ratios: dict[str, dict[str, float]] | None = None,
+    ) -> None:
+        """Initialize EadsRelation with coefficients.
+
+        Args:
+            coefficients (dict[str, list[float]]): Dictionary mapping
+                species names to lists of coefficients.
+            intercepts (dict[str, float]): Dictionary mapping
+                species names to intercept.
+            metrics (Optional[dict[str, float]]): Evaluation metrics
+                (MAE/R2 or such) of this Relation.
+            ratios (Optional[dict[str, dict[str, float]]]): The keys
+                are species names and the values are lists of
+                mixing ratios corresponding to each descriptor.
+        """
+
+        super().__init__(coefficients, intercepts)
+        self.metrics = metrics
+        self.ratios = ratios
+
+    def __str__(self) -> str:
+        """String representation."""
+
+        base_str = super().__str__()
+
+        # (Optional) Add metrics
+        if self.metrics is not None:
+            base_str += "\nAdsorbate Metrics\n"
+            for name, metric in self.metrics.items():
+                base_str += f"{name:<10}{metric:<10.2f}\n"
+
+        # (Optional) Add ratios
+        if self.ratios is not None:
+            base_str += "\nAdsorbate Ratios\n"
+            for name, ratios in self.ratios.items():
+                base_str += f"{name:<10}{ratios}\n"
+        return base_str
 
     @property
     def metrics(self) -> Optional[dict[str, float]]:
@@ -231,3 +266,7 @@ class Relation:
                 raise ValueError("Ratio dict must have the same length.")
 
         self._ratios = ratios
+
+
+class DeltaERelation(RelationBase):
+    """SuperClass for describing reaction (free) energy Relation."""

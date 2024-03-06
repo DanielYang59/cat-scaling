@@ -42,7 +42,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 from scaling.data import Eads
-from scaling.relation.relation import Relation
+from scaling.relation.relation import EadsRelation
 
 
 class Builder:
@@ -170,7 +170,7 @@ class Builder:
     def build_traditional(
         self,
         groups: dict[str, list[str]],
-    ) -> Relation:
+    ) -> EadsRelation:
         """Build scaling relations the traditional way, where each species is
         approximated by a single descriptor within each group.
 
@@ -205,13 +205,13 @@ class Builder:
                 metrics_dict[spec_name] = metrics
                 ratios_dict[spec_name] = ratios
 
-        return Relation(
+        return EadsRelation(
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
         )
 
     def build_adaptive(
         self, descriptors: list[str], step_length: float = 1.0
-    ) -> Relation:
+    ) -> EadsRelation:
         """Build scaling relations with descriptors ratios determined on
         the fly.
 
@@ -299,6 +299,6 @@ class Builder:
             metrics_dict[ads] = metrics
             ratios_dict[ads] = opt_ratios
 
-        return Relation(
+        return EadsRelation(
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
         )

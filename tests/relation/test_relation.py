@@ -1,9 +1,12 @@
+# TODO: avoid duplication in test setup for Test_EadsRelation
+
+
 import pytest
 
-from scaling.relation import Relation
+from scaling.relation.relation import EadsRelation, RelationBase
 
 
-class Test_relation:
+class Test_RelationBase:
     def test_init(self):
         test_coef = {
             "a": [0.1, 0.2, 0.3],
@@ -12,7 +15,7 @@ class Test_relation:
 
         test_intercept = {"a": 0, "b": 1}
 
-        relation = Relation(test_coef, test_intercept)
+        relation = RelationBase(test_coef, test_intercept)
 
         assert relation.dim == len(test_coef["a"])
 
@@ -24,15 +27,9 @@ class Test_relation:
 
         test_intercept = {"a": 0, "b": 1}
 
-        test_metrics = {"a": 0.8, "b": 0.9}
+        relation = RelationBase(test_coef, test_intercept)
 
-        test_ratios = {"b": {"a": 1.0}}
-
-        relation = Relation(
-            test_coef, test_intercept, test_metrics, test_ratios
-        )
-
-        assert str(relation)
+        assert "coef_0     coef_1     coef_2     intercept" in str(relation)
 
     def test_invalid_data_dtype(
         self,
@@ -40,7 +37,7 @@ class Test_relation:
         invalid_coef = []
         test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef, test_intercept)
+            RelationBase(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Coefficients must be a dictionary"
 
@@ -51,7 +48,7 @@ class Test_relation:
         }
         test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef, test_intercept)
+            RelationBase(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Species name must be strings"
 
@@ -62,7 +59,7 @@ class Test_relation:
         }
         test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef, test_intercept)
+            RelationBase(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Input coefficients must be lists"
 
@@ -75,7 +72,7 @@ class Test_relation:
         }
         test_intercept = {"a": 0, "b": 1}
         with pytest.raises(TypeError) as excinfo:
-            Relation(invalid_coef, test_intercept)
+            RelationBase(invalid_coef, test_intercept)
 
         assert str(excinfo.value) == "Coefficients must be floats"
 
@@ -86,8 +83,43 @@ class Test_relation:
         }
         test_intercept = {"a": 0, "b": 1}
         with pytest.raises(ValueError) as excinfo:
-            Relation(invalid_coef, test_intercept)
+            RelationBase(invalid_coef, test_intercept)
 
         assert (
             str(excinfo.value) == "All coefficients must have the same length"
         )
+
+
+class Test_EadsRelation:
+    def test_init(self):
+        test_coef = {
+            "a": [0.1, 0.2, 0.3],
+            "b": [0.0, 0.1, 0.2],
+        }
+
+        test_intercept = {"a": 0, "b": 1}
+        test_metrics = {"a": 0.8, "b": 0.9}
+        test_ratios = {"b": {"a": 1.0}}
+
+        relation = EadsRelation(
+            test_coef, test_intercept, test_metrics, test_ratios
+        )
+
+        assert relation.dim == len(test_coef["a"])
+
+    def test_str(self):
+        test_coef = {
+            "a": [0.1, 0.2, 0.3],
+            "b": [0.0, 0.1, 0.2],
+        }
+
+        test_intercept = {"a": 0, "b": 1}
+        test_metrics = {"a": 0.8, "b": 0.9}
+        test_ratios = {"b": {"a": 1.0}}
+
+        relation = EadsRelation(
+            test_coef, test_intercept, test_metrics, test_ratios
+        )
+
+        assert "Adsorbate Metrics" in str(relation)
+        assert "Adsorbate Ratios" in str(relation)
