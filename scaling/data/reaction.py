@@ -1,3 +1,5 @@
+# TODO: Need better API to init a Reaction (for example in test_analysis.py)
+
 """Classes for representing a surface reaction.
 
 This object is oriented towards easier recording of stoichiometric number
@@ -18,7 +20,7 @@ class Species:
         adsorbed: bool,
         energy: Optional[float] = None,
         correction: float = 0.0,
-        state: Optional[str] = None,
+        state: str = "NA",
     ) -> None:
         """Initialize a Species object.
 
@@ -69,7 +71,7 @@ class Species:
         self._adsorbed = adsorbed
 
     @property
-    def state(self) -> Optional[str]:
+    def state(self) -> str:
         """Physical state of the species.
         Valid states are {"g", "l", "s", "aq", "NA"}.
         """
@@ -77,9 +79,9 @@ class Species:
         return self._state
 
     @state.setter
-    def state(self, state: Optional[str]):
+    def state(self, state: str):
         valid_states = {"g", "l", "s", "aq", "NA"}
-        if state is not None and state not in valid_states:
+        if state not in valid_states:
             raise ValueError(
                 f"Invalid physical state, supported: {valid_states}."
             )
