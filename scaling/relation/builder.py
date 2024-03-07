@@ -1,3 +1,10 @@
+# TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
+# is more specific and "species" is more general (which might be confusing
+# together with "sample")
+
+# TODO: use frozendict for "groups", as the ordering of keys (descriptors)
+# matters
+
 """Build scaling relations (Relation) from adsorption energy (Eads).
 
 The following would take CO2 reduction to CH4 reaction (CO2RR) as an example.
@@ -29,11 +36,6 @@ The adaptive method:
         - The resulting Relation is compatible with the traditional method.
 """
 
-# TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
-# is more specific and "species" is more general (which might be confusing
-# together with "sample")
-
-# TODO: builder should skip descriptors themselves
 
 import warnings
 from math import isclose
@@ -158,13 +160,14 @@ class Builder:
         # Collect results
         # Map scaling coefficients to original descriptors
         # As there is only the composite descriptor,
-        # there should be only one coefficient each species
+        # there should be only one coefficient for composite descriptor.
+        # And need to use ratios to map it to all descriptors
         coefs = [float(reg.coef_[0][0] * ratio) for ratio in ratios.values()]
         intercept = float(reg.intercept_[0])
 
         metrics = reg.score(_comp_des, _target)
 
-        assert len(coefs) == len(ratios)
+        assert len(coefs) == len(ratios), "Internal coef error."
         return coefs, intercept, metrics
 
     def build_traditional(
@@ -189,18 +192,35 @@ class Builder:
         metrics_dict = {}
         ratios_dict = {}
 
-        for descriptor, species in groups.items():
+        for idx, (descriptor, species) in enumerate(groups.items()):
+            # Define ratios (single descriptor)
+            ratios = {descriptor: 1.0}
+
+            # Create coefficient for descriptor itself
+            coefficients_dict[descriptor] = [
+                1.0 if i == idx else 0.0 for i in range(len(groups))
+            ]
+            intercepts_dict[descriptor] = 0.0
+            metrics_dict[descriptor] = 1.0
+            ratios_dict[descriptor] = ratios
+
             for spec_name in species:
                 # Build for each species
-                ratios = {descriptor: 1.0}  # single descriptor
-
                 coefs, intercept, metrics = self._builder(
                     spec_name=spec_name,
                     ratios=ratios,
                 )
 
+                # Rebuild coefs
+                # As traditional method use only single descriptor
+                # Therefore only the descriptor correspond to its
+                # group would be non-zero
+                _coefs = [
+                    coefs[0] if i == idx else 0.0 for i in range(len(groups))
+                ]
+
                 # Collect results
-                coefficients_dict[spec_name] = coefs
+                coefficients_dict[spec_name] = _coefs
                 intercepts_dict[spec_name] = intercept
                 metrics_dict[spec_name] = metrics
                 ratios_dict[spec_name] = ratios
@@ -262,7 +282,7 @@ class Builder:
         metrics_dict = {}
         ratios_dict = {}
 
-        # Iterate over each adsorbate
+        # Iterate over each adsorbate (including descriptors)
         for ads in self.data.adsorbates:
             # Determine an optimal descriptor mixing ratio
             scores = {}

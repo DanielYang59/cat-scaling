@@ -1,10 +1,10 @@
 # TODO: unit test needs update to test properties
 
-# TODO: property dim doesn't seem right (and test)
-
 # TODO: module docstring needs update
 
 # TODO: add reaction info in DeltaERelation
+
+# TODO: merge EadsRelation with RelationBase
 
 """Describe linear scaling relations with a coefficient matrix.
 
@@ -139,7 +139,7 @@ class RelationBase:
 
     @property
     def dim(self) -> int:
-        """Dimensionality (as number of descriptors)(read-only)."""
+        """Dimensionality (as number of descriptors)."""
 
         return len(next(iter(self.coefficients.values())))
 
