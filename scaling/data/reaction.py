@@ -8,7 +8,7 @@ species names are treated as is (for example name "*CO2" is allowed).
 """
 
 import warnings
-from typing import Any, Optional
+from typing import Any
 
 
 class Species:
@@ -17,8 +17,8 @@ class Species:
     def __init__(
         self,
         name: str,
+        energy: float,
         adsorbed: bool,
-        energy: Optional[float] = None,
         correction: float = 0.0,
         state: str = "NA",
     ) -> None:
@@ -26,8 +26,8 @@ class Species:
 
         Args:
             name (str): The name of the species.
-            adsorbed (bool): Whether the species is adsorbed on the surface.
             energy (float): energy of the species.
+            adsorbed (bool): Whether the species is adsorbed on the surface.
             state (Optional[str], optional): The physical state of the species.
                 Valid states are {"g", "l", "s", "aq", "NA"}.
 
@@ -37,8 +37,8 @@ class Species:
         """
 
         self.name = name
-        self.adsorbed = adsorbed
         self.energy = energy
+        self.adsorbed = adsorbed
         self.correction = correction
         self.state = state
 
@@ -89,7 +89,7 @@ class Species:
         self._state = state
 
     @property
-    def energy(self) -> Optional[float]:
+    def energy(self) -> float:
         """Energy for the species.
 
         Note: for an adsorbed species, it's expect to use the free-species
@@ -99,18 +99,14 @@ class Species:
         return self._energy
 
     @energy.setter
-    def energy(self, energy: Optional[float]):
-        if energy is not None:
-            if not isinstance(energy, (float, int)):
-                raise TypeError("Energy should be float.")
+    def energy(self, energy: float):
+        if not isinstance(energy, (float, int)):
+            raise TypeError("Energy should be float.")
 
-            if energy > 0:
-                warnings.warn("Positive energy found.")
+        if energy >= 0:
+            warnings.warn("Non-negative energy found.")
 
-        if self.adsorbed:
-            warnings.warn("No energy given for adsorbed species.")
-
-        self._energy = float(energy) if energy is not None else None
+        self._energy = float(energy)
 
     @property
     def correction(self) -> float:

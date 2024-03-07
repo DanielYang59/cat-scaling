@@ -57,49 +57,47 @@ class AdsorbToDeltaE:
         """
 
         # Initialize an empty array to host coefficients and intercept
-        # Need number of descriptors + 1 (for intercept)
+        # Need number of descriptors + 1 (1 for intercept)
         coef_array = np.zeros(self.relation.dim + 1)
 
         # Convert the reactants side
         for spec, num in step.reactants.items():
-            # Compile coefficients and intercept as a single array in
-            # form: [coef_0, coef_1, ..., coef_n, intercept]
-            temp_arr = copy.copy(self.relation.coefficients[spec.name])
-            temp_arr.append(self.relation.intercepts[spec.name])
+            # Pack coefficients and intercept as a single array in form:
+            # [coef_0, coef_1, ..., coef_n, intercept]
+            if spec.adsorbed:
+                spec_arr = copy.copy(self.relation.coefficients[spec.name])
+                spec_arr.append(self.relation.intercepts[spec.name])
+
+            else:
+                # For free species (molecules), there is no coefficient
+                spec_arr = np.zeros(self.relation.dim + 1)
 
             # Add free species energy for adsorbed species to constant
-            # (intercept) term. For example, for species "*CO2", the energy
+            # (intercept) term. NOTE: For species "*CO2", the energy
             # for free "CO2" should be added
-            if spec.adsorbed:
-                if spec.energy is None:
-                    raise ValueError(
-                        f"Missing energy for adsorbed species {spec.name}."
-                    )
-                temp_arr[-1] += spec.energy
+            spec_arr[-1] += spec.energy
 
             # Add correction term
-            temp_arr[-1] += spec.correction
+            spec_arr[-1] += spec.correction
 
             # NOTE: a minus sign is needed for reactants
-            coef_array -= num * np.array(temp_arr)
+            coef_array -= num * np.array(spec_arr)
 
         # Convert the products side
         for spec, num in step.products.items():
-            temp_arr = copy.copy(self.relation.coefficients[spec.name])
-            temp_arr.append(self.relation.intercepts[spec.name])
-
-            # Add free species energy for adsorbed species
             if spec.adsorbed:
-                if spec.energy is None:
-                    raise ValueError(
-                        f"Missing energy for adsorbed species {spec.name}."
-                    )
-                temp_arr[-1] += spec.energy
+                spec_arr = copy.copy(self.relation.coefficients[spec.name])
+                spec_arr.append(self.relation.intercepts[spec.name])
+            else:
+                spec_arr = np.zeros(self.relation.dim + 1)
 
-            # Add correction term
-            temp_arr[-1] += spec.correction
+            # Add energy
+            spec_arr[-1] += spec.energy
 
-            coef_array += num * np.array(temp_arr)
+            # Add correction
+            spec_arr[-1] += spec.correction
+
+            coef_array += num * np.array(spec_arr)
 
         return coef_array
 

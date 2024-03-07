@@ -20,25 +20,25 @@ class Test_species:
 
     def test_invalid_adsorbed_type(self):
         with pytest.raises(TypeError):
-            Species(name="test_species", adsorbed="True", state="NA")
+            Species("test_species", -1, adsorbed="True", state="NA")
 
     def test_invalid_energy_type(self):
         with pytest.raises(TypeError):
-            Species(name="test_species", adsorbed="True", energy="hi")
+            Species("test_species", "hi", adsorbed="True")
 
     def test_invalid_state_value(self):
         with pytest.raises(ValueError):
-            Species(name="test_species", adsorbed=True, state="invalid_state")
+            Species("test_species", -1, adsorbed=True, state="invalid_state")
 
 
 class Test_reactionstep:
     def test_init(self):
         reactants = {
-            Species("CO2", True, state="NA"): 1,
-            Species("H+", False, state="aq"): 1.0,
-            Species("e-", False, state="aq"): 1,
+            Species("CO2", -1, True, state="NA"): 1,
+            Species("H+", -1, False, state="aq"): 1.0,
+            Species("e-", -1, False, state="aq"): 1,
         }
-        products = {Species("COOH", True, state="NA"): 1}
+        products = {Species("COOH", -1, True, state="NA"): 1}
 
         reactionstep = ReactionStep(reactants, products)
 
@@ -53,7 +53,7 @@ class Test_reactionstep:
 
         with pytest.raises(TypeError):
             # Pass an invalid type for stoichiometric number
-            ReactionStep({Species("CO2", True, state="NA"): "1"}, {})
+            ReactionStep({Species("CO2", -1, True, state="NA"): "1"}, {})
 
     def test_invalid_products(self):
         with pytest.raises(TypeError):
@@ -62,22 +62,22 @@ class Test_reactionstep:
 
         with pytest.raises(TypeError):
             # Pass an invalid type for stoichiometric number
-            ReactionStep({}, {Species("COOH", True, state="NA"): "1"})
+            ReactionStep({}, {Species("COOH", -1, True, state="NA"): "1"})
 
     def test_negative_stoichiometric_number_warning(self):
         with pytest.warns(UserWarning):
             # Pass a negative stoichiometric number
-            ReactionStep({Species("CO2", True, state="NA"): -1}, {})
+            ReactionStep({Species("CO2", -1, True, state="NA"): -1}, {})
 
 
 class Test_reaction:
     def test_init(self):
         reactants = {
-            Species("CO2", True, state="NA"): 1,
-            Species("H+", False, state="aq"): 1.0,
-            Species("e-", False, state="aq"): 1,
+            Species("CO2", -1, True, state="NA"): 1,
+            Species("H+", -1, False, state="aq"): 1.0,
+            Species("e-", -1, False, state="aq"): 1,
         }
-        products = {Species("COOH", True, state="NA"): 1}
+        products = {Species("COOH", -1, True, state="NA"): 1}
 
         reactionstep = ReactionStep(reactants, products)
 
