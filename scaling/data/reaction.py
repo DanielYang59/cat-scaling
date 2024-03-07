@@ -226,6 +226,12 @@ class Reaction:
     def __init__(self, reaction_steps: list[ReactionStep]) -> None:
         self.reaction_steps = reaction_steps
 
+    def __getitem__(self, index):
+        return self.reaction_steps[index]
+
+    def __setitem__(self, index, value):
+        self.reaction_steps[index] = value
+
     @property
     def reaction_steps(self) -> list[ReactionStep]:
         """Core attrib: collection of ReactionSteps."""
