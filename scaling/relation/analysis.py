@@ -34,7 +34,7 @@ from scaling.relation.relation import DeltaERelation, EadsRelation
 
 class AdsorbToDeltaE:
     """Convert adsorption energy scaling Relation to
-    reaction energy change Relation, based on a Reaction. Would also need
+    reaction energy change Relation, based on a Reaction. Would need
     free species energies. Could optionally add corrections terms
     (zero-point energies, solvation energies or such).
 
@@ -46,12 +46,10 @@ class AdsorbToDeltaE:
         self,
         relation: EadsRelation,
         reaction: Reaction,
-        species_energies: dict[str, float],
     ) -> None:
         # Set attribs
         self.relation = relation
         self.reaction = reaction
-        self.species_energies = species_energies
 
     def _convert_step(self, step: ReactionStep) -> list[float]:
         """Convert adsorption energy Relation to reaction energy change
@@ -59,13 +57,14 @@ class AdsorbToDeltaE:
         """
 
         # Initialize an empty array to host coefficients and intercept
+        # Need number of descriptors + 1 (for intercept)
         coef_array = np.zeros(self.relation.dim + 1)
 
         # Convert the reactants side
         for spec, num in step.reactants.items():
             # Compile coefficients and intercept as a single array in
             # form: [coef_0, coef_1, ..., coef_n, intercept]
-            temp_arr = copy.deepcopy(self.relation.coefficients[spec.name])
+            temp_arr = copy.copy(self.relation.coefficients[spec.name])
             temp_arr.append(self.relation.intercepts[spec.name])
 
             # Add free species energy for adsorbed species to constant
@@ -81,12 +80,12 @@ class AdsorbToDeltaE:
             # Add correction term
             temp_arr[-1] += spec.correction
 
-            # CAUTION: a minus sign is needed for reactants
+            # NOTE: a minus sign is needed for reactants
             coef_array -= num * np.array(temp_arr)
 
         # Convert the products side
         for spec, num in step.products.items():
-            temp_arr = copy.deepcopy(self.relation.coefficients[spec.name])
+            temp_arr = copy.copy(self.relation.coefficients[spec.name])
             temp_arr.append(self.relation.intercepts[spec.name])
 
             # Add free species energy for adsorbed species
