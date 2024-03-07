@@ -1,4 +1,3 @@
-# TODO: add add_correction method
 """Work on top of pre-build Relation to perform chemically
 meaningful analysis: limiting potential, selectivity, and
 prepare for plotters.
@@ -29,18 +28,18 @@ import copy
 
 import numpy as np
 
-from scaling.data.reaction import Reaction
-from scaling.relation.relation import EadsRelation
+from scaling.data.reaction import Reaction, ReactionStep
+from scaling.relation.relation import DeltaERelation, EadsRelation
 
 
-class AdsEToDeltaE:
+class AdsorbToDeltaE:
     """Convert adsorption energy scaling Relation to
-    reaction energy Relation, based on a Reaction. Would also need
+    reaction energy change Relation, based on a Reaction. Would also need
     free species energies. Could optionally add corrections terms
     (zero-point energies, solvation energies or such).
 
     The resulted coefficient matrix would have one set of
-    coefficient for each reaction step. # TODO
+    coefficient for each reaction step. # TODO: docstring
     """
 
     def __init__(
@@ -49,11 +48,12 @@ class AdsEToDeltaE:
         reaction: Reaction,
         species_energies: dict[str, float],
     ) -> None:
+        # Set attribs
         self.relation = relation
         self.reaction = reaction
         self.species_energies = species_energies
 
-    def _convert(self) -> list[float]:
+    def _convert_step(self, step: ReactionStep) -> list[float]:
         """Convert adsorption energy Relation to reaction energy change
         Relation for a single reaction step.
         """
@@ -62,7 +62,7 @@ class AdsEToDeltaE:
         coef_array = np.zeros(self.relation.dim + 1)
 
         # Convert the reactants side
-        for spec, num in self.reaction.reactants.items():
+        for spec, num in step.reactants.items():
             # Compile coefficients and intercept as a single array in
             # form: [coef_0, coef_1, ..., coef_n, intercept]
             temp_arr = copy.deepcopy(self.relation.coefficients[spec.name])
@@ -73,23 +73,49 @@ class AdsEToDeltaE:
             # for free "CO2" should be added
             if spec.adsorbed:
                 if spec.energy is None:
-                    raise ValueError("Missing energy for adsorbed species.")
+                    raise ValueError(
+                        f"Missing energy for adsorbed species {spec.name}."
+                    )
                 temp_arr[-1] += spec.energy
+
+            # Add correction term
+            temp_arr[-1] += spec.correction
 
             # CAUTION: a minus sign is needed for reactants
             coef_array -= num * np.array(temp_arr)
 
         # Convert the products side
-        for spec, num in self.reaction.products.items():
+        for spec, num in step.products.items():
             temp_arr = copy.deepcopy(self.relation.coefficients[spec.name])
             temp_arr.append(self.relation.intercepts[spec.name])
 
             # Add free species energy for adsorbed species
             if spec.adsorbed:
                 if spec.energy is None:
-                    raise ValueError("Missing energy for adsorbed species.")
+                    raise ValueError(
+                        f"Missing energy for adsorbed species {spec.name}."
+                    )
                 temp_arr[-1] += spec.energy
+
+            # Add correction term
+            temp_arr[-1] += spec.correction
 
             coef_array += num * np.array(temp_arr)
 
         return coef_array
+
+    def convert(self) -> DeltaERelation:
+        """Convert a list of ReactionStep from adsorption energy Relation
+        to energy change Relation.
+        """
+
+        # Work on each step
+        coefs = [
+            self._convert_step(step) for step in self.reaction.reaction_steps
+        ]
+
+        # Build energy change relation (DeltaERelation)
+        return DeltaERelation(
+            reaction=self.reaction,
+            coefficients=coefs,
+        )
