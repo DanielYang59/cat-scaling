@@ -93,7 +93,7 @@ class Species:
         """Energy for the species.
 
         Note: for an adsorbed species, it's expect to use the free-species
-        energy for correct scaling Relation.
+        energy for correct scaling Relation calculation.
         """
 
         return self._energy
@@ -106,6 +106,9 @@ class Species:
 
             if energy > 0:
                 warnings.warn("Positive energy found.")
+
+        if self.adsorbed:
+            warnings.warn("No energy given for adsorbed species.")
 
         self._energy = float(energy) if energy is not None else None
 
