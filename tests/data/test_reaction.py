@@ -19,6 +19,11 @@ class Test_reactionstep:
         assert reactionstep.reactants == reactants
         assert reactionstep.products == products
 
+        # Test __str__
+        assert (
+            str(reactionstep) == "1.0*CO2 + 1.0H+_aq + 1.0e-_aq --> 1.0*COOH"
+        )
+
     def test_invalid_reactants(self):
         with pytest.raises(TypeError):
             # Pass an invalid type for species

@@ -63,6 +63,30 @@ class ReactionStep:
             and self.products == other.products
         )
 
+    def __str__(self) -> str:
+        # Add reactants
+        reactants = []
+        for spec, num in self.reactants.items():
+            if spec.adsorbed:
+                name = f"*{spec.name}"
+            else:
+                name = f"{spec.name}_{spec.state}"
+
+            reactants.append(f"{num}{name}")
+
+        # Add products
+        products = []
+        for spec, num in self.products.items():
+            if spec.adsorbed:
+                name = f"*{spec.name}"
+            else:
+                name = f"{spec.name}_{spec.state}"
+
+            products.append(f"{num}{name}")
+
+        # Assemble
+        return " + ".join(reactants) + " --> " + " + ".join(products)
+
     def __hash__(self) -> int:
         return hash(
             (
