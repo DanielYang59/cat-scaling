@@ -1,0 +1,70 @@
+# TODO: need to pre-define a set of Relation/Reaction or such for tests
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from scaling.data import Eads
+from scaling.data.reaction import Reaction, ReactionStep, Species
+from scaling.relation.analysis import AdsorbToDeltaE
+from scaling.relation.builder import Builder
+from scaling.relation.relation import DeltaERelation
+from scaling.utils import PROJECT_ROOT
+
+
+class Test_AdsorbToDeltaE:
+    @pytest.fixture
+    def eads_relation(self):
+        # Load data
+        test_data_csv = (
+            PROJECT_ROOT / "tests" / "relation" / "relation_data.csv"
+        )
+        test_df = pd.read_csv(test_data_csv, index_col=[0], header=[0])
+        eads = Eads(test_df)
+
+        # Build traditionally
+        builder = Builder(eads)
+        relation = builder.build_traditional(
+            groups={
+                "*A": ["*B"],
+                "*C": ["*D"],
+            }
+        )
+
+        return relation
+
+    @pytest.fixture
+    def test_reaction(self):
+        # Define dummy Species
+        species_A = Species("*A", -1, True)
+        species_H2O = Species("H2O", -8, False, state="g")
+        species_B = Species("*B", -10, True)
+
+        # Setup a test Reaction
+        reaction = Reaction(
+            [
+                ReactionStep(
+                    reactants={species_A: 1, species_H2O: 1},
+                    products={species_B: 1},
+                ),
+            ]
+        )
+
+        return reaction
+
+    def test_convert_step(self, eads_relation, test_reaction):
+        converter = AdsorbToDeltaE(eads_relation, test_reaction)
+
+        step_array = converter._convert_step(test_reaction[0])
+
+        assert isinstance(step_array, np.ndarray)
+        assert np.allclose(step_array, np.array([9.0, 0.0, -1.0]))
+
+    def test_convert(self, eads_relation, test_reaction):
+        converter = AdsorbToDeltaE(eads_relation, test_reaction)
+
+        deltaE_relation = converter.convert()
+
+        assert isinstance(deltaE_relation, DeltaERelation)
+
+        assert len(deltaE_relation.coefficients) == len(test_reaction)
