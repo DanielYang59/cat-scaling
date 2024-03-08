@@ -2,8 +2,6 @@
 
 # TODO: module docstring needs update
 
-# TODO: add reaction info in DeltaERelation
-
 # TODO: merge EadsRelation with RelationBase
 
 """Describe linear scaling relations with a coefficient matrix.
@@ -34,7 +32,6 @@ Coefficient matrix:
 from math import isclose
 
 import numpy as np
-from pymatgen.analysis.reaction_calculator import Reaction
 
 
 class RelationBase:
@@ -273,7 +270,6 @@ class DeltaERelation:
     by a list of coefficient arrays, each correspond to a reaction step.
 
     Args:
-        reaction (Reaction): The reaction associated with this energy relation.
         coefficients (list[np.ndarray]): List of coefficient arrays
             representing the energy change (DeltaE) scaling relation.
             Each array corresponds to a reaction step and contains the
@@ -284,16 +280,13 @@ class DeltaERelation:
             representing the energy change (DeltaE) scaling relation.
             Each array corresponds to a reaction step and contains
             the coefficients for the energy change.
-        reaction (Reaction): The reaction associated with this energy relation.
     """
 
     def __init__(
         self,
-        reaction: Reaction,
         coefficients: list[np.ndarray],
     ) -> None:
         self.coefficients = coefficients
-        self.reaction = reaction
 
     @property
     def coefficients(self) -> list[np.ndarray]:
@@ -320,15 +313,3 @@ class DeltaERelation:
             )
 
         self._coefficients = coefficients
-
-    @property
-    def reaction(self) -> Reaction:
-        """Record a balanced chemical Reaction."""
-        return self._reaction
-
-    @reaction.setter
-    def reaction(self, reaction: Reaction):
-        if not isinstance(reaction, Reaction):
-            raise TypeError("Expect type Reaction.")
-
-        self._reaction = reaction

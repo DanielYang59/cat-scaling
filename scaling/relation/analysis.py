@@ -102,9 +102,7 @@ class AdsorbToDeltaE:
         return coef_array
 
     def convert(self) -> DeltaERelation:
-        """Convert a list of ReactionStep from adsorption energy Relation
-        to energy change Relation.
-        """
+        """Convert a list of ReactionStep to energy change Relation."""
 
         # Work on each step
         coefs = [
@@ -112,7 +110,4 @@ class AdsorbToDeltaE:
         ]
 
         # Build energy change relation (DeltaERelation)
-        return DeltaERelation(
-            reaction=self.reaction,
-            coefficients=coefs,
-        )
+        return DeltaERelation(coefficients=coefs)
