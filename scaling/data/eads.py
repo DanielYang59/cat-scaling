@@ -1,3 +1,6 @@
+# TODO: need better methods to initialize Eads,
+# for example from_csv or such
+
 """Handle adsorption (free) energies for linear scaling relations."""
 
 from typing import Optional

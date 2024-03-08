@@ -1,4 +1,5 @@
-# TODO: Need better API to init a Reaction (for example in test_analysis.py)
+# TODO: better way to initialize a Reaction,
+# with energy for each species
 
 """Classes for representing a surface reaction.
 
@@ -139,6 +140,10 @@ class Reaction:
 
     def __init__(self, reaction_steps: list[ReactionStep]) -> None:
         self.reaction_steps = reaction_steps
+
+    def __len__(self) -> int:
+        """Number of ReactionSteps."""
+        return len(self.reaction_steps)
 
     def __getitem__(self, index):
         return self.reaction_steps[index]
