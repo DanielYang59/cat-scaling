@@ -1,4 +1,4 @@
-# TODO: property def of "groups" is missing
+# TODO: add test for property: groups
 
 """Handle adsorption (free) energies for linear scaling relations."""
 
@@ -31,7 +31,7 @@ class Eads:
     def __init__(
         self,
         data: pd.DataFrame,
-        groups: Optional[dict[str, list[str]]] = None,
+        groups: Optional[dict[str, Optional[list[str]]]] = None,
     ) -> None:
         """Initialize the Eads class with a DataFrame."""
 
@@ -88,6 +88,36 @@ class Eads:
             raise TypeError("Expect data as pd.DataFrame type.")
 
         self._data = data
+
+    @property
+    def groups(self) -> Optional[dict[str, Optional[list[str]]]]:
+        """Property representing groups of adsorbates.
+        For example for CO2 to CH4 reduction reaction:
+        groups = {
+            "*CO": ["*COOH", "*CHO", "*CH2O"],  # C-centered group
+            "*OH": ["*OCH3", "*O"]              # O-Centered group
+        }
+        """
+
+        return self._groups
+
+    @groups.setter
+    def groups(self, groups: Optional[dict[str, Optional[list[str]]]]):
+        if groups is not None:
+            if not isinstance(groups, dict):
+                raise TypeError("Expect groups as dict.")
+
+            for key, value in groups.items():
+                if not isinstance(key, str):
+                    raise TypeError(
+                        "Keys in groups dictionary must be strings."
+                    )
+                if value is not None and not isinstance(value, list):
+                    raise TypeError(
+                        "Group members must be lists of strings or None."
+                    )
+
+        self._groups = groups
 
     @property
     def adsorbates(
