@@ -39,6 +39,11 @@ class Test_eads:
             "Au@Al2O3",
         ]
 
+    def test_from_csv(self):
+        """Test initialize Eads from csv file."""
+        eads = Eads.from_csv(self.test_data_csv)
+        assert isinstance(eads, Eads)
+
     def test_get_adsorbate_sample(self, setup_class):
         # Test method: get_adsorbate
         col = self.eads.get_adsorbate("*CO")

@@ -1,8 +1,8 @@
-# TODO: need better methods to initialize Eads,
-# for example from_csv or such
+# TODO: property def of "groups" is missing
 
 """Handle adsorption (free) energies for linear scaling relations."""
 
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -46,12 +46,12 @@ class Eads:
         """Eads data as a pd.DataFrame.
 
         Expect data in the following format (as a pd.DataFrame):
-                    *CO2   *COOH  ...   *OCH3  *O     *OH
-            Cu@g-C3N4  0.89   4.37   ...   3.98  -1.73   0.17
-            Ni@C2N    -4.57  -4.95   ...  -0.93  -2.81  -3.21
+                       *CO2   *COOH  ...   *OCH3  *O     *OH
+            Cu@g-C3N4   0.89   4.37   ...   3.98  -1.73   0.17
+            Ni@C2N     -4.57  -4.95   ...  -0.93  -2.81  -3.21
             ......
-            Pt@SiO2   -2.36   3.69   ...   3.12   0.29   4.84
-            Au@Al2O3   2.15  -2.35   ...   1.36   1.07   4.56
+            Pt@SiO2    -2.36   3.69   ...   3.12   0.29   4.84
+            Au@Al2O3    2.15  -2.35   ...   1.36   1.07   4.56
 
             where:
                 - Column headers (0th row) should be adsorbate names.
@@ -104,6 +104,17 @@ class Eads:
         """Sample names (from row headers)."""
 
         return self.data.index.tolist()
+
+    @classmethod
+    def from_csv(cls, csv_file: str | Path) -> "Eads":
+        """Initialize from a csv file."""
+
+        _csv_file = Path(csv_file)
+
+        if not _csv_file.name.endswith(".csv"):
+            raise ValueError("Expect a csv file.")
+
+        return Eads(pd.read_csv(_csv_file, index_col=[0], header=[0]))
 
     def get_adsorbate(
         self,
