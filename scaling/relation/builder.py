@@ -1,9 +1,10 @@
+# TODO: "groups" has been migrated to "Eads", need to remove args
+
+
 # TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
 # is more specific and "species" is more general (which might be confusing
 # together with "sample")
 
-# TODO: use frozendict for "groups", as the ordering of keys (descriptors)
-# matters
 
 """Build scaling relations (Relation) from adsorption energy (Eads).
 
