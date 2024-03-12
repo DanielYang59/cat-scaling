@@ -1,5 +1,4 @@
-# TODO: better way to initialize a Reaction,
-# with energy for each species
+# TODO: fix __eq__ for ReactionStep to remove order sensitivity
 
 """Classes for representing a surface reaction.
 
@@ -8,6 +7,7 @@ for surface reactions (Unlike the Reaction class from pymatgen, t), as such
 species names are treated as is (for example name "*CO2" is allowed).
 """
 
+import re
 import warnings
 from typing import Any
 
@@ -53,6 +53,8 @@ class ReactionStep:
         if not isinstance(other, ReactionStep):
             return False
 
+        print(self.reactants, other.reactants)
+
         if (
             self.reactants == other.products
             and self.products == other.reactants
@@ -86,7 +88,7 @@ class ReactionStep:
             products.append(f"{num}{name}")
 
         # Assemble
-        return " + ".join(reactants) + " --> " + " + ".join(products)
+        return " + ".join(reactants) + " -> " + " + ".join(products)
 
     def __hash__(self) -> int:
         return hash(
@@ -133,6 +135,74 @@ class ReactionStep:
                 warnings.warn("Negative stoichiometric number found.")
 
         self._products = {k: float(v) for k, v in products.items()}
+
+    @staticmethod
+    def _sepa_stoi_number(name: str) -> tuple[float, str]:
+        """Separate species name to (stoichiometric_number, name).
+
+        Species without stoichiometric numbers would be treated
+        as stoichiometric numbers being 1.0.
+
+        Examples:
+            "*CO2(-1, 0)" -> (1.0, "*CO2(-1, 0)")
+            "2H2O_g(-2, -3)" -> (2.0, "H2O_g(-2, -3)")
+        """
+        name = name.strip()
+
+        # Use re to separate leading digits and name
+        match = re.match(r"^(\d+(\.\d+)?)(.*)$", name)
+        if match:
+            stoi_number_str = match.group(1)
+            species_name = match.group(3)
+
+        else:
+            stoi_number_str = ""
+            species_name = name
+
+        stoi_number: float = float(stoi_number_str) if stoi_number_str else 1.0
+
+        return stoi_number, species_name
+
+    @classmethod
+    def from_str(cls, string: str) -> "ReactionStep":
+        """Initialize a ReactionStep from a string.
+
+        The string should take the following format:
+            *A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
+
+        Notes:
+            1. Use " + "(whitespace in BOTH sides) to separate species
+            2. Use "->" to separate reactants and products
+            3. For species name format refers to the from_str method
+                of Species class
+            4. Species without stoichiometric numbers would be treated
+                as stoichiometric numbers being 1.
+        """
+
+        # Check string
+        if not isinstance(string, str):
+            raise TypeError("Expect a string.")
+
+        string_parts = string.split("->")
+        if len(string_parts) != 2:
+            raise ValueError("Invalid ReactionStep str.")
+
+        # Parse string
+        react_parts = string_parts[0].split(" + ")
+        product_parts = string_parts[1].split(" + ")
+
+        # Convert to Species
+        react_specs = {}
+        for name in react_parts:
+            stoi_number, species_name = cls._sepa_stoi_number(name)
+            react_specs[Species.from_str(species_name)] = stoi_number
+
+        product_specs = {}
+        for name in product_parts:
+            stoi_number, species_name = cls._sepa_stoi_number(name)
+            product_specs[Species.from_str(species_name)] = stoi_number
+
+        return ReactionStep(reactants=react_specs, products=product_specs)
 
 
 class Reaction:
