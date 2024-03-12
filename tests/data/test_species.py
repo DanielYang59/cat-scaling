@@ -45,3 +45,25 @@ class Test_species:
 
         species_1 = Species.from_str("H2O_g(-2.0, -3.0)")
         assert species_1 == Species("H2O", -2.0, False, -3.0, "g")
+
+    def test_from_dict(self):
+        species_0 = Species.from_dict(
+            {
+                "name": "CO2",
+                "energy": -2.5,
+                "adsorbed": True,
+                "correction": 0.1,
+                "state": "NA",
+            }
+        )
+        assert species_0 == Species("CO2", -2.5, True, 0.1, "NA")
+
+        species_1 = Species.from_dict(
+            {
+                "name": "H2O",
+                "energy": -2,
+                "adsorbed": False,
+                "state": "g",
+            }
+        )
+        assert species_1 == Species("H2O", -2, False, 0.0, "g")

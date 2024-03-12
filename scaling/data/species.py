@@ -1,4 +1,4 @@
-# TODO: does "state" for "species" matter?
+# TODO: really need "state" for "species"?
 
 
 """Represent a species for a surface reaction."""
@@ -130,7 +130,7 @@ class Species:
 
     @classmethod
     def from_str(cls, string: str) -> "Species":
-        """Initialize a Species from a string.
+        """Initialize Species from a string.
 
         Expect format in:
             *SpeciesName_state(energy, correction)
@@ -183,4 +183,21 @@ class Species:
 
     @classmethod
     def from_dict(cls, dct: dict) -> "Species":
-        pass
+        """Initialize Species from a dict."""
+        if not isinstance(dct, dict):
+            raise TypeError("Expect a dict.")
+
+        name = dct.get("name")
+        energy = dct.get("energy")
+        adsorbed = dct.get("adsorbed")
+
+        if name is None or energy is None or adsorbed is None:
+            raise ValueError("Missing required arg in the dict.")
+
+        return Species(
+            name=name,
+            energy=energy,
+            adsorbed=adsorbed,
+            correction=dct.get("correction", 0.0),
+            state=dct.get("state", "NA"),
+        )
