@@ -34,6 +34,8 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
+        args: ["--ignore=E203, W503"]
+        # https://github.com/psf/black/issues/354
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
