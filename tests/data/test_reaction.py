@@ -120,7 +120,8 @@ class Test_reaction:
         Reaction([reactionstep])
 
     def test_from_str(self):
-        test_str = """*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
+        test_str = """
+        *A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
         *B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)
         """
         reaction = Reaction.from_str(test_str)

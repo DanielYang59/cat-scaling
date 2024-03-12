@@ -1,3 +1,9 @@
+# TODO: Simplify energy for existing species, for example:
+# *CO2(-1, -0.5) + H+(-1.5, -1) + e-(0, 0) -> *COOH(-2, -0.75)
+# *COOH(-2, -0.75) + H+(-1.5, -1) + e-(0, 0) -> *CO(-3, -0.5) + H2O_l(-4, 0.25)
+# In current framework, the energy of species need to be input
+# repeatedly, which is very inconvenient
+
 """Classes for representing a surface reaction.
 
 This object is oriented towards easier recording of stoichiometric number

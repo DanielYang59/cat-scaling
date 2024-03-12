@@ -1,4 +1,5 @@
-# TODO: "groups" has been migrated to "Eads", need to remove args
+# TODO: "groups" has been migrated to "Eads", need to remove args and
+# detect from Eads
 
 
 # TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
