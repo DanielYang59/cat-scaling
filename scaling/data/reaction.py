@@ -1,5 +1,3 @@
-# TODO: fix __eq__ for ReactionStep to remove order sensitivity
-
 """Classes for representing a surface reaction.
 
 This object is oriented towards easier recording of stoichiometric number
@@ -52,8 +50,6 @@ class ReactionStep:
         """Equality comparison between two ReactionStep objects."""
         if not isinstance(other, ReactionStep):
             return False
-
-        print(self.reactants, other.reactants)
 
         if (
             self.reactants == other.products

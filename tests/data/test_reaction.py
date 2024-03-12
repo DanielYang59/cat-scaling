@@ -1,5 +1,3 @@
-# TODO: test reverse Species order in ReactionStep test_from_str
-
 import pytest
 
 from scaling.data.reaction import Reaction, ReactionStep
@@ -23,6 +21,22 @@ class Test_reactionstep:
 
         # Test __str__
         assert str(reactionstep) == "1.0*CO2 + 1.0H+_aq + 1.0e-_aq -> 1.0*COOH"
+
+    def test_eq(self):
+        react_step = "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)"
+
+        # Initialize from Species
+        reactants_0 = {
+            Species("H2O", -2.0, False, 3.0, "g"): 2.0,
+            Species("A", -1.0, True, 0): 1.0,
+        }
+        products_0 = {
+            Species("B", -4.0, True, 0): 2.0,
+        }
+
+        assert ReactionStep.from_str(react_step) == ReactionStep(
+            reactants=reactants_0, products=products_0
+        )
 
     def test_sepa_stoi_number(self):
         spec_string_0 = " *CO2(0, 0) "
