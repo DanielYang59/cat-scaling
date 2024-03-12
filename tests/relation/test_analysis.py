@@ -21,15 +21,14 @@ class Test_AdsorbToDeltaE:
         )
         test_df = pd.read_csv(test_data_csv, index_col=[0], header=[0])
         eads = Eads(test_df)
+        eads.groups = {
+            "*A": ["*B"],
+            "*C": ["*D"],
+        }
 
         # Build traditionally
         builder = Builder(eads)
-        relation = builder.build_traditional(
-            groups={
-                "*A": ["*B"],
-                "*C": ["*D"],
-            }
-        )
+        relation = builder.build_traditional()
 
         return relation
 

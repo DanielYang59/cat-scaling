@@ -17,6 +17,7 @@ class Test_builder:
         # Data
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         self.eads = Eads(test_df)
+        self.eads.groups = {"*A": ["*B"]}
 
     def test_properties(self):
         # TODO: need update
@@ -76,7 +77,7 @@ class Test_builder:
         builder = Builder(self.eads)
 
         # Test build *B with descriptor *A
-        relation = builder.build_traditional(groups={"*A": ["*B"]})
+        relation = builder.build_traditional()
 
         # Check scaling results
         assert relation.dim == 1  # only one descriptor *B
@@ -97,13 +98,17 @@ class Test_builder:
         expected a composite descriptor with (*A * 1 + *D * 0)
         to be the most suitable descriptor.
         """
+        # Overwrite descriptors
+        self.eads.groups = {
+            "*A": None,
+            "*D": None,
+        }
+
         # Prepare Builder
         builder = Builder(self.eads)
 
-        # Test with adaptive descriptors *A and *B
-        relation = builder.build_adaptive(
-            descriptors=["*A", "*D"], step_length=1
-        )
+        # Test with adaptive descriptors *A and *D
+        relation = builder.build_adaptive(step_length=1)
 
         # Check scaling results
         assert relation.dim == 2

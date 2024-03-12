@@ -204,14 +204,14 @@ class ReactionStep:
         for part in react_parts:
             stoi_number, species_str = cls._sepa_stoi_number(part)
             # Recompile species str to include energy
-            species_name = species_str.split("(")[0].lstrip("*")
+            species_name = species_str.split("(", 2)[0].lstrip("*")
             species_str = f"{species_str}{energy_dict[species_name]}"
             react_specs[Species.from_str(species_str)] = stoi_number
 
         product_specs = {}
         for part in product_parts:
             stoi_number, species_str = cls._sepa_stoi_number(part)
-            species_name = species_str.split("(")[0].lstrip("*")
+            species_name = species_str.split("(", 2)[0].lstrip("*")
             species_str = f"{species_str}{energy_dict[species_name]}"
             product_specs[Species.from_str(species_str)] = stoi_number
 

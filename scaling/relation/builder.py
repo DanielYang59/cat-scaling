@@ -1,6 +1,4 @@
-# TODO: "groups" has been migrated to "Eads", need to remove args and
-# detect from Eads
-
+# TODO: setting of groups/descriptors is messy
 
 # TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
 # is more specific and "species" is more general (which might be confusing
@@ -174,20 +172,19 @@ class Builder:
 
     def build_traditional(
         self,
-        groups: dict[str, list[str]],
     ) -> EadsRelation:
         """Build scaling relations the traditional way, where each species is
         approximated by a single descriptor within each group.
-
-        Parameters:
-            groups (dict[str, list[str]]): A dictionary where keys represent
-                descriptor names and values represent lists of species
-                associated with that descriptor.
 
         Returns:
             Relation: A Relation object containing coefficients and metrics
                 of the scaling relations.
         """
+
+        # Get "groups" from data(Eads)
+        groups = self.data.groups
+        if groups is None:
+            raise ValueError("You must set groups before build.")
 
         coefficients_dict = {}
         intercepts_dict = {}
@@ -195,6 +192,12 @@ class Builder:
         ratios_dict = {}
 
         for idx, (descriptor, species) in enumerate(groups.items()):
+            # Check group members
+            if species is None:
+                raise ValueError(
+                    "Member for tradition builder cannot be None."
+                )
+
             # Define ratios (single descriptor)
             ratios = {descriptor: 1.0}
 
@@ -231,15 +234,11 @@ class Builder:
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
         )
 
-    def build_adaptive(
-        self, descriptors: list[str], step_length: float = 1.0
-    ) -> EadsRelation:
+    def build_adaptive(self, step_length: float = 1.0) -> EadsRelation:
         """Build scaling relations with descriptors ratios determined on
         the fly.
 
         Parameters:
-            descriptors (list[str, str]): A list of the two descriptor names
-                for the scaling relations.
             step_length (float, optional): A percentage value indicating the
                 step size for searching the optimal ratio. Defaults to 1.0.
 
@@ -272,6 +271,11 @@ class Builder:
 
         # Convert step_length to percentage
         step_length = step_length / 100
+
+        # Get descriptors from data(Eads)
+        if self.data.groups is None:
+            raise ValueError("You must set descriptors before build.")
+        descriptors = list(self.data.groups.keys())
 
         # Check arg: descriptors
         if len(descriptors) != 2:
