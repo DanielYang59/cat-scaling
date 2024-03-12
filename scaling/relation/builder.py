@@ -170,9 +170,7 @@ class Builder:
         assert len(coefs) == len(ratios), "Internal coef error."
         return coefs, intercept, metrics
 
-    def build_traditional(
-        self,
-    ) -> EadsRelation:
+    def build_traditional(self) -> EadsRelation:
         """Build scaling relations the traditional way, where each species is
         approximated by a single descriptor within each group.
 
@@ -181,7 +179,7 @@ class Builder:
                 of the scaling relations.
         """
 
-        # Get "groups" from data(Eads)
+        # Get "groups" property from data
         groups = self.data.groups
         if groups is None:
             raise ValueError("You must set groups before build.")
@@ -192,10 +190,9 @@ class Builder:
         ratios_dict = {}
 
         for idx, (descriptor, species) in enumerate(groups.items()):
-            # Check group members
             if species is None:
                 raise ValueError(
-                    "Member for tradition builder cannot be None."
+                    "Group member for traditional builder cannot be None."
                 )
 
             # Define ratios (single descriptor)
@@ -209,17 +206,16 @@ class Builder:
             metrics_dict[descriptor] = 1.0
             ratios_dict[descriptor] = ratios
 
+            # Build for each species
             for spec_name in species:
-                # Build for each species
                 coefs, intercept, metrics = self._builder(
                     spec_name=spec_name,
                     ratios=ratios,
                 )
 
-                # Rebuild coefs
-                # As traditional method use only single descriptor
-                # Therefore only the descriptor correspond to its
-                # group would be non-zero
+                # Reshape coefs to consistent shape
+                # (As traditional method uses only one descriptor,
+                # any other coefs would be zero)
                 _coefs = [
                     coefs[0] if i == idx else 0.0 for i in range(len(groups))
                 ]
@@ -274,14 +270,12 @@ class Builder:
 
         # Get descriptors from data(Eads)
         if self.data.groups is None:
-            raise ValueError("You must set descriptors before build.")
+            raise ValueError("Cannot build without descriptors set.")
         descriptors = list(self.data.groups.keys())
 
-        # Check arg: descriptors
+        # Check descriptors
         if len(descriptors) != 2:
             raise ValueError("Expect two descriptors for adaptive method.")
-        if len(descriptors) != len(set(descriptors)):
-            raise ValueError("Duplicate descriptors not allowed.")
 
         coefficients_dict = {}
         intercepts_dict = {}
@@ -306,7 +300,7 @@ class Builder:
 
                 scores[ratio] = metrics
 
-            # Rerun regression with the optimal ratio
+            # Rerun linear regression with the optimal ratio
             opt_ratio = max(scores, key=lambda k: scores[k])
 
             opt_ratios = {
