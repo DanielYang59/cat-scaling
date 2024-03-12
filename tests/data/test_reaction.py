@@ -5,6 +5,13 @@ from scaling.data.species import Species
 
 
 class Test_reactionstep:
+    energy_dict = {
+        "A": (-1, 0),
+        "B": (-4, 0),
+        "H2O_g": (-2, 3),
+        "H2_g": (-3, 4),
+    }
+
     def test_init(self):
         reactants = {
             Species("CO2", -1, True): 1,
@@ -23,7 +30,7 @@ class Test_reactionstep:
         assert str(reactionstep) == "1.0*CO2 + 1.0H+ + 1.0e- -> 1.0*COOH"
 
     def test_eq(self):
-        react_step = "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)"
+        react_step = "*A + 2H2O_g -> 2*B"
 
         # Initialize from Species
         reactants_0 = {
@@ -34,9 +41,9 @@ class Test_reactionstep:
             Species("B", -4.0, True, 0): 2.0,
         }
 
-        assert ReactionStep.from_str(react_step) == ReactionStep(
-            reactants=reactants_0, products=products_0
-        )
+        assert ReactionStep.from_str(
+            react_step, self.energy_dict
+        ) == ReactionStep(reactants=reactants_0, products=products_0)
 
     def test_sepa_stoi_number(self):
         spec_string_0 = " *CO2(0, 0) "
@@ -63,9 +70,9 @@ class Test_reactionstep:
             Species("B", -4.0, True, 0): 2.0,
         }
 
-        assert ReactionStep.from_str(react_step) == ReactionStep(
-            reactants=reactants_0, products=products_0
-        )
+        assert ReactionStep.from_str(
+            react_step, self.energy_dict
+        ) == ReactionStep(reactants=reactants_0, products=products_0)
 
         # Initialize Species from string
         reactants_1 = {
@@ -76,11 +83,9 @@ class Test_reactionstep:
             Species.from_str("*B(-4, 0)"): 2.0,
         }
 
-        assert ReactionStep.from_str(react_step) == ReactionStep(
-            reactants=reactants_1, products=products_1
-        )
-
-        # TODO: test reverse Species order
+        assert ReactionStep.from_str(
+            react_step, self.energy_dict
+        ) == ReactionStep(reactants=reactants_1, products=products_1)
 
     def test_invalid_reactants(self):
         with pytest.raises(TypeError):
@@ -107,6 +112,14 @@ class Test_reactionstep:
 
 
 class Test_reaction:
+    energy_dict = {
+        "A": (-1, 0),
+        "B": (-4, 0),
+        "C": (-2, 3),
+        "H2O_g": (-2, 3),
+        "H2_g": (-3, 4),
+    }
+
     def test_init(self):
         reactants = {
             Species("CO2", -1, True): 1,
@@ -124,11 +137,11 @@ class Test_reaction:
         *A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
         *B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)
         """
-        reaction = Reaction.from_str(test_str)
+        reaction = Reaction.from_str(test_str, self.energy_dict)
         assert len(reaction) == 2
         assert reaction[0] == ReactionStep.from_str(
-            "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)"
+            "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)", self.energy_dict
         )
         assert reaction[1] == ReactionStep.from_str(
-            "*B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)"
+            "*B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)", self.energy_dict
         )

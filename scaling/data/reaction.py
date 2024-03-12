@@ -1,3 +1,5 @@
+# NOTE: handing of "*" such as in "*H2O" is quite messy
+
 """Class for representing a surface Reaction.
 
 This object is oriented towards easier recording of stoichiometric number
@@ -160,11 +162,11 @@ class ReactionStep:
         return stoi_number, species_name
 
     @classmethod
-    def from_str(cls, string: str) -> "ReactionStep":
-        """Initialize a ReactionStep from a string.
+    def from_str(cls, string: str, energy_dict: dict) -> "ReactionStep":
+        """Initialize a ReactionStep from a string, and an energy dict.
 
         The string should take the following format:
-            *A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
+            *A + 2H2O_g -> 2*B
 
         Notes:
             1. Use " + "(whitespace in BOTH sides) to separate species
@@ -173,6 +175,16 @@ class ReactionStep:
                 of Species class
             4. Species without stoichiometric numbers would be treated
                 as stoichiometric numbers being 1.
+
+        Also an energy dict is needed:
+        energy = {
+            "A": (-1, 0),
+            "H2O_g": (-2, 3),
+            "B": (-4, 0),
+        }
+
+        Note:
+            The "*" indicating an adsorbed species is unnecessary.
         """
 
         # Check string
@@ -189,14 +201,19 @@ class ReactionStep:
 
         # Convert to Species
         react_specs = {}
-        for name in react_parts:
-            stoi_number, species_name = cls._sepa_stoi_number(name)
-            react_specs[Species.from_str(species_name)] = stoi_number
+        for part in react_parts:
+            stoi_number, species_str = cls._sepa_stoi_number(part)
+            # Recompile species str to include energy
+            species_name = species_str.split("(")[0].lstrip("*")
+            species_str = f"{species_str}{energy_dict[species_name]}"
+            react_specs[Species.from_str(species_str)] = stoi_number
 
         product_specs = {}
-        for name in product_parts:
-            stoi_number, species_name = cls._sepa_stoi_number(name)
-            product_specs[Species.from_str(species_name)] = stoi_number
+        for part in product_parts:
+            stoi_number, species_str = cls._sepa_stoi_number(part)
+            species_name = species_str.split("(")[0].lstrip("*")
+            species_str = f"{species_str}{energy_dict[species_name]}"
+            product_specs[Species.from_str(species_str)] = stoi_number
 
         return ReactionStep(reactants=react_specs, products=product_specs)
 
@@ -234,7 +251,7 @@ class Reaction:
         self._reaction_steps = reaction_steps
 
     @classmethod
-    def from_str(cls, string: str) -> "Reaction":
+    def from_str(cls, string: str, energy_dict: dict) -> "Reaction":
         """Initialize Reaction from a string.
 
         The string should be formatted such that each ReactionStep
@@ -247,7 +264,7 @@ class Reaction:
         reaction_steps = []
         str_parts = string.strip().split("\n")
         for step in str_parts:
-            reaction_steps.append(ReactionStep.from_str(step))
+            reaction_steps.append(ReactionStep.from_str(step, energy_dict))
 
         assert reaction_steps
         return Reaction(reaction_steps)
