@@ -1,6 +1,10 @@
+# TODO: does "state" for "species" matter?
+
+
 """Represent a species for a surface reaction."""
 
 import warnings
+from math import isclose
 from typing import Any
 
 
@@ -35,6 +39,15 @@ class Species:
         self.correction = correction
         self.state = state
 
+    def __str__(self) -> str:
+        """See from_str for detailed format."""
+        prefix = "*" if self.adsorbed else ""
+
+        return (
+            f"{prefix}{self.name}_{self.state}"
+            f"({self.energy}, {self.correction})"
+        )
+
     def __eq__(self, other: Any) -> bool:
         """The equality comparison."""
         if not isinstance(other, Species):
@@ -43,7 +56,8 @@ class Species:
         return (
             self.name == other.name
             and self.adsorbed == other.adsorbed
-            and self.energy == other.energy
+            and isclose(self.energy, other.energy, abs_tol=1e-4)
+            and isclose(self.correction, other.correction, abs_tol=1e-4)
             and self.state == other.state
         )
 
@@ -113,3 +127,60 @@ class Species:
             raise TypeError("Correction should be float.")
 
         self._correction = float(correction)
+
+    @classmethod
+    def from_str(cls, string: str) -> "Species":
+        """Initialize a Species from a string.
+
+        Expect format in:
+            *SpeciesName_state(energy, correction)
+            where "*"(optional) denotes an adsorbed species,
+            "SpeciesName" for the name,
+            "_state"(optional) for the physical state,
+            "energy" for electronic energy and
+            "correction" for any other energy correction terms.
+
+        Some examples:
+            "*CO2(-1.0, -2.0)" -> Species(
+                "CO2", adsorbed=True, state="NA",
+                energy=-1.0, correction=-2.0
+                )
+
+            "H2O_g(-2.0, -3.0)" -> Species(
+                "H2O", adsorbed=False, state="g",
+                energy=-2.0, correction=-3.0
+                )
+        """
+        if not isinstance(string, str):
+            raise TypeError("Expect type str.")
+
+        string = string.strip()
+
+        # Check if adsorbed
+        adsorbed: bool = True if string.startswith("*") else False
+
+        # Get energy and correction
+        e_start = string.find("(")
+        e_end = string.find(")")
+        energy_parts = string[e_start + 1 : e_end].split(",")
+        if e_start == -1 or e_end == -1 or len(energy_parts) != 2:
+            raise ValueError("Invalid format for energy and correction.")
+
+        energy = float(energy_parts[0])
+        correction = float(energy_parts[1])
+
+        # Get physical state (if available)
+        state_start = string.find("_")
+        if state_start != -1:
+            state: str = string[state_start + 1 : e_start]
+        else:
+            state = "NA"
+
+        # Get species name
+        name = string[:e_start].split("_")[0].lstrip("*")
+
+        return Species(name, energy, adsorbed, correction, state)
+
+    @classmethod
+    def from_dict(cls, dct: dict) -> "Species":
+        pass
