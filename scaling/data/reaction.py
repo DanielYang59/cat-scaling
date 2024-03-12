@@ -1,14 +1,8 @@
-# TODO: Simplify energy for existing species, for example:
-# *CO2(-1, -0.5) + H+(-1.5, -1) + e-(0, 0) -> *COOH(-2, -0.75)
-# *COOH(-2, -0.75) + H+(-1.5, -1) + e-(0, 0) -> *CO(-3, -0.5) + H2O_l(-4, 0.25)
-# In current framework, the energy of species need to be input
-# repeatedly, which is very inconvenient
-
-"""Classes for representing a surface reaction.
+"""Class for representing a surface Reaction.
 
 This object is oriented towards easier recording of stoichiometric number
-for surface reactions (Unlike the Reaction class from pymatgen, t), as such
-species names are treated as is (for example name "*CO2" is allowed).
+for surface reactions (Unlike the Reaction class from pymatgen), as such
+species names are treated as is (for example name like "*CO2" is allowed).
 """
 
 import re
@@ -75,7 +69,7 @@ class ReactionStep:
             if spec.adsorbed:
                 name = f"*{spec.name}"
             else:
-                name = f"{spec.name}_{spec.state}"
+                name = spec.name
 
             reactants.append(f"{num}{name}")
 
@@ -85,7 +79,7 @@ class ReactionStep:
             if spec.adsorbed:
                 name = f"*{spec.name}"
             else:
-                name = f"{spec.name}_{spec.state}"
+                name = spec.name
 
             products.append(f"{num}{name}")
 

@@ -7,11 +7,11 @@ from scaling.data.species import Species
 class Test_reactionstep:
     def test_init(self):
         reactants = {
-            Species("CO2", -1, True, state="NA"): 1,
-            Species("H+", -1, False, state="aq"): 1.0,
-            Species("e-", -1, False, state="aq"): 1,
+            Species("CO2", -1, True): 1,
+            Species("H+", -1, False): 1.0,
+            Species("e-", -1, False): 1,
         }
-        products = {Species("COOH", -1, True, state="NA"): 1}
+        products = {Species("COOH", -1, True): 1}
 
         reactionstep = ReactionStep(reactants, products)
 
@@ -20,14 +20,14 @@ class Test_reactionstep:
         assert reactionstep.products == products
 
         # Test __str__
-        assert str(reactionstep) == "1.0*CO2 + 1.0H+_aq + 1.0e-_aq -> 1.0*COOH"
+        assert str(reactionstep) == "1.0*CO2 + 1.0H+ + 1.0e- -> 1.0*COOH"
 
     def test_eq(self):
         react_step = "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)"
 
         # Initialize from Species
         reactants_0 = {
-            Species("H2O", -2.0, False, 3.0, "g"): 2.0,
+            Species("H2O_g", -2.0, False, 3.0): 2.0,
             Species("A", -1.0, True, 0): 1.0,
         }
         products_0 = {
@@ -57,7 +57,7 @@ class Test_reactionstep:
         # Initialize from Species
         reactants_0 = {
             Species("A", -1.0, True, 0): 1.0,
-            Species("H2O", -2.0, False, 3.0, "g"): 2.0,
+            Species("H2O_g", -2.0, False, 3.0): 2.0,
         }
         products_0 = {
             Species("B", -4.0, True, 0): 2.0,
@@ -89,7 +89,7 @@ class Test_reactionstep:
 
         with pytest.raises(TypeError):
             # Pass an invalid type for stoichiometric number
-            ReactionStep({Species("CO2", -1, True, state="NA"): "1"}, {})
+            ReactionStep({Species("CO2", -1, True): "1"}, {})
 
     def test_invalid_products(self):
         with pytest.raises(TypeError):
@@ -98,22 +98,22 @@ class Test_reactionstep:
 
         with pytest.raises(TypeError):
             # Pass an invalid type for stoichiometric number
-            ReactionStep({}, {Species("COOH", -1, True, state="NA"): "1"})
+            ReactionStep({}, {Species("COOH", -1, True): "1"})
 
     def test_negative_stoichiometric_number_warning(self):
         with pytest.warns(UserWarning):
             # Pass a negative stoichiometric number
-            ReactionStep({Species("CO2", -1, True, state="NA"): -1}, {})
+            ReactionStep({Species("CO2", -1, True): -1}, {})
 
 
 class Test_reaction:
     def test_init(self):
         reactants = {
-            Species("CO2", -1, True, state="NA"): 1,
-            Species("H+", -1, False, state="aq"): 1.0,
-            Species("e-", -1, False, state="aq"): 1,
+            Species("CO2", -1, True): 1,
+            Species("H+", -1, False): 1.0,
+            Species("e-", -1, False): 1,
         }
-        products = {Species("COOH", -1, True, state="NA"): 1}
+        products = {Species("COOH", -1, True): 1}
 
         reactionstep = ReactionStep(reactants, products)
 

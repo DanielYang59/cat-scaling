@@ -1,6 +1,3 @@
-# TODO: really need "state" for "species"?
-
-
 """Represent a species for a surface reaction."""
 
 import warnings
@@ -17,7 +14,6 @@ class Species:
         energy: float,
         adsorbed: bool,
         correction: float = 0.0,
-        state: str = "NA",
     ) -> None:
         """Initialize a Species object.
 
@@ -25,28 +21,21 @@ class Species:
             name (str): The name of the species.
             energy (float): energy of the species.
             adsorbed (bool): Whether the species is adsorbed on the surface.
-            state (Optional[str], optional): The physical state of the species.
-                Valid states are {"g", "l", "s", "aq", "NA"}.
 
         Raises:
             TypeError: If adsorbed is not a boolean.
-            ValueError: If provided state is not valid.
         """
 
         self.name = name
         self.energy = energy
         self.adsorbed = adsorbed
         self.correction = correction
-        self.state = state
 
     def __str__(self) -> str:
         """See from_str for detailed format."""
         prefix = "*" if self.adsorbed else ""
 
-        return (
-            f"{prefix}{self.name}_{self.state}"
-            f"({self.energy}, {self.correction})"
-        )
+        return f"{prefix}{self.name}({self.energy}, {self.correction})"
 
     def __eq__(self, other: Any) -> bool:
         """The equality comparison."""
@@ -58,11 +47,10 @@ class Species:
             and self.adsorbed == other.adsorbed
             and isclose(self.energy, other.energy, abs_tol=1e-4)
             and isclose(self.correction, other.correction, abs_tol=1e-4)
-            and self.state == other.state
         )
 
     def __hash__(self) -> int:
-        return hash((self.name, self.adsorbed, self.energy, self.state))
+        return hash((self.name, self.adsorbed, self.energy))
 
     @property
     def adsorbed(self) -> bool:
@@ -76,24 +64,6 @@ class Species:
             raise TypeError("Adsorbed should be boolean.")
 
         self._adsorbed = adsorbed
-
-    @property
-    def state(self) -> str:
-        """Physical state of the species.
-        Valid states are {"g", "l", "s", "aq", "NA"}.
-        """
-
-        return self._state
-
-    @state.setter
-    def state(self, state: str):
-        valid_states = {"g", "l", "s", "aq", "NA"}
-        if state not in valid_states:
-            raise ValueError(
-                f"Invalid physical state, supported: {valid_states}."
-            )
-
-        self._state = state
 
     @property
     def energy(self) -> float:
@@ -133,21 +103,20 @@ class Species:
         """Initialize Species from a string.
 
         Expect format in:
-            *SpeciesName_state(energy, correction)
+            *SpeciesName(energy, correction)
             where "*"(optional) denotes an adsorbed species,
             "SpeciesName" for the name,
-            "_state"(optional) for the physical state,
             "energy" for electronic energy and
             "correction" for any other energy correction terms.
 
         Some examples:
             "*CO2(-1.0, -2.0)" -> Species(
-                "CO2", adsorbed=True, state="NA",
+                "CO2", adsorbed=True,
                 energy=-1.0, correction=-2.0
                 )
 
             "H2O_g(-2.0, -3.0)" -> Species(
-                "H2O", adsorbed=False, state="g",
+                "H2O_g", adsorbed=False,
                 energy=-2.0, correction=-3.0
                 )
         """
@@ -169,17 +138,10 @@ class Species:
         energy = float(energy_parts[0])
         correction = float(energy_parts[1])
 
-        # Get physical state (if available)
-        state_start = string.find("_")
-        if state_start != -1:
-            state: str = string[state_start + 1 : e_start]
-        else:
-            state = "NA"
-
         # Get species name
-        name = string[:e_start].split("_")[0].lstrip("*")
+        name = string[:e_start].lstrip("*")
 
-        return Species(name, energy, adsorbed, correction, state)
+        return Species(name, energy, adsorbed, correction)
 
     @classmethod
     def from_dict(cls, dct: dict) -> "Species":
@@ -199,5 +161,4 @@ class Species:
             energy=energy,
             adsorbed=adsorbed,
             correction=dct.get("correction", 0.0),
-            state=dct.get("state", "NA"),
         )

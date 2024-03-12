@@ -37,7 +37,7 @@ class Test_AdsorbToDeltaE:
     def test_reaction(self):
         # Define dummy Species
         species_A = Species("*A", -1, True)
-        species_H2O = Species("H2O", -8, False, state="g")
+        species_H2O = Species("H2O", -8, False)
         species_B = Species("*B", -10, True)
 
         # Setup a test Reaction
