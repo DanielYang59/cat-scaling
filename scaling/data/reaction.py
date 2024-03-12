@@ -232,3 +232,22 @@ class Reaction:
             raise ValueError("Duplicate ReactionStep found.")
 
         self._reaction_steps = reaction_steps
+
+    @classmethod
+    def from_str(cls, string: str) -> "Reaction":
+        """Initialize Reaction from a string.
+
+        The string should be formatted such that each ReactionStep
+        resides in a single line. For the format requirements
+        of ReactionStep, please refer to its from_str method.
+        """
+        if not isinstance(string, str):
+            raise TypeError("Expect a str.")
+
+        reaction_steps = []
+        str_parts = string.strip().split("\n")
+        for step in str_parts:
+            reaction_steps.append(ReactionStep.from_str(step))
+
+        assert reaction_steps
+        return Reaction(reaction_steps)

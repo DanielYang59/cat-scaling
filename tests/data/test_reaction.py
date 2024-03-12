@@ -118,3 +118,16 @@ class Test_reaction:
         reactionstep = ReactionStep(reactants, products)
 
         Reaction([reactionstep])
+
+    def test_from_str(self):
+        test_str = """*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
+        *B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)
+        """
+        reaction = Reaction.from_str(test_str)
+        assert len(reaction) == 2
+        assert reaction[0] == ReactionStep.from_str(
+            "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)"
+        )
+        assert reaction[1] == ReactionStep.from_str(
+            "*B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)"
+        )
