@@ -34,12 +34,13 @@ from scaling.relation.relation import DeltaERelation, EadsRelation
 
 class AdsorbToDeltaE:
     """Convert adsorption energy scaling Relation to
-    reaction energy change Relation, based on a Reaction. Would need
-    free species energies. Could optionally add corrections terms
-    (zero-point energies, solvation energies or such).
+    reaction energy change Relation, based on a given Reaction.
 
-    The resulted coefficient matrix would have one set of
-    coefficient for each reaction step. # TODO: docstring
+    Need free species energies, and could optionally add
+    corrections terms (zero-point energies, solvation energies or such).
+
+    The resulted DeltaERelation would have one set of
+    coefficient for each reaction step.
     """
 
     def __init__(
@@ -51,30 +52,31 @@ class AdsorbToDeltaE:
         self.relation = relation
         self.reaction = reaction
 
-    def _convert_step(self, step: ReactionStep) -> list[float]:
+    def _convert_step(self, step: ReactionStep) -> np.ndarray:
         """Convert adsorption energy Relation to reaction energy change
         Relation for a single reaction step.
         """
 
-        # Initialize an empty array to host coefficients and intercept
+        # Initialize an empty array to store coefficients and intercept
         # Need number of descriptors + 1 (1 for intercept)
         coef_array = np.zeros(self.relation.dim + 1)
 
         # Convert the reactants side
         for spec, num in step.reactants.items():
-            # Pack coefficients and intercept as a single array in form:
+            # Pack coefficients and intercept as a single array:
             # [coef_0, coef_1, ..., coef_n, intercept]
             if spec.adsorbed:
                 spec_arr = copy.copy(self.relation.coefficients[spec.name])
                 spec_arr.append(self.relation.intercepts[spec.name])
 
             else:
-                # For free species (molecules), there is no coefficient
+                # For free species/molecules, coefs are zero
                 spec_arr = np.zeros(self.relation.dim + 1)
 
             # Add free species energy for adsorbed species to constant
-            # (intercept) term. NOTE: For species "*CO2", the energy
-            # for free "CO2" should be added
+            # (intercept) term.
+            # NOTE: For species "*CO2", the energy for free "CO2"
+            # should be added (provided)
             spec_arr[-1] += spec.energy
 
             # Add correction term

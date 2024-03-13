@@ -1,4 +1,4 @@
-# TODO: avoid duplication in test setup for Test_EadsRelation
+# TODO: reduce duplication in test setup for Test_EadsRelation
 
 
 import pytest
