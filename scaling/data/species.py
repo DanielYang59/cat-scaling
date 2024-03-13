@@ -21,9 +21,6 @@ class Species:
             name (str): The name of the species.
             energy (float): energy of the species.
             adsorbed (bool): Whether the species is adsorbed on the surface.
-
-        Raises:
-            TypeError: If adsorbed is not a boolean.
         """
 
         self.name = name
@@ -32,13 +29,12 @@ class Species:
         self.correction = correction
 
     def __str__(self) -> str:
-        """See from_str for detailed format."""
+        """See from_str method for detailed format."""
         prefix = "*" if self.adsorbed else ""
 
         return f"{prefix}{self.name}({self.energy}, {self.correction})"
 
     def __eq__(self, other: Any) -> bool:
-        """The equality comparison."""
         if not isinstance(other, Species):
             return False
 
@@ -51,6 +47,15 @@ class Species:
 
     def __hash__(self) -> int:
         return hash((self.name, self.adsorbed, self.energy))
+
+    @property
+    def name(self) -> str:
+        """Name of the Species."""
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        self._name = name
 
     @property
     def adsorbed(self) -> bool:

@@ -41,9 +41,10 @@ class Test_reactionstep:
 
         # Initialize from Species
         reactants = {
-            Species("H2O_g", -4, False, 2.0): 2,
             Species("A", -1, True, 0.5): 1,
+            Species("H2O_g", -4, False, 2.0): 2,
         }
+
         products = {
             Species("B", -2, True, 1.0): 2,
         }
@@ -74,7 +75,7 @@ class Test_reactionstep:
             Species("H2O_g", -4.0, False, 2.0): 2.0,
         }
         products_0 = {
-            Species("B", -4.0, True, 0): 2.0,
+            Species("B", -2.0, True, 1): 2.0,
         }
 
         assert ReactionStep.from_str(react_step, energy_dict) == ReactionStep(
@@ -83,8 +84,8 @@ class Test_reactionstep:
 
         # Initialize Species from string
         reactants_1 = {
-            Species.from_str("*A(-1, 0)"): 1.0,
-            Species.from_str("H2O_g(-2, 3)"): 2.0,
+            Species.from_str("*A(-1, 0.5)"): 1.0,
+            Species.from_str("H2O_g(-4, 2.0)"): 2.0,
         }
         products_1 = {
             Species.from_str("*B(-2, 1)"): 2.0,
@@ -119,21 +120,13 @@ class Test_reactionstep:
 
 
 class Test_reaction:
-    energy_dict = {
-        "A": (-1, 0),
-        "B": (-4, 0),
-        "C": (-2, 3),
-        "H2O_g": (-2, 3),
-        "H2_g": (-3, 4),
-    }
-
     def test_init(self):
         reactants = {
-            Species("CO2", -1, True): 1,
-            Species("H+", -1, False): 1.0,
-            Species("e-", -1, False): 1,
+            Species("CO2", -6, True, 3.0): 1,
+            Species("H+", -9, False, 4.5): 1.0,
+            Species("e-", 0, False): 1,
         }
-        products = {Species("COOH", -1, True): 1}
+        products = {Species("COOH", -7, True, 3.5): 1}
 
         reactionstep = ReactionStep(reactants, products)
 
@@ -146,11 +139,11 @@ class Test_reaction:
         *A + 2H2O_g -> 2*B
         *B -> *C + H2_g
         """
-        reaction = Reaction.from_str(test_str, self.energy_dict)
+        reaction = Reaction.from_str(test_str, energy_dict)
         assert len(reaction) == 2
         assert reaction[0] == ReactionStep.from_str(
-            "*A + 2H2O_g -> 2*B", self.energy_dict
+            "*A + 2H2O_g -> 2*B", energy_dict
         )
         assert reaction[1] == ReactionStep.from_str(
-            "*B -> *C + H2_g", self.energy_dict
+            "*B -> *C + H2_g", energy_dict
         )

@@ -13,7 +13,7 @@ from scaling.data.species import Species
 
 
 class ReactionStep:
-    """Represent a single reaction step for within a reaction."""
+    """Represent a single reaction step within a Reaction."""
 
     def __init__(
         self,
@@ -47,7 +47,6 @@ class ReactionStep:
         self.products = products
 
     def __eq__(self, other: Any) -> bool:
-        """Equality comparison between two ReactionStep objects."""
         if not isinstance(other, ReactionStep):
             return False
 
@@ -184,7 +183,7 @@ class ReactionStep:
 
         Note:
             The "*" indicating an adsorbed species is unnecessary,
-                as the energy of free species is need.
+                as the energy of free species (not adsorbed) is need.
         """
 
         # Check string
@@ -195,29 +194,30 @@ class ReactionStep:
         if len(string_parts) != 2:
             raise ValueError("Invalid ReactionStep str.")
 
-        # Split entire string into species_str parts
+        # Split entire string into species parts
         react_parts = string_parts[0].split(" + ")
         product_parts = string_parts[1].split(" + ")
 
-        # Convert each species_str to Species for reactants
+        # Convert each species str to Species for reactants
         react_specs = {}
         for part in react_parts:
             # Separate species_str: "2*CO2(-1, 0)" -> (2.0, "*CO2(-1, 0)")
             number, species_name = cls._sepa_stoi_number(part)
 
             # Recompile species str to include energy
-
             species_name = (
                 f"{species_name}{energy_dict[species_name.lstrip(" * ")]}"
             )
             react_specs[Species.from_str(species_name)] = number
 
-        # Convert each species_str to Species for products
+        # Convert products
         product_specs = {}
         for part in product_parts:
             number, species_name = cls._sepa_stoi_number(part)
-            species_name = species_name.split("(", 2)[0].lstrip("*")
-            species_name = f"{species_name}{energy_dict[species_name]}"
+
+            species_name = (
+                f"{species_name}{energy_dict[species_name.lstrip(" * ")]}"
+            )
             product_specs[Species.from_str(species_name)] = number
 
         return ReactionStep(reactants=react_specs, products=product_specs)
