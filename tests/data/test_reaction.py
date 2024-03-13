@@ -18,6 +18,7 @@ energy_dict = {
 }
 
 
+@pytest.mark.filterwarnings("ignore:Non-negative energy found")
 class Test_reactionstep:
     def test_init(self):
         reactants = {
@@ -119,6 +120,7 @@ class Test_reactionstep:
             ReactionStep({Species("CO2", -6, True, 3): -1}, {})
 
 
+@pytest.mark.filterwarnings("ignore:Non-negative energy found")
 class Test_reaction:
     def test_init(self):
         reactants = {
