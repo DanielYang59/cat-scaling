@@ -3,22 +3,29 @@ import pytest
 from scaling.data.reaction import Reaction, ReactionStep
 from scaling.data.species import Species
 
+# Dummy energies for test
+energy_dict = {
+    "A": (-1, 0.5),
+    "B": (-2, 1.0),
+    "C": (-3, 1.5),
+    "H2O_g": (-4, 2.0),
+    "H2_g": (-5, 2.5),
+    "CO2": (-6, 3.0),
+    "COOH": (-7, 3.5),
+    "CO": (-8, 4.0),
+    "H+": (-9, 4.5),
+    "e-": (0, 0),
+}
+
 
 class Test_reactionstep:
-    energy_dict = {
-        "A": (-1, 0),
-        "B": (-4, 0),
-        "H2O_g": (-2, 3),
-        "H2_g": (-3, 4),
-    }
-
     def test_init(self):
         reactants = {
-            Species("CO2", -1, True): 1,
-            Species("H+", -1, False): 1.0,
-            Species("e-", -1, False): 1,
+            Species("CO2", -6, True, 3): 1,
+            Species("H+", -9, False, 4.5): 1.0,
+            Species("e-", 0, False, 0): 1,
         }
-        products = {Species("COOH", -1, True): 1}
+        products = {Species("COOH", -7, True, 3.5): 1}
 
         reactionstep = ReactionStep(reactants, products)
 
@@ -33,46 +40,46 @@ class Test_reactionstep:
         react_step = "*A + 2H2O_g -> 2*B"
 
         # Initialize from Species
-        reactants_0 = {
-            Species("H2O_g", -2.0, False, 3.0): 2.0,
-            Species("A", -1.0, True, 0): 1.0,
+        reactants = {
+            Species("H2O_g", -4, False, 2.0): 2,
+            Species("A", -1, True, 0.5): 1,
         }
-        products_0 = {
-            Species("B", -4.0, True, 0): 2.0,
+        products = {
+            Species("B", -2, True, 1.0): 2,
         }
 
-        assert ReactionStep.from_str(
-            react_step, self.energy_dict
-        ) == ReactionStep(reactants=reactants_0, products=products_0)
-
-    def test_sepa_stoi_number(self):
-        spec_string_0 = " *CO2(0, 0) "
-        assert ReactionStep._sepa_stoi_number(spec_string_0) == (
-            1.0,
-            "*CO2(0, 0)",
+        assert ReactionStep.from_str(react_step, energy_dict) == ReactionStep(
+            reactants=reactants, products=products
         )
 
-        spec_string_1 = " 2H2O_g(-1, 2) "
+    def test_sepa_stoi_number(self):
+        spec_string_0 = " *CO2(-6, 3) "
+        assert ReactionStep._sepa_stoi_number(spec_string_0) == (
+            1.0,
+            "*CO2(-6, 3)",
+        )
+
+        spec_string_1 = " 2H2O_g(-4, 2) "
         assert ReactionStep._sepa_stoi_number(spec_string_1) == (
             2.0,
-            "H2O_g(-1, 2)",
+            "H2O_g(-4, 2)",
         )
 
     def test_from_str(self):
-        react_step = "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)"
+        react_step = "*A + 2H2O_g -> 2*B"
 
         # Initialize from Species
         reactants_0 = {
-            Species("A", -1.0, True, 0): 1.0,
-            Species("H2O_g", -2.0, False, 3.0): 2.0,
+            Species("A", -1.0, True, 0.5): 1.0,
+            Species("H2O_g", -4.0, False, 2.0): 2.0,
         }
         products_0 = {
             Species("B", -4.0, True, 0): 2.0,
         }
 
-        assert ReactionStep.from_str(
-            react_step, self.energy_dict
-        ) == ReactionStep(reactants=reactants_0, products=products_0)
+        assert ReactionStep.from_str(react_step, energy_dict) == ReactionStep(
+            reactants=reactants_0, products=products_0
+        )
 
         # Initialize Species from string
         reactants_1 = {
@@ -80,12 +87,12 @@ class Test_reactionstep:
             Species.from_str("H2O_g(-2, 3)"): 2.0,
         }
         products_1 = {
-            Species.from_str("*B(-4, 0)"): 2.0,
+            Species.from_str("*B(-2, 1)"): 2.0,
         }
 
-        assert ReactionStep.from_str(
-            react_step, self.energy_dict
-        ) == ReactionStep(reactants=reactants_1, products=products_1)
+        assert ReactionStep.from_str(react_step, energy_dict) == ReactionStep(
+            reactants=reactants_1, products=products_1
+        )
 
     def test_invalid_reactants(self):
         with pytest.raises(TypeError):
@@ -94,7 +101,7 @@ class Test_reactionstep:
 
         with pytest.raises(TypeError):
             # Pass an invalid type for stoichiometric number
-            ReactionStep({Species("CO2", -1, True): "1"}, {})
+            ReactionStep({Species("CO2", -6, True, 3): "1"}, {})
 
     def test_invalid_products(self):
         with pytest.raises(TypeError):
@@ -103,12 +110,12 @@ class Test_reactionstep:
 
         with pytest.raises(TypeError):
             # Pass an invalid type for stoichiometric number
-            ReactionStep({}, {Species("COOH", -1, True): "1"})
+            ReactionStep({}, {Species("COOH", -7, True, 3.5): "1"})
 
     def test_negative_stoichiometric_number_warning(self):
         with pytest.warns(UserWarning):
             # Pass a negative stoichiometric number
-            ReactionStep({Species("CO2", -1, True): -1}, {})
+            ReactionStep({Species("CO2", -6, True, 3): -1}, {})
 
 
 class Test_reaction:
@@ -130,18 +137,20 @@ class Test_reaction:
 
         reactionstep = ReactionStep(reactants, products)
 
-        Reaction([reactionstep])
+        _reaction = Reaction([reactionstep])
+
+        assert isinstance(_reaction, Reaction)
 
     def test_from_str(self):
         test_str = """
-        *A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)
-        *B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)
+        *A + 2H2O_g -> 2*B
+        *B -> *C + H2_g
         """
         reaction = Reaction.from_str(test_str, self.energy_dict)
         assert len(reaction) == 2
         assert reaction[0] == ReactionStep.from_str(
-            "*A(-1, 0) + 2H2O_g(-2, 3) -> 2*B(-4, 0)", self.energy_dict
+            "*A + 2H2O_g -> 2*B", self.energy_dict
         )
         assert reaction[1] == ReactionStep.from_str(
-            "*B(-4, 0) -> *C(-2, 3) + H2_g(-3, 4)", self.energy_dict
+            "*B -> *C + H2_g", self.energy_dict
         )
