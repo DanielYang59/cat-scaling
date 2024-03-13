@@ -8,6 +8,7 @@ from scaling.data import Eads
 from scaling.data.reaction import Reaction, ReactionStep, Species
 from scaling.relation.analysis import AdsorbToDeltaE
 from scaling.relation.builder import Builder
+from scaling.relation.descriptors import Descriptors
 from scaling.relation.relation import DeltaERelation
 from scaling.utils import PROJECT_ROOT
 
@@ -21,14 +22,16 @@ class Test_AdsorbToDeltaE:
         )
         test_df = pd.read_csv(test_data_csv, index_col=[0], header=[0])
         eads = Eads(test_df)
-        eads.groups = {
-            "*A": ["*B"],
-            "*C": ["*D"],
-        }
+        descriptors = Descriptors(
+            {
+                "*A": ["*B"],
+                "*C": ["*D"],
+            }
+        )
 
         # Build traditionally
         builder = Builder(eads)
-        relation = builder.build_traditional()
+        relation = builder.build_traditional(descriptors)
 
         return relation
 
