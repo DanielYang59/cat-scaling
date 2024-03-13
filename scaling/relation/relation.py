@@ -26,6 +26,7 @@ Coefficient matrix:
     Eads X  =  aX                 bX             .......    cX
 """
 
+import warnings
 from math import isclose
 
 import numpy as np
@@ -155,22 +156,37 @@ class EadsRelation:
         return self._metrics
 
     @metrics.setter
-    def metrics(self, metrics: dict[str, float]):
-        """Set metrics, which is expect to be a "species: error" dict,
-        for example:
-            metrics = {
-                "*CO": 0.8,
-                "*OH": 0.9,
-            }
+    def metrics(self, metrics: dict[str, float], warn_threshold: float = 0.5):
+        """Set metrics.
+
+        Parameters:
+            metrics (dict[str, float]): A dictionary representing metrics with
+                keys as species and values as error values.
+                For example:
+                    metrics = {
+                        "*CO": 0.8,
+                        "*OH": 0.9,
+                    }
+            warn_threshold (float, optional): The threshold below which a
+                warning will be issued for low metrics. Defaults to 0.5.
+
+        Raises:
+            TypeError: If metrics is not a dictionary or
+                metric values are not floats.
+
+        Warns:
+            UserWarning: If any metric value is below the warn_threshold.
         """
 
         # Check data types
         if not isinstance(metrics, dict):
             raise TypeError("metric should be a dict.")
 
-        for value in metrics.values():
+        for name, value in metrics.items():
             if not isinstance(value, float):
                 raise TypeError("metric values should be float.")
+            if value < warn_threshold:
+                warnings.warn(f"Low metrics for {name} at {value}.")
 
         self._metrics = metrics
 
