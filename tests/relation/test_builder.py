@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from scaling.data.eads import Eads
-from scaling.relation import Builder
+from scaling.relation import Builder, Descriptors
 from scaling.utils import PROJECT_ROOT
 
 
@@ -17,7 +17,8 @@ class Test_builder:
         # Data
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         self.eads = Eads(test_df)
-        self.eads.groups = {"*A": ["*B"]}
+
+        self.descriptors = Descriptors({"*A": ["*B"]})
 
     def test_properties(self):
         # TODO: need update
@@ -77,7 +78,7 @@ class Test_builder:
         builder = Builder(self.eads)
 
         # Test build *B with descriptor *A
-        relation = builder.build_traditional()
+        relation = builder.build_traditional(self.descriptors)
 
         # Check scaling results
         assert relation.dim == 1  # only one descriptor *B

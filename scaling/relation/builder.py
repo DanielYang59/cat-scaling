@@ -1,5 +1,3 @@
-# TODO: setting of groups/descriptors is messy
-
 # TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
 # is more specific and "species" is more general (which might be confusing
 # together with "sample")
@@ -44,6 +42,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 from scaling.data import Eads
+from scaling.relation.descriptors import Descriptors
 from scaling.relation.relation import EadsRelation
 
 
@@ -170,7 +169,7 @@ class Builder:
         assert len(coefs) == len(ratios), "Internal coef error."
         return coefs, intercept, metrics
 
-    def build_traditional(self) -> EadsRelation:
+    def build_traditional(self, descriptors: Descriptors) -> EadsRelation:
         """Build scaling relations the traditional way, where each species is
         approximated by a single descriptor within each group.
 
@@ -180,9 +179,9 @@ class Builder:
         """
 
         # Get "groups" property from data
-        groups = self.data.groups
+        groups = descriptors.groups
         if groups is None:
-            raise ValueError("You must set groups before build.")
+            raise ValueError("Must set groups before build traditional.")
 
         coefficients_dict = {}
         intercepts_dict = {}
@@ -230,11 +229,14 @@ class Builder:
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
         )
 
-    def build_adaptive(self, step_length: float = 1.0) -> EadsRelation:
+    def build_adaptive(
+        self, descriptors: Descriptors, step_length: float = 1.0
+    ) -> EadsRelation:
         """Build scaling relations with descriptors ratios determined on
         the fly.
 
         Parameters:
+            descriptors (Descriptors): Descriptors description class.
             step_length (float, optional): A percentage value indicating the
                 step size for searching the optimal ratio. Defaults to 1.0.
 
@@ -268,13 +270,11 @@ class Builder:
         # Convert step_length to percentage
         step_length = step_length / 100
 
-        # Get descriptors from data(Eads)
-        if self.data.groups is None:
-            raise ValueError("Cannot build without descriptors set.")
-        descriptors = list(self.data.groups.keys())
+        # Get descriptors as a list of names
+        _descriptors = descriptors.descriptors
 
         # Check descriptors
-        if len(descriptors) != 2:
+        if len(_descriptors) != 2:
             raise ValueError("Expect two descriptors for adaptive method.")
 
         coefficients_dict = {}
@@ -289,8 +289,8 @@ class Builder:
 
             for ratio in np.arange(0, 1 + step_length, step_length):
                 ratios = {
-                    descriptors[0]: ratio,
-                    descriptors[1]: 1 - ratio,
+                    _descriptors[0]: ratio,
+                    _descriptors[1]: 1 - ratio,
                 }
 
                 _coefs, _intercept, metrics = self._builder(
@@ -304,8 +304,8 @@ class Builder:
             opt_ratio = max(scores, key=lambda k: scores[k])
 
             opt_ratios = {
-                descriptors[0]: opt_ratio,
-                descriptors[1]: 1 - opt_ratio,
+                _descriptors[0]: opt_ratio,
+                _descriptors[1]: 1 - opt_ratio,
             }
 
             coefs, intercept, metrics = self._builder(
