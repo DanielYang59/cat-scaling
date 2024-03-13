@@ -66,8 +66,10 @@ class AdsorbToDeltaE:
             # Pack coefficients and intercept as a single array:
             # [coef_0, coef_1, ..., coef_n, intercept]
             if spec.adsorbed:
-                spec_arr = copy.copy(self.relation.coefficients[spec.name])
-                spec_arr.append(self.relation.intercepts[spec.name])
+                complete_name = f"*{spec.name}"  # "CO2" -> "*CO2"
+
+                spec_arr = copy.copy(self.relation.coefficients[complete_name])
+                spec_arr.append(self.relation.intercepts[complete_name])
 
             else:
                 # For free species/molecules, coefs are zero
@@ -88,8 +90,12 @@ class AdsorbToDeltaE:
         # Convert the products side
         for spec, num in step.products.items():
             if spec.adsorbed:
-                spec_arr = copy.copy(self.relation.coefficients[spec.name])
-                spec_arr.append(self.relation.intercepts[spec.name])
+                complete_name = f"*{spec.name}"
+                spec_arr = copy.copy(self.relation.coefficients[complete_name])
+                spec_arr.append(self.relation.intercepts[complete_name])
+
+                spec_arr = copy.copy(self.relation.coefficients[complete_name])
+                spec_arr.append(self.relation.intercepts[complete_name])
             else:
                 spec_arr = np.zeros(self.relation.dim + 1)
 

@@ -1,6 +1,10 @@
+# TODO: handling of species name is messy/inconsistent (*CO2 and CO2),
+# "*" should only be excluded when getting free species energy, and
+# should be included elsewhere
+
 # TODO: unit test needs update to test properties and DeltaERelation
 
-# TODO: module docstring needs update
+# TODO: module docstring needs update (move to separate docs)
 
 """Describe linear scaling relations with a coefficient matrix.
 
