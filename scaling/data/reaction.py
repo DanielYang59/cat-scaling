@@ -1,5 +1,3 @@
-# NOTE: handing of "*" such as in "*H2O" is quite messy
-
 """Class for representing a surface Reaction.
 
 This object is oriented towards easier recording of stoichiometric number
@@ -134,6 +132,7 @@ class ReactionStep:
 
         self._products = {k: float(v) for k, v in products.items()}
 
+    # TODO: nest this into from_str
     @staticmethod
     def _sepa_stoi_number(name: str) -> tuple[float, str]:
         """Separate species name to (stoichiometric_number, name).
@@ -163,7 +162,7 @@ class ReactionStep:
 
     @classmethod
     def from_str(cls, string: str, energy_dict: dict) -> "ReactionStep":
-        """Initialize a ReactionStep from a string, and an energy dict.
+        """Initialize a ReactionStep from a string and an energy dict.
 
         The string should take the following format:
             *A + 2H2O_g -> 2*B
@@ -178,13 +177,14 @@ class ReactionStep:
 
         Also an energy dict is needed:
         energy = {
-            "A": (-1, 0),
+            "A": (-1, 0),      # Note: no "*"
             "H2O_g": (-2, 3),
-            "B": (-4, 0),
+            "B": (-4, 0),      # Note: no "*"
         }
 
         Note:
-            The "*" indicating an adsorbed species is unnecessary.
+            The "*" indicating an adsorbed species is unnecessary,
+                as the energy of free species is need.
         """
 
         # Check string
@@ -195,25 +195,30 @@ class ReactionStep:
         if len(string_parts) != 2:
             raise ValueError("Invalid ReactionStep str.")
 
-        # Parse string
+        # Split entire string into species_str parts
         react_parts = string_parts[0].split(" + ")
         product_parts = string_parts[1].split(" + ")
 
-        # Convert to Species
+        # Convert each species_str to Species for reactants
         react_specs = {}
         for part in react_parts:
-            stoi_number, species_str = cls._sepa_stoi_number(part)
-            # Recompile species str to include energy
-            species_name = species_str.split("(", 2)[0].lstrip("*")
-            species_str = f"{species_str}{energy_dict[species_name]}"
-            react_specs[Species.from_str(species_str)] = stoi_number
+            # Separate species_str: "2*CO2(-1, 0)" -> (2.0, "*CO2(-1, 0)")
+            number, species_name = cls._sepa_stoi_number(part)
 
+            # Recompile species str to include energy
+
+            species_name = (
+                f"{species_name}{energy_dict[species_name.lstrip(" * ")]}"
+            )
+            react_specs[Species.from_str(species_name)] = number
+
+        # Convert each species_str to Species for products
         product_specs = {}
         for part in product_parts:
-            stoi_number, species_str = cls._sepa_stoi_number(part)
-            species_name = species_str.split("(", 2)[0].lstrip("*")
-            species_str = f"{species_str}{energy_dict[species_name]}"
-            product_specs[Species.from_str(species_str)] = stoi_number
+            number, species_name = cls._sepa_stoi_number(part)
+            species_name = species_name.split("(", 2)[0].lstrip("*")
+            species_name = f"{species_name}{energy_dict[species_name]}"
+            product_specs[Species.from_str(species_name)] = number
 
         return ReactionStep(reactants=react_specs, products=product_specs)
 
@@ -222,26 +227,26 @@ class Reaction:
     """Represent a complete Reaction, as a collection of ReactionStep."""
 
     def __init__(self, reaction_steps: list[ReactionStep]) -> None:
-        self.reaction_steps = reaction_steps
+        self.steps = reaction_steps
 
     def __len__(self) -> int:
         """Number of ReactionSteps."""
-        return len(self.reaction_steps)
+        return len(self.steps)
 
     def __getitem__(self, index):
-        return self.reaction_steps[index]
+        return self.steps[index]
 
     def __setitem__(self, index, value):
-        self.reaction_steps[index] = value
+        self.steps[index] = value
 
     @property
-    def reaction_steps(self) -> list[ReactionStep]:
+    def steps(self) -> list[ReactionStep]:
         """Core attrib: collection of ReactionSteps."""
 
         return self._reaction_steps
 
-    @reaction_steps.setter
-    def reaction_steps(self, reaction_steps: list[ReactionStep]):
+    @steps.setter
+    def steps(self, reaction_steps: list[ReactionStep]):
         if not all(isinstance(i, ReactionStep) for i in reaction_steps):
             raise TypeError("Each step should be ReactionStep.")
 
