@@ -10,6 +10,10 @@ class Descriptors:
         self._groups = groups
         self._method = method
 
+    def __len__(self) -> int:
+        """Number of descriptors."""
+        return len(self.groups)
+
     @property
     def groups(self) -> dict[str, Optional[list[str]]]:
         """Property representing groups of adsorbates.

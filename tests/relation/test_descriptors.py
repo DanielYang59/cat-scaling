@@ -14,6 +14,7 @@ class Test_descriptors:
         des_trad = Descriptors(groups_trad, method="traditional")
 
         assert des_trad.descriptors == ["*CO", "*OH"]
+        assert len(des_trad) == 2
 
         # Initialize "adaptive" descriptors
         groups_adap = {
@@ -24,3 +25,4 @@ class Test_descriptors:
         des_adap = Descriptors(groups_adap, method="traditional")
 
         assert des_adap.descriptors == ["*CO", "*OH"]
+        assert len(des_adap) == 2
