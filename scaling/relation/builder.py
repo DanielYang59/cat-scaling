@@ -34,16 +34,20 @@ The adaptive method:
         - The resulting Relation is compatible with the traditional method.
 """
 
+from __future__ import annotations
 
 import warnings
 from math import isclose
+from typing import TYPE_CHECKING
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
 from scaling.data import Eads
-from scaling.relation.descriptors import Descriptors
 from scaling.relation.relation import EadsRelation
+
+if TYPE_CHECKING:
+    from scaling.relation.descriptors import Descriptors
 
 
 class Builder:

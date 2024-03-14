@@ -1,14 +1,17 @@
-# TODO: need polish
+# TODO: need polish cosmetically
 # TODO: show upper triangle only
 
 """Plot correlation matrix."""
 
+from __future__ import annotations
+
 import itertools
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import matplotlib.pyplot as plt
 
-from scaling.data import Eads
+if TYPE_CHECKING:
+    from scaling.data import Eads
 
 
 def plot_correlation_matrix(

@@ -24,12 +24,18 @@ we simply need to add additional terms for the free species.
 Also more correction terms (ZPE, solvation or such) could also be included.
 """
 
+from __future__ import annotations
+
 import copy
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from scaling.data.reaction import Reaction, ReactionStep
-from scaling.relation.relation import DeltaERelation, EadsRelation
+from scaling.relation.relation import DeltaERelation
+
+if TYPE_CHECKING:
+    from scaling.relation.relation import EadsRelation
 
 
 class AdsorbToDeltaE:
