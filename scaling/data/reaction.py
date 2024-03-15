@@ -207,7 +207,7 @@ class ReactionStep:
 
             # Recompile species str to include energy
             species_name = (
-                f"{species_name}{energy_dict[species_name.lstrip(" * ")]}"
+                f"{species_name}{energy_dict[species_name.lstrip('*')]}"
             )
             react_specs[Species.from_str(species_name)] = number
 
@@ -217,7 +217,7 @@ class ReactionStep:
             number, species_name = cls._sepa_stoi_number(part)
 
             species_name = (
-                f"{species_name}{energy_dict[species_name.lstrip(" * ")]}"
+                f"{species_name}{energy_dict[species_name.lstrip('*')]}"
             )
             product_specs[Species.from_str(species_name)] = number
 
