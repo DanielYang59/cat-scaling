@@ -16,7 +16,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, ]
 
     runs-on: ${{ matrix.os }}
 
@@ -34,12 +34,12 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
 
-    - name: Test with pytest
+    - name: Test with pytest and collect coverage
       run: |
-        pytest
+        pytest --cov .
 
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4.0.1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: DanielYang59/scaling
+      run: |
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov -t ${CODECOV_TOKEN}
