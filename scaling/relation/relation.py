@@ -295,8 +295,7 @@ class DeltaERelation:
     def eval_limit_potential_2D(
         self, x: np.ndarray, y: np.ndarray
     ) -> dict[int, np.ndarray]:
-        """
-        Evaluate limiting potential on a 2D grid.
+        """Evaluate limiting potential on a 2D grid.
 
         Args:
             x (np.ndarray): 1D array representing the x-coordinates.
@@ -311,8 +310,7 @@ class DeltaERelation:
         def _eval_potential_2D(
             x: np.ndarray, y: np.ndarray, coef: np.ndarray
         ) -> np.ndarray:
-            """
-            Evaluate potential values on a 2D grid.
+            """Evaluate potential values on a 2D grid.
 
             Args:
                 x (np.ndarray): 1D array representing the x-coordinates.
