@@ -1,10 +1,11 @@
-# TODO: handling of species name is messy/inconsistent (*CO2 and CO2),
-# "*" should only be excluded when getting free species energy, and
-# should be included elsewhere
+# NOTE (need consider): EadsRelation does NOT carry complete information:
+# descriptors are missing, should info be duplicate?
 
-# TODO: unit test needs update to test properties and DeltaERelation
+# TODO: unit test needs update to test properties for EadsRelation
 
-# TODO: module docstring needs update (move to separate docs)
+# TODO: unit test completely missing for DeltaERelation
+
+# TODO: module docstring needs update (or move to separate docs)
 
 """Describe linear scaling relations with a coefficient matrix.
 
@@ -29,6 +30,8 @@ Coefficient matrix:
     ...
     Eads X  =  aX                 bX             .......    cX
 """
+
+from __future__ import annotations
 
 import warnings
 from math import isclose
@@ -243,14 +246,12 @@ class DeltaERelation:
     Args:
         coefficients (list[np.ndarray]): List of coefficient arrays
             representing the energy change (DeltaE) scaling relation.
-            Each array corresponds to a reaction step and contains the
-            coefficients for the energy change.
+            Each array corresponds to a single reaction step.
 
     Attributes:
         coefficients (list[np.ndarray]): List of coefficient arrays
             representing the energy change (DeltaE) scaling relation.
-            Each array corresponds to a reaction step and contains
-            the coefficients for the energy change.
+            Each array corresponds to a reaction step.
     """
 
     def __init__(
@@ -284,3 +285,67 @@ class DeltaERelation:
             )
 
         self._coefficients = coefficients
+
+    @property
+    def dim(self) -> int:
+        """Dimensionality (as number of descriptors)."""
+
+        return len(self.coefficients[0]) - 1  # 1 for intercept
+
+    def eval_limit_potential_2D(
+        self, x: np.ndarray, y: np.ndarray
+    ) -> dict[int, np.ndarray]:
+        """
+        Evaluate limiting potential on a 2D grid.
+
+        Args:
+            x (np.ndarray): 1D array representing the x-coordinates.
+            y (np.ndarray): 1D array representing the y-coordinates.
+
+        Returns:
+            dict[int, np.ndarray]: A dict where keys represent reaction steps
+                and values represent 2D arrays for limiting potential values
+                evaluated at each grid point.
+        """
+
+        def _eval_potential_2D(
+            x: np.ndarray, y: np.ndarray, coef: np.ndarray
+        ) -> np.ndarray:
+            """
+            Evaluate potential values on a 2D grid.
+
+            Args:
+                x (np.ndarray): 1D array representing the x-coordinates.
+                y (np.ndarray): 1D array representing the y-coordinates.
+                coef (np.ndarray): Array of coefficients
+                    [x_coef, y_coef, intercept].
+
+            Returns:
+                np.ndarray: 2D array containing potential values.
+            """
+
+            # Generate 2D mesh
+            xx, yy = np.meshgrid(x, y)
+
+            # Extract coefficients
+            coef_x, coef_y, intercept = coef
+
+            # TODO: more efficient method/algorithm?
+            return xx * coef_x + yy * coef_y + intercept
+
+        # Check coefs
+        if self.dim != 2:
+            raise ValueError("Expect a Relation with two descriptors.")
+
+        # Check base arrays
+        if not (isinstance(x, np.ndarray) and x.ndim == 1):
+            raise TypeError("Expect 1D x array.")
+        if not (isinstance(y, np.ndarray) and y.ndim == 1):
+            raise TypeError("Expect 1D y array.")
+
+        # Evaluate limiting potentials for each reaction step
+        potentials = {}
+        for idx, coef in enumerate(self.coefficients):
+            potentials[idx] = _eval_potential_2D(x, y, coef)
+
+        return potentials

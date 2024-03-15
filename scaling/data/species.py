@@ -1,5 +1,7 @@
 """Represent a species for a surface reaction."""
 
+from __future__ import annotations
+
 import warnings
 from math import isclose
 from typing import Any

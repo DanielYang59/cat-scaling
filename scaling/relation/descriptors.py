@@ -2,6 +2,8 @@
 
 """Helper class to record descriptors."""
 
+from __future__ import annotations
+
 from typing import Optional
 
 

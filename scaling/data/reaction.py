@@ -5,6 +5,8 @@ for surface reactions (Unlike the Reaction class from pymatgen), as such
 species names are treated as is (for example name like "*CO2" is allowed).
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 from typing import Any
