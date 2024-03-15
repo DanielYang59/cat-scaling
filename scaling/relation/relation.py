@@ -307,7 +307,7 @@ class DeltaERelation:
                     negative of the maximum delta E (limiting potential).
                 - step_indexes (np.ndarray): 2D array containing the indexes
                     of the reaction step corresponding to
-                    the maximum delta E values.
+                    the maximum delta E values (rate-determining step).
         """
 
         def _eval_deltaE_2D(
@@ -360,6 +360,9 @@ class DeltaERelation:
             # NOTE: a negative sign is added by definition
             limit_potential = -np.amax(deltaE_stack, axis=2)
             step_indexes = np.argmax(deltaE_stack, axis=2)
+
+            # Internal sanity check of limiting potential
+            assert np.all(limit_potential <= 0), "Internal error: U_L"
 
             return limit_potential, step_indexes
 
