@@ -133,7 +133,6 @@ class ReactionStep:
 
         self._products = {k: float(v) for k, v in products.items()}
 
-    # TODO: nest this into from_str
     @staticmethod
     def _sepa_stoi_number(name: str) -> tuple[float, str]:
         """Separate species name to (stoichiometric_number, name).
@@ -243,7 +242,7 @@ class Reaction:
 
     @property
     def steps(self) -> list[ReactionStep]:
-        """Core attrib: collection of ReactionSteps."""
+        """Core property: collection of ReactionSteps."""
 
         return self._reaction_steps
 
