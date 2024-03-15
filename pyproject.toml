@@ -8,6 +8,7 @@ version_pattern = "vYYYY.0MDD[-TAG]"
 
 [project]
 name = "cat-scaling"
+version = "v2024.0315-beta"
 description = "Build Catalysts Adsorption Energy Scaling Relations"
 readme = "README.md"
 authors = [{ name = "Haoyu(Daniel) Yang", email = "yanghaoyu97@outlook.com" }]
