@@ -2,9 +2,12 @@
 requires      = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[bumpver]
+current_version = "v2024.0315-beta"
+version_pattern = "vYYYY.0MDD[-TAG]"
+
 [project]
 name = "cat-scaling"
-version = "0.0.1"
 description = "Build Catalysts Adsorption Energy Scaling Relations"
 readme = "README.md"
 authors = [{ name = "Haoyu(Daniel) Yang", email = "yanghaoyu97@outlook.com" }]
@@ -23,7 +26,7 @@ dependencies = [
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-dev = ["pytest", "pre-commit", "black", "isort"]
+dev = ["pytest", "pre-commit", "black", "isort", "bumpver"]
 
 [project.urls]
 Homepage = "https://github.com/DanielYang59/cat-scaling"
