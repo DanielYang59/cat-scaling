@@ -1,5 +1,7 @@
 # `scaling` - Build Scaling Relations for Catalysts
 
+[![codecov](https://codecov.io/gh/DanielYang59/scaling/graph/badge.svg?token=QZCC05D7L4)](https://codecov.io/gh/DanielYang59/scaling)
+
 > [!WARNING]
 > Results generated using this code have not undergone thorough validation.
 > Any assistance in verifying the results would be greatly appreciated.
@@ -19,7 +21,7 @@ The documentation is currently under development. Thank you for your patience.
 You can find examples in the `examples` directory of this repository:
 - [Traditional(Single Descriptor) Builder](./examples/traditional.ipynb).
 
-- [Adaptive Builder](In progress)
+- (In progress)[Adaptive Builder](./examples/adaptive.ipynb)
 
 ## License
 
