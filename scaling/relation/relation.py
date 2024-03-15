@@ -294,7 +294,7 @@ class DeltaERelation:
 
     def eval_limit_potential_2D(
         self, x: np.ndarray, y: np.ndarray
-    ) -> dict[int, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Evaluate limiting potential on a 2D grid.
 
         Args:
@@ -302,15 +302,18 @@ class DeltaERelation:
             y (np.ndarray): 1D array representing the y-coordinates.
 
         Returns:
-            dict[int, np.ndarray]: A dict where keys represent reaction steps
-                and values represent 2D arrays for limiting potential values
-                evaluated at each grid point.
+            Tuple[np.ndarray, np.ndarray]: A tuple containing:
+                - limit_potential (np.ndarray): 2D array containing the
+                    negative of the maximum delta E (limiting potential).
+                - step_indexes (np.ndarray): 2D array containing the indexes
+                    of the reaction step corresponding to
+                    the maximum delta E values.
         """
 
-        def _eval_potential_2D(
+        def _eval_deltaE_2D(
             x: np.ndarray, y: np.ndarray, coef: np.ndarray
         ) -> np.ndarray:
-            """Evaluate potential values on a 2D grid.
+            """Evaluate delta E for a single reaction step, on a 2D grid.
 
             Args:
                 x (np.ndarray): 1D array representing the x-coordinates.
@@ -319,17 +322,46 @@ class DeltaERelation:
                     [x_coef, y_coef, intercept].
 
             Returns:
-                np.ndarray: 2D array containing potential values.
+                np.ndarray: 2D array containing delta E values.
             """
 
             # Generate 2D mesh
-            xx, yy = np.meshgrid(x, y)
+            xx, yy = np.meshgrid(x, y, indexing="xy")
 
             # Extract coefficients
             coef_x, coef_y, intercept = coef
 
             # TODO: more efficient method/algorithm?
             return xx * coef_x + yy * coef_y + intercept
+
+        def _eval_limit_potential_2D(
+            deltaEs: list[np.ndarray],
+        ) -> tuple[np.ndarray, np.ndarray]:
+            """Evaluate limiting potential on a 2D grid.
+
+            Args:
+                deltaEs (List[np.ndarray]): List of 2D arrays containing
+                    delta E values for each reaction step.
+
+            Returns:
+                Tuple[np.ndarray, np.ndarray]: A tuple containing:
+                    - limit_potential (np.ndarray): 2D array containing
+                        the negative of the maximum delta E
+                        (limiting potential).
+                    - step_indexes (np.ndarray): 2D array containing the
+                        indexes of the reaction step corresponding to
+                        the maximum delta E values.
+            """
+
+            # Stack 2D deltaE meshes
+            deltaE_stack = np.stack(deltaEs, axis=2)
+
+            # Find maximum values and corresponding indexes
+            # NOTE: a negative sign is added by definition
+            limit_potential = -np.amax(deltaE_stack, axis=2)
+            step_indexes = np.argmax(deltaE_stack, axis=2)
+
+            return limit_potential, step_indexes
 
         # Check coefs
         if self.dim != 2:
@@ -341,9 +373,10 @@ class DeltaERelation:
         if not (isinstance(y, np.ndarray) and y.ndim == 1):
             raise TypeError("Expect 1D y array.")
 
-        # Evaluate limiting potentials for each reaction step
-        potentials = {}
-        for idx, coef in enumerate(self.coefficients):
-            potentials[idx] = _eval_potential_2D(x, y, coef)
+        # Calculate delta E for each reaction step
+        deltaEs = []
+        for coef in self.coefficients:
+            deltaEs.append(_eval_deltaE_2D(x, y, coef))
 
-        return potentials
+        # Calculate limiting potential and corresponding step index
+        return _eval_limit_potential_2D(deltaEs)
