@@ -1,3 +1,33 @@
+[build-system]
+requires      = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cat-scaling"
+version = "0.0.1"
+description = "Build Catalysts Adsorption Energy Scaling Relations"
+readme = "README.md"
+authors = [{ name = "Haoyu(Daniel) Yang", email = "yanghaoyu97@outlook.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["catalysts", "adsorption-energy", "scaling-relations"]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit_learn",
+    "matplotlib",
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["pytest", "pre-commit", "black", "isort"]
+
+[project.urls]
+Homepage = "https://github.com/DanielYang59/cat-scaling"
+
 [tool.ruff]
 line-length = 79
 
