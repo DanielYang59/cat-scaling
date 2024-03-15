@@ -1,6 +1,6 @@
-# `scaling` - Build Scaling Relations for Catalysts
+# `cat-scaling` - Build Scaling Relations for Catalysts
 
-[![codecov](https://codecov.io/gh/DanielYang59/scaling/graph/badge.svg?token=QZCC05D7L4)](https://codecov.io/gh/DanielYang59/scaling)
+[![codecov](https://codecov.io/gh/DanielYang59/cat-scaling/graph/badge.svg?token=QZCC05D7L4)](https://codecov.io/gh/DanielYang59/cat-scaling)
 
 > [!WARNING]
 > Results generated using this code have not undergone thorough validation.\
@@ -10,7 +10,7 @@
 > This project is currently in its initial stages and is being actively updated.\
 > Various parts might be missing, and frequent (breaking) changes are expected.
 
-`scaling` is a handy package for building [catalysts scaling relations](https://pubs.acs.org/doi/10.1021/jz201461p) and visualizing the results with volcano plots.
+`cat-scaling` is a handy package for building [catalysts scaling relations](https://pubs.acs.org/doi/10.1021/jz201461p) and visualizing the results with volcano plots.
 
 ## Documentation
 
@@ -25,4 +25,4 @@ You can find examples in the `examples` directory of this repository:
 
 ## License
 
-`scaling` is licensed under the [MIT license](./LICENSE)
+`cat-scaling` is licensed under the [MIT license](./LICENSE)
