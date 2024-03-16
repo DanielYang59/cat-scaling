@@ -3,7 +3,7 @@
 
 import pytest
 
-from scaling.relation.relation import EadsRelation
+from cat_scaling.relation.relation import EadsRelation
 
 
 class Test_EadsRelation:

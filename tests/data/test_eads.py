@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from scaling.data.eads import Eads
-from scaling.utils import PROJECT_ROOT
+from cat_scaling.data.eads import Eads
+from cat_scaling.utils import PROJECT_ROOT
 
 
 class Test_eads:

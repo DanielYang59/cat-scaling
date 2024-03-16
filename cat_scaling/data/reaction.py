@@ -11,7 +11,7 @@ import re
 import warnings
 from typing import Any
 
-from scaling.data.species import Species
+from cat_scaling.data.species import Species
 
 
 class ReactionStep:

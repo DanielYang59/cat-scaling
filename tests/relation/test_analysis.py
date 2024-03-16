@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from scaling.data import Eads
-from scaling.data.reaction import Reaction, ReactionStep, Species
-from scaling.relation.analysis import AdsorbToDeltaE
-from scaling.relation.builder import Builder
-from scaling.relation.descriptors import Descriptors
-from scaling.relation.relation import DeltaERelation
-from scaling.utils import PROJECT_ROOT
+from cat_scaling.data import Eads
+from cat_scaling.data.reaction import Reaction, ReactionStep, Species
+from cat_scaling.relation.analysis import AdsorbToDeltaE
+from cat_scaling.relation.builder import Builder
+from cat_scaling.relation.descriptors import Descriptors
+from cat_scaling.relation.relation import DeltaERelation
+from cat_scaling.utils import PROJECT_ROOT
 
 
 class Test_AdsorbToDeltaE:

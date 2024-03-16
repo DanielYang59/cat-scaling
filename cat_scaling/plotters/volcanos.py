@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 if TYPE_CHECKING:
-    from scaling.relation import DeltaERelation
+    from cat_scaling.relation import DeltaERelation
 
 
 def VolcanoPlotter2D(

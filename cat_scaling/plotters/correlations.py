@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Literal
 import matplotlib.pyplot as plt
 
 if TYPE_CHECKING:
-    from scaling.data import Eads
+    from cat_scaling.data import Eads
 
 
 def plot_correlation_matrix(

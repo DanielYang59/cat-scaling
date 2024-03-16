@@ -1,6 +1,6 @@
 # TODO: add unit test for property: method
 
-from scaling.relation import Descriptors
+from cat_scaling.relation import Descriptors
 
 
 class Test_descriptors:

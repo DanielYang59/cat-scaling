@@ -2,7 +2,7 @@ from math import isclose
 
 import pytest
 
-from scaling.data.species import Species
+from cat_scaling.data.species import Species
 
 
 class Test_species:

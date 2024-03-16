@@ -1,8 +1,8 @@
 import pytest
 
-from scaling.data import Eads
-from scaling.plotters.correlations import plot_correlation_matrix
-from scaling.utils import PROJECT_ROOT
+from cat_scaling.data import Eads
+from cat_scaling.plotters.correlations import plot_correlation_matrix
+from cat_scaling.utils import PROJECT_ROOT
 
 
 @pytest.mark.skip("Plotter skipped.")

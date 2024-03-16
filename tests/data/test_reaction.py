@@ -1,7 +1,7 @@
 import pytest
 
-from scaling.data.reaction import Reaction, ReactionStep
-from scaling.data.species import Species
+from cat_scaling.data.reaction import Reaction, ReactionStep
+from cat_scaling.data.species import Species
 
 # Dummy energies for test
 energy_dict = {

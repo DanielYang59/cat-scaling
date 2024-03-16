@@ -31,11 +31,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from scaling.data.reaction import Reaction, ReactionStep
-from scaling.relation.relation import DeltaERelation
+from cat_scaling.data.reaction import Reaction, ReactionStep
+from cat_scaling.relation.relation import DeltaERelation
 
 if TYPE_CHECKING:
-    from scaling.relation.relation import EadsRelation
+    from cat_scaling.relation.relation import EadsRelation
 
 
 class AdsorbToDeltaE:
