@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cat-scaling"
-version = "v2024.0315-beta"
+version = "v2024.3.1-beta"
 description = "Build Catalysts Adsorption Energy Scaling Relations"
 readme = "README.md"
 authors = [{ name = "Haoyu(Daniel) Yang", email = "yanghaoyu97@outlook.com" }]
@@ -35,8 +35,8 @@ line-length = 79
 line-length = 79
 
 [tool.bumpver]
-current_version = "v2024.0315-beta"
-version_pattern = "vYYYY.0MDD[-TAG]"
+current_version = "v2024.3.1-beta"
+version_pattern = "vYYYY.MM.PATCH[-TAG]"
 commit_message = "bump version {old_version} -> {new_version}"
 tag_message = "{new_version}"
 tag_scope = "default"
