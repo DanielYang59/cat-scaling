@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import warnings
 from math import isclose
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Species:
@@ -106,7 +109,7 @@ class Species:
         self._correction = float(correction)
 
     @classmethod
-    def from_str(cls, string: str) -> "Species":
+    def from_str(cls, string: str) -> Self:
         """Initialize Species from a string.
 
         Expect format in:
@@ -148,10 +151,10 @@ class Species:
         # Get species name
         name = string[:e_start].lstrip("*")
 
-        return Species(name, energy, adsorbed, correction)
+        return cls(name, energy, adsorbed, correction)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> "Species":
+    def from_dict(cls, dct: dict) -> Self:
         """Initialize Species from a dict."""
         if not isinstance(dct, dict):
             raise TypeError("Expect a dict.")
@@ -163,7 +166,7 @@ class Species:
         if name is None or energy is None or adsorbed is None:
             raise ValueError("Missing required arg in the dict.")
 
-        return Species(
+        return cls(
             name=name,
             energy=energy,
             adsorbed=adsorbed,

@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import re
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from cat_scaling.data.species import Species
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class ReactionStep:
@@ -161,7 +164,7 @@ class ReactionStep:
         return stoi_number, species_name
 
     @classmethod
-    def from_str(cls, string: str, energy_dict: dict) -> "ReactionStep":
+    def from_str(cls, string: str, energy_dict: dict) -> Self:
         """Initialize a ReactionStep from a string and an energy dict.
 
         The string should take the following format:
@@ -221,7 +224,7 @@ class ReactionStep:
             )
             product_specs[Species.from_str(species_name)] = number
 
-        return ReactionStep(reactants=react_specs, products=product_specs)
+        return cls(reactants=react_specs, products=product_specs)
 
 
 class Reaction:
@@ -257,7 +260,7 @@ class Reaction:
         self._reaction_steps = reaction_steps
 
     @classmethod
-    def from_str(cls, string: str, energy_dict: dict) -> "Reaction":
+    def from_str(cls, string: str, energy_dict: dict) -> Self:
         """Initialize Reaction from a string.
 
         The string should be formatted such that each ReactionStep
@@ -272,5 +275,5 @@ class Reaction:
         for step in str_parts:
             reaction_steps.append(ReactionStep.from_str(step, energy_dict))
 
-        assert reaction_steps
-        return Reaction(reaction_steps)
+        assert reaction_steps, "Empty elements in Reaction"
+        return cls(reaction_steps)

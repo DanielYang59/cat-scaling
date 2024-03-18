@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Eads:
@@ -103,7 +107,7 @@ class Eads:
         return self.data.index.tolist()
 
     @classmethod
-    def from_csv(cls, csv_file: str | Path) -> "Eads":
+    def from_csv(cls, csv_file: str | Path) -> Self:
         """Initialize from a csv file."""
 
         _csv_file = Path(csv_file)
@@ -111,7 +115,7 @@ class Eads:
         if not _csv_file.name.endswith(".csv"):
             raise ValueError("Expect a csv file.")
 
-        return Eads(pd.read_csv(_csv_file, index_col=[0], header=[0]))
+        return cls(pd.read_csv(_csv_file, index_col=[0], header=[0]))
 
     def get_adsorbate(
         self,
