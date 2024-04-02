@@ -1,4 +1,5 @@
-# TODO: need to pre-define a set of Relation/Reaction or such for tests
+# TODO: need to pre-define a set of Relation/Reaction (or such) for tests
+# as currently definition of Relation/Reaction is repeated
 
 import numpy as np
 import pandas as pd

@@ -5,7 +5,7 @@
 
 # TODO: unit test completely missing for DeltaERelation
 
-# TODO: module docstring needs update (or move to separate docs)
+# TODO: module docstring needs clean up (or move to separate docs)
 
 """Describe linear scaling relations with a coefficient matrix.
 

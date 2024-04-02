@@ -1,3 +1,5 @@
+# TODO: module docstring needs clean up (or move to separate docs)
+
 """Build scaling relations (Relation) from adsorption energy (Eads).
 
 The following would take CO2 reduction to CH4 reaction (CO2RR) as an example.
@@ -83,7 +85,10 @@ class Builder:
 
         # Fetch child descriptors
         child_descriptors = np.array(
-            [self.data.get_adsorbate(adsorbate) for adsorbate in adsorbate_ratios]
+            [
+                self.data.get_adsorbate(adsorbate)
+                for adsorbate in adsorbate_ratios
+            ]
         )
 
         # Construct composite descriptor (from child descriptors)
