@@ -1,5 +1,7 @@
 # TODO: add unit test for property: method
 
+import pytest
+
 from cat_scaling.relation import Descriptors
 
 
@@ -26,3 +28,12 @@ class Test_descriptors:
 
         assert des_adap.descriptors == ["*CO", "*OH"]
         assert len(des_adap) == 2
+
+    def test_member_overlap(self):
+        groups = {
+            "*CO": ["*COOH", "*CHO", "*CH2O"],
+            "*OH": ["*OCH3", "*O", "*CH2O"],
+        }
+
+        with pytest.warns(UserWarning, match="Descriptor group members overlap."):
+            Descriptors(groups, method="traditional")
