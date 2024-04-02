@@ -1,8 +1,3 @@
-# TODO: use consistent naming for "species" and "adsorbate" , where "adsorbate"
-# is more specific and "species" is more general (which might be confusing
-# together with "sample")
-
-
 """Build scaling relations (Relation) from adsorption energy (Eads).
 
 The following would take CO2 reduction to CH4 reaction (CO2RR) as an example.
@@ -10,18 +5,18 @@ The following would take CO2 reduction to CH4 reaction (CO2RR) as an example.
 The traditional method:
     As proposed in Peterson and Nørskov's work titled *Activity Descriptors for
     CO2 Electroreduction to Methane on Transition-Metal Catalysts*, involves
-    grouping species involved in the CO2RR process into two categories:
+    grouping adsorbates involved in the CO2RR process into two categories:
     C-centered (*COOH, *CO, *CHO, *CH2O) and O-centered (*OCH3, *O, *OH).
 
     Within each group, a descriptor is nominated (in the original work, it was
-    *CO and *OH respectively). The adsorption energies of other species can
+    *CO and *OH respectively). The adsorption energies of other adsorbates can
     then be approximated by their respective descriptor, effectively reducing
     the dimensionality of the problem from 7D to 2D.
     This reduction enables visualization and simplifies the analysis process.
 
 The adaptive method:
     As discussed in my MPhil work (at https://arxiv.org/abs/2402.03876),
-    recognizes that many species involved in the process include both oxygen
+    recognizes that many adsorbates involved in the process include both oxygen
     and carbon. Therefore, it makes sense to include descriptors for both
     elements in the relation. In that work, I discovered that this simple
     approach can improve the coefficient of determination (R2) by
@@ -64,7 +59,7 @@ class Builder:
         self.data = data
 
     def _build_composite_descriptor(
-        self, spec_ratios: dict[str, float]
+        self, adsorbate_ratios: dict[str, float]
     ) -> np.ndarray:
         """Build a composite descriptor from child descriptors.
 
@@ -72,7 +67,7 @@ class Builder:
         descriptors and their corresponding mixing ratios.
 
         Parameters:
-            spec_ratios (dict[str, float]): Dict of species_name: ratio.
+            adsorbate_ratios (dict[str, float]): Dict of adsorbate_name: ratio.
 
         Returns:
             np.ndarray: The composite descriptor as a numpy array.
@@ -82,30 +77,30 @@ class Builder:
                 if the lengths of names and ratios do not match.
         """
 
-        # Check arg: spec_ratios
-        if not isclose(sum(spec_ratios.values()), 1.0, abs_tol=1e-04):
+        # Check arg: adsorbate_ratios
+        if not isclose(sum(adsorbate_ratios.values()), 1.0, abs_tol=1e-04):
             raise ValueError("Ratios should sum to 1.0.")
 
         # Fetch child descriptors
         child_descriptors = np.array(
-            [self.data.get_adsorbate(species) for species in spec_ratios]
+            [self.data.get_adsorbate(adsorbate) for adsorbate in adsorbate_ratios]
         )
 
         # Construct composite descriptor (from child descriptors)
         return np.sum(
             child_descriptors
-            * np.array(list(spec_ratios.values()))[:, np.newaxis],
+            * np.array(list(adsorbate_ratios.values()))[:, np.newaxis],
             axis=0,
         )
 
     def _builder(
-        self, spec_name: str, ratios: dict[str, float]
+        self, adsorbate_name: str, ratios: dict[str, float]
     ) -> tuple[list[float], float, float]:
         """Core worker for building scaling relations.
 
         Parameters:
-        spec_name (str): name of the target species to build.
-        ratios (dict[str, float]): Dict of species_name: ratio.
+        adsorbate_name (str): name of the target adsorbate to build.
+        ratios (dict[str, float]): Dict of adsorbate_name: ratio.
 
         Returns:
             coefs (list[float]): coefficients correspond to each descriptor
@@ -138,7 +133,7 @@ class Builder:
                 Multiple the coefficients with corresponding ratios,
                 and leave the intercept unchanged.
 
-        In a more "mathematical" manner:
+        In a more concise manner:
             (where comp_des, A, N and target are arrays)
             TODO: format this formula block (latex?)
             1. The composite descriptor:
@@ -153,7 +148,7 @@ class Builder:
 
         # Perform linear regression
         _comp_des = composite_descriptor.reshape(-1, 1)
-        _target = self.data.get_adsorbate(spec_name).reshape(-1, 1)
+        _target = self.data.get_adsorbate(adsorbate_name).reshape(-1, 1)
 
         reg = LinearRegression().fit(_comp_des, _target)
 
@@ -171,7 +166,7 @@ class Builder:
         return coefs, intercept, metrics
 
     def build_traditional(self, descriptors: Descriptors) -> EadsRelation:
-        """Build scaling relations the traditional way, where each species is
+        """Build scaling relations the traditional way, where each adsorbate is
         approximated by a single descriptor within each group.
 
         Returns:
@@ -189,8 +184,8 @@ class Builder:
         metrics_dict = {}
         ratios_dict = {}
 
-        for idx, (descriptor, species) in enumerate(groups.items()):
-            if species is None:
+        for idx, (descriptor, adsorbate) in enumerate(groups.items()):
+            if adsorbate is None:
                 raise ValueError(
                     "Group member for traditional builder cannot be None."
                 )
@@ -206,10 +201,10 @@ class Builder:
             metrics_dict[descriptor] = 1.0
             ratios_dict[descriptor] = ratios
 
-            # Build for each species
-            for spec_name in species:
+            # Build for each adsorbate
+            for adsorbate_name in adsorbate:
                 coefs, intercept, metrics = self._builder(
-                    spec_name=spec_name,
+                    adsorbate_name=adsorbate_name,
                     ratios=ratios,
                 )
 
@@ -221,10 +216,10 @@ class Builder:
                 ]
 
                 # Collect results
-                coefficients_dict[spec_name] = _coefs
-                intercepts_dict[spec_name] = intercept
-                metrics_dict[spec_name] = metrics
-                ratios_dict[spec_name] = ratios
+                coefficients_dict[adsorbate_name] = _coefs
+                intercepts_dict[adsorbate_name] = intercept
+                metrics_dict[adsorbate_name] = metrics
+                ratios_dict[adsorbate_name] = ratios
 
         return EadsRelation(
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
@@ -295,7 +290,7 @@ class Builder:
                 }
 
                 _coefs, _intercept, metrics = self._builder(
-                    spec_name=ads,
+                    adsorbate_name=ads,
                     ratios=ratios,
                 )
 
@@ -310,7 +305,7 @@ class Builder:
             }
 
             coefs, intercept, metrics = self._builder(
-                spec_name=ads,
+                adsorbate_name=ads,
                 ratios=opt_ratios,
             )
 

@@ -55,7 +55,7 @@ class Test_builder:
 
         # Test fitting *B with *A
         coefs, intercept, metrics = builder._builder(
-            spec_name="*B", ratios={"*A": 1}
+            adsorbate_name="*B", ratios={"*A": 1}
         )
 
         # Check regression results

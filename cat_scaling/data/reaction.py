@@ -2,7 +2,7 @@
 
 This object is oriented towards easier recording of stoichiometric number
 for surface reactions (Unlike the Reaction class from pymatgen), as such
-species names are treated as is (for example name like "*CO2" is allowed).
+adsorbate names are treated as is (for example name like "*CO2" is allowed).
 """
 
 from __future__ import annotations

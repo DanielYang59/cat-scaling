@@ -83,8 +83,8 @@ class AdsorbToDeltaE:
 
             # Add free species energy for adsorbed species to constant
             # (intercept) term.
-            # NOTE: For species "*CO2", the energy for free "CO2"
-            # should be added (provided)
+            # NOTE: For adsorbate "*CO2", the energy for free "CO2"
+            # should be added
             spec_arr[-1] += spec.energy
 
             # Add correction term
