@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -20,6 +22,21 @@ class Test_eads:
             self.eads.data,
             pd.DataFrame,
         )
+
+    @pytest.mark.filterwarnings("ignore:Setting an item of incompatible dtype")
+    def test_invalid_dtype(self, setup_class):
+        """Eads expect data with dtype as float."""
+        # Inject an invalid data type
+        invalid_data = copy.deepcopy(self.eads.data)
+        invalid_data.iloc[0, 0] = "wrong_data_type"  # should be float
+
+        with pytest.raises(ValueError):
+            Eads(data=invalid_data)
+
+    def test_invalid_dataframe_type(self):
+        """Eads expect data as pd.DataFrame."""
+        with pytest.raises(TypeError):
+            Eads(data=np.array([0, 1, 2]))
 
     def test_property_adsorbates_samples(self, setup_class):
         # Test property: adsorbates
@@ -44,6 +61,11 @@ class Test_eads:
         eads = Eads.from_csv(self.test_data_csv)
         assert isinstance(eads, Eads)
 
+    def test_from_wrong_format(self):
+        """Eads expect a csv file for from_csv method."""
+        with pytest.raises(ValueError):
+            Eads.from_csv(self.test_data_csv.with_suffix(".null"))
+
     def test_get_adsorbate_sample(self, setup_class):
         # Test method: get_adsorbate
         col = self.eads.get_adsorbate("*CO")
@@ -63,9 +85,27 @@ class Test_eads:
         self.eads.add_adsorbate("new_adsorbate", list(range(6)))
         assert "new_adsorbate" in self.eads.adsorbates
 
+    def test_add_adsorbate_wrong_length(self, setup_class):
+        """Test add a adsorbate column but with inconsistent length."""
+        with pytest.raises(ValueError):
+            self.eads.add_adsorbate("new_adsorbate", list(range(10)))
+
+    def test_add_existing_adsorbate(self, setup_class):
+        with pytest.raises(ValueError):
+            self.eads.add_adsorbate("*CO2", list(range(10)))
+
     def test_add_sample(self, setup_class):
         self.eads.add_sample("new_sample", list(range(6)))
         assert "new_sample" in self.eads.samples
+
+    def test_add_sample_wrong_length(self, setup_class):
+        """Test add a adsorbate column but with inconsistent length."""
+        with pytest.raises(ValueError):
+            self.eads.add_sample("new_sample", list(range(10)))
+
+    def test_add_existing_sample(self, setup_class):
+        with pytest.raises(ValueError):
+            self.eads.add_sample("Cu@g-C3N4", list(range(6)))
 
     def test_remove_adsorbate(self, setup_class):
         self.eads.remove_adsorbate("*CO2")
@@ -75,7 +115,7 @@ class Test_eads:
         self.eads.remove_sample("Cu@g-C3N4")
         assert "Cu@g-C3N4" not in self.eads.samples
 
-    def test_sort_df(self, setup_class):
+    def test_sort_date(self, setup_class):
         self.eads.sort_data(targets={"column", "row"})
 
         assert self.eads.adsorbates == [
@@ -95,3 +135,10 @@ class Test_eads:
             "Ni@C2N",
             "Pt@SiO2",
         ]
+
+    def test_sort_date_invalid_targets(self, setup_class):
+        with pytest.raises(ValueError):
+            self.eads.sort_data(targets={"invalid", "row"})
+
+        with pytest.raises(ValueError):
+            self.eads.sort_data(targets={"column", "row", "invalid"})

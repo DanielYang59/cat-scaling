@@ -84,7 +84,7 @@ class Eads:
                 data = data.astype(float)
             except ValueError as e:
                 raise ValueError(
-                    "Please double-check input data for Eads."
+                    "Please double-check input data type, expect floats."
                 ) from e
 
         else:
@@ -241,19 +241,25 @@ class Eads:
 
     def sort_data(
         self,
-        targets: set[str] | None = None,
+        targets: list[str] | None = None,
     ) -> None:
         """Sort columns/rows of data."""
         if targets is None:
-            targets = {"column", "row"}
+            _targets: set[str] = {"column", "row"}
 
-        elif targets > {"column", "row"}:
-            raise ValueError(
-                "Invalid target values. Should be 'column', 'row', or both."
-            )
+        else:
+            _targets = set(targets)
 
-        if "column" in targets:
+            if not (
+                _targets.issubset({"column", "row"})
+                or _targets == {"column", "row"}
+            ):
+                raise ValueError(
+                    "Invalid target. Should be 'column', 'row', or both."
+                )
+
+        if "column" in _targets:
             self.data = self.data.sort_index(axis=1)
 
-        if "row" in targets:
+        if "row" in _targets:
             self.data = self.data.sort_index()
