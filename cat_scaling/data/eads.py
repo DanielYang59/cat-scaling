@@ -83,7 +83,9 @@ class Eads:
             try:
                 data = data.astype(float)
             except ValueError as e:
-                raise ValueError(f"Please double-check input data: {e}.")
+                raise ValueError(
+                    "Please double-check input data for Eads."
+                ) from e
 
         else:
             raise TypeError("Expect data as pd.DataFrame type.")
@@ -239,14 +241,13 @@ class Eads:
 
     def sort_data(
         self,
-        targets: list[str] = ["column", "row"],
+        targets: set[str] | None = None,
     ) -> None:
         """Sort columns/rows of data."""
+        if targets is None:
+            targets = {"column", "row"}
 
-        if not set(targets) <= {
-            "column",
-            "row",
-        }:
+        elif targets > {"column", "row"}:
             raise ValueError(
                 "Invalid target values. Should be 'column', 'row', or both."
             )

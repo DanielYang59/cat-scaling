@@ -88,10 +88,7 @@ class Builder:
 
         # Fetch child descriptors
         child_descriptors = np.array(
-            [
-                self.data.get_adsorbate(species)
-                for species in spec_ratios.keys()
-            ]
+            [self.data.get_adsorbate(species) for species in spec_ratios]
         )
 
         # Construct composite descriptor (from child descriptors)
@@ -272,7 +269,7 @@ class Builder:
             warnings.warn("Small step length may slow down searching.")
 
         # Convert step_length to percentage
-        step_length = step_length / 100
+        step_length /= 100
 
         # Get descriptors as a list of names
         _descriptors = descriptors.descriptors
@@ -304,8 +301,8 @@ class Builder:
 
                 scores[ratio] = metrics
 
-            # Rerun linear regression with the optimal ratio
-            opt_ratio = max(scores, key=lambda k: scores[k])
+            # Find and rerun linear regression with the optimal ratio
+            opt_ratio = max(scores, key=scores.get)  # type: ignore[arg-type]
 
             opt_ratios = {
                 _descriptors[0]: opt_ratio,

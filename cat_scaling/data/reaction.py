@@ -70,20 +70,14 @@ class ReactionStep:
         # Add reactants
         reactants = []
         for spec, num in self.reactants.items():
-            if spec.adsorbed:
-                name = f"*{spec.name}"
-            else:
-                name = spec.name
+            name = f"*{spec.name}" if spec.adsorbed else spec.name
 
             reactants.append(f"{num}{name}")
 
         # Add products
         products = []
         for spec, num in self.products.items():
-            if spec.adsorbed:
-                name = f"*{spec.name}"
-            else:
-                name = spec.name
+            name = f"*{spec.name}" if spec.adsorbed else spec.name
 
             products.append(f"{num}{name}")
 
@@ -150,10 +144,9 @@ class ReactionStep:
         name = name.strip()
 
         # Use re to separate leading digits and name
-        match = re.match(r"^(\d+(\.\d+)?)(.*)$", name)
-        if match:
-            stoi_number_str = match.group(1)
-            species_name = match.group(3)
+        if match := re.match(r"^(\d+(\.\d+)?)(.*)$", name):
+            stoi_number_str = match[1]
+            species_name = match[3]
 
         else:
             stoi_number_str = ""

@@ -7,6 +7,17 @@ from typing import Optional
 
 
 class Descriptors:
+    """Helper class to record descriptors.
+
+    Attributes:
+        groups (dict): A dictionary representing groups of adsorbates
+            and their respective descriptors.
+            Keys are descriptors and values are lists of group members.
+            If a group has no members, its value is None.
+        method (str, optional): The method used for building Relation.
+            Should be either "traditional" or "adaptive".
+    """
+
     def __init__(self, groups: dict, method: Optional[str] = None) -> None:
         self.groups = groups
         self.method = method
@@ -81,7 +92,10 @@ class Descriptors:
 
     @method.setter
     def method(self, method: Optional[str]):
-        if method is not None and method.lower() not in {"traditional", "adaptive"}:
+        if method is not None and method.lower() not in {
+            "traditional",
+            "adaptive",
+        }:
             raise ValueError("Invalid method.")
 
         self._method = method.lower() if method is not None else None

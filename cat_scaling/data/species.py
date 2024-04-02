@@ -136,7 +136,7 @@ class Species:
         string = string.strip()
 
         # Check if adsorbed
-        adsorbed: bool = True if string.startswith("*") else False
+        adsorbed: bool = bool(string.startswith("*"))
 
         # Get energy and correction
         e_start = string.find("(")

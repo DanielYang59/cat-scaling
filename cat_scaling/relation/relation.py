@@ -279,7 +279,7 @@ class DeltaERelation:
             raise TypeError("All coefficients should be numpy arrays.")
 
         # Check if all arrays have the same length
-        if len(set(arr.shape[0] for arr in coefficients)) > 1:
+        if len({arr.shape[0] for arr in coefficients}) > 1:
             raise ValueError(
                 "All coefficient arrays should have the same length."
             )
@@ -331,7 +331,6 @@ class DeltaERelation:
             # Extract coefficients
             coef_x, coef_y, intercept = coef
 
-            # TODO: more efficient method/algorithm?
             return xx * coef_x + yy * coef_y + intercept
 
         def _eval_limit_potential_2D(

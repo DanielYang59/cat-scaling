@@ -33,7 +33,7 @@ def VolcanoPlotter2D(
     y = np.linspace(*y_range)
 
     # Generate limiting potential mesh
-    # TODO: indexes should be used for rate-determining step (RDS)
+    # TODO: indexes should be used for rate-determining step (RDS) plot
     limit_potentials, _rds = relation.eval_limit_potential_2D(x, y)
 
     # Generate limiting potential volcano plot

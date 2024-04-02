@@ -35,5 +35,7 @@ class Test_descriptors:
             "*OH": ["*OCH3", "*O", "*CH2O"],
         }
 
-        with pytest.warns(UserWarning, match="Descriptor group members overlap."):
+        with pytest.warns(
+            UserWarning, match="Descriptor group members overlap."
+        ):
             Descriptors(groups, method="traditional")

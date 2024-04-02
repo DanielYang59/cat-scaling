@@ -76,7 +76,7 @@ class Test_eads:
         assert "Cu@g-C3N4" not in self.eads.samples
 
     def test_sort_df(self, setup_class):
-        self.eads.sort_data(targets=["column", "row"])
+        self.eads.sort_data(targets={"column", "row"})
 
         assert self.eads.adsorbates == [
             "*CO",
