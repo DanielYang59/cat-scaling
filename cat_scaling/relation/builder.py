@@ -202,9 +202,9 @@ class Builder:
             ratios_dict[descriptor] = ratios
 
             # Build for each adsorbate
-            for adsorbate_name in adsorbate:
+            for ads_name in adsorbate:
                 coefs, intercept, metrics = self._builder(
-                    adsorbate_name=adsorbate_name,
+                    adsorbate_name=ads_name,
                     ratios=ratios,
                 )
 
@@ -216,10 +216,10 @@ class Builder:
                 ]
 
                 # Collect results
-                coefficients_dict[adsorbate_name] = _coefs
-                intercepts_dict[adsorbate_name] = intercept
-                metrics_dict[adsorbate_name] = metrics
-                ratios_dict[adsorbate_name] = ratios
+                coefficients_dict[ads_name] = _coefs
+                intercepts_dict[ads_name] = intercept
+                metrics_dict[ads_name] = metrics
+                ratios_dict[ads_name] = ratios
 
         return EadsRelation(
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
@@ -279,7 +279,7 @@ class Builder:
         ratios_dict = {}
 
         # Iterate over each adsorbate (including descriptors)
-        for ads in self.data.adsorbates:
+        for ads_name in self.data.adsorbates:
             # Determine an optimal descriptor mixing ratio
             scores = {}
 
@@ -290,7 +290,7 @@ class Builder:
                 }
 
                 _coefs, _intercept, metrics = self._builder(
-                    adsorbate_name=ads,
+                    adsorbate_name=ads_name,
                     ratios=ratios,
                 )
 
@@ -305,15 +305,15 @@ class Builder:
             }
 
             coefs, intercept, metrics = self._builder(
-                adsorbate_name=ads,
+                adsorbate_name=ads_name,
                 ratios=opt_ratios,
             )
 
             # Collect results
-            coefficients_dict[ads] = coefs
-            intercepts_dict[ads] = intercept
-            metrics_dict[ads] = metrics
-            ratios_dict[ads] = opt_ratios
+            coefficients_dict[ads_name] = coefs
+            intercepts_dict[ads_name] = intercept
+            metrics_dict[ads_name] = metrics
+            ratios_dict[ads_name] = opt_ratios
 
         return EadsRelation(
             coefficients_dict, intercepts_dict, metrics_dict, ratios_dict
