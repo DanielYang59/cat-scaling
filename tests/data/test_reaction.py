@@ -37,6 +37,20 @@ class Test_reactionstep:
         # Test __str__
         assert str(reactionstep) == "1.0*CO2 + 1.0H+ + 1.0e- -> 1.0*COOH"
 
+    def test_neg_stoi_number(self):
+        reactants = {
+            Species("A", -1, True, 0.5): -1,  # negative
+            Species("H2O_g", -4, False, 2.0): 2,
+        }
+        products = {
+            Species("B", -2, True, 1.0): 2,
+        }
+
+        with pytest.warns(
+            UserWarning, match="Negative stoichiometric number found"
+        ):
+            ReactionStep(reactants=reactants, products=products)
+
     def test_eq(self):
         react_step = "*A + 2H2O_g -> 2*B"
 
@@ -53,6 +67,17 @@ class Test_reactionstep:
         assert ReactionStep.from_str(react_step, energy_dict) == ReactionStep(
             reactants=reactants, products=products
         )
+
+        assert (
+            ReactionStep(reactants=reactants, products=products)
+            != "*A + 2H2O_g -> 2*B"
+        )
+
+        # test inverse reaction
+        with pytest.warns(match="Found a reverse reaction step"):
+            assert ReactionStep(
+                reactants=reactants, products=products
+            ) != ReactionStep(reactants=products, products=reactants)
 
     def test_sepa_stoi_number(self):
         spec_string_0 = " *CO2(-6, 3) "
@@ -95,6 +120,19 @@ class Test_reactionstep:
         assert ReactionStep.from_str(react_step, energy_dict) == ReactionStep(
             reactants=reactants_1, products=products_1
         )
+
+    def test_from_str_invalid(self):
+        with pytest.raises(TypeError, match="Expect a string"):
+            ReactionStep.from_str(
+                ["*A", "2H2O_g", "2*B"],  # should be str
+                energy_dict,
+            )
+
+        with pytest.raises(ValueError, match="Invalid ReactionStep str"):
+            ReactionStep.from_str(
+                "*A -> 2H2O_g -> 2*B",  # expect two parts
+                energy_dict,
+            )
 
     def test_invalid_reactants(self):
         with pytest.raises(TypeError):
@@ -149,3 +187,7 @@ class Test_reaction:
         assert reaction[1] == ReactionStep.from_str(
             "*B -> *C + H2_g", energy_dict
         )
+
+    def test_from_str_invalid(self):
+        with pytest.raises(TypeError, match="Expect a str"):
+            Reaction.from_str(["*A", "2H2O_g", "2*B"], energy_dict)
