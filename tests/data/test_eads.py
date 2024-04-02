@@ -87,12 +87,12 @@ class Test_eads:
 
     def test_add_adsorbate_wrong_length(self, setup_class):
         """Test add a adsorbate column but with inconsistent length."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="length doesn't match"):
             self.eads.add_adsorbate("new_adsorbate", list(range(10)))
 
     def test_add_existing_adsorbate(self, setup_class):
-        with pytest.raises(ValueError):
-            self.eads.add_adsorbate("*CO2", list(range(10)))
+        with pytest.raises(ValueError, match="already exists."):
+            self.eads.add_adsorbate("*CO2", list(range(6)))
 
     def test_add_sample(self, setup_class):
         self.eads.add_sample("new_sample", list(range(6)))
@@ -100,11 +100,11 @@ class Test_eads:
 
     def test_add_sample_wrong_length(self, setup_class):
         """Test add a adsorbate column but with inconsistent length."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="length doesn't match"):
             self.eads.add_sample("new_sample", list(range(10)))
 
     def test_add_existing_sample(self, setup_class):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="already exists."):
             self.eads.add_sample("Cu@g-C3N4", list(range(6)))
 
     def test_remove_adsorbate(self, setup_class):
