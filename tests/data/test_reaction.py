@@ -168,11 +168,36 @@ class Test_reaction:
         }
         products = {Species("COOH", -7, True, 3.5): 1}
 
+        reactionstep_0 = ReactionStep(reactants, products)
+
+        reactionstep_1 = ReactionStep(
+            products, reactants
+        )  # pylint: disable=W1114
+
+        reaction = Reaction([reactionstep_0, reactionstep_1])
+
+        assert isinstance(reaction, Reaction)
+
+        # Test assign item
+        reaction[1] = reactionstep_0
+        assert reaction[0] == reaction[1]
+
+    def test_invalid_steps(self):
+        """Test property: steps."""
+
+        # Invalid ReactionStep dtype
+        with pytest.raises(
+            TypeError, match="Each step should be ReactionStep"
+        ):
+            Reaction(["Step"])
+
+        # Duplicate steps
+        reactants = {Species("CO2", -6, True, 3.0): 1}
+        products = {Species("COOH", -7, True, 3.5): 1}
+
         reactionstep = ReactionStep(reactants, products)
-
-        _reaction = Reaction([reactionstep])
-
-        assert isinstance(_reaction, Reaction)
+        with pytest.raises(ValueError, match="Duplicate ReactionStep found"):
+            Reaction([reactionstep, reactionstep])
 
     def test_from_str(self):
         test_str = """
