@@ -130,3 +130,36 @@ class Test_builder:
         assert isclose(relation.metrics["*A"], 1.0, abs_tol=0.01)
 
         assert isclose(relation.ratios["*B"]["*D"], 1, abs_tol=0.01)
+
+    def test_build_adaptive_invalid_warn(self):
+        # Test invalid step length
+        builder = Builder(self.eads)
+        descriptors = Descriptors(
+            {
+                "*A": None,
+                "*D": None,
+            }
+        )
+
+        with pytest.raises(ValueError, match="Illegal step length"):
+            builder.build_adaptive(descriptors, step_length="10")
+
+        with pytest.raises(ValueError, match="Illegal step length"):
+            builder.build_adaptive(descriptors, step_length=200)
+
+
+        # Test warning for too small/large step length
+        with pytest.warns(UserWarning, match="Large step length may harm accuracy"):
+            builder.build_adaptive(descriptors, step_length=10)
+
+        with pytest.warns(UserWarning, match="Small step length may slow down searching"):
+            builder.build_adaptive(descriptors, step_length=0.09)
+
+        # Test invalid number of descriptors
+        with pytest.raises(ValueError, match="Expect two descriptors for adaptive method"):
+            descriptors = Descriptors(
+                {
+                    "*A": None,
+                }
+            )
+            builder.build_adaptive(descriptors, step_length=1)
