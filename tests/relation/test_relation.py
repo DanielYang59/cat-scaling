@@ -1,6 +1,7 @@
+import numpy as np
 import pytest
 
-from cat_scaling.relation.relation import EadsRelation
+from cat_scaling.relation.relation import DeltaERelation, EadsRelation
 
 
 class Test_EadsRelation:
@@ -178,3 +179,32 @@ class Test_EadsRelation:
                 self.test_metrics,
                 self.test_ratios,
             )
+
+
+class Test_DeltaERelation:
+    def test_init(self):
+        delta_E_relation = DeltaERelation(
+            coefficients=[np.random.rand(3), np.random.rand(3)]
+        )
+        assert isinstance(delta_E_relation, DeltaERelation)
+
+        assert delta_E_relation.dim == 2
+
+    def test_invalid_properties(self):
+        # Test invalid coefficients
+        with pytest.raises(TypeError, match="Coefficients should be a list"):
+            DeltaERelation(coefficients=np.random.rand(3))
+
+        with pytest.raises(
+            TypeError, match="All coefficients should be numpy arrays"
+        ):
+            DeltaERelation(coefficients=[np.random.rand(3), [0, 1, 2]])
+
+        with pytest.raises(
+            ValueError,
+            match="All coefficient arrays should have the same length",
+        ):
+            DeltaERelation(coefficients=[np.random.rand(3), np.random.rand(4)])
+
+    def test_eval_limit_potential_2D(self):
+        pass  # TODO
