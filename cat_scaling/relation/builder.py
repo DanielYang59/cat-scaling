@@ -257,7 +257,9 @@ class Builder:
         """
 
         # Check arg: step_length
-        if not (isinstance(step_length, (float, int)) and 0 < step_length < 100):
+        if not (
+            isinstance(step_length, (float, int)) and 0 < step_length < 100
+        ):
             raise ValueError(f"Illegal step length {step_length}.")
 
         if step_length > 5:

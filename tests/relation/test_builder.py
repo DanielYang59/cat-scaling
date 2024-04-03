@@ -49,7 +49,6 @@ class Test_builder:
         with pytest.raises(ValueError, match="Ratios should sum to 1.0"):
             builder._build_composite_descriptor({"*A": 0.5, "*D": 0})
 
-
     def test_builder(self):
         # Prepare Builder
         builder = Builder(self.eads)
@@ -92,7 +91,10 @@ class Test_builder:
         assert isclose(relation.ratios["*B"]["*A"], 1.0, abs_tol=0.01)
 
     def test_build_traditional_invalid(self):
-        with pytest.raises(ValueError, match="Group member for traditional builder cannot be None"):
+        with pytest.raises(
+            ValueError,
+            match="Group member for traditional builder cannot be None",
+        ):
             descriptors = Descriptors(groups={"*A": None})
 
             builder = Builder(self.eads)
@@ -147,16 +149,21 @@ class Test_builder:
         with pytest.raises(ValueError, match="Illegal step length"):
             builder.build_adaptive(descriptors, step_length=200)
 
-
         # Test warning for too small/large step length
-        with pytest.warns(UserWarning, match="Large step length may harm accuracy"):
+        with pytest.warns(
+            UserWarning, match="Large step length may harm accuracy"
+        ):
             builder.build_adaptive(descriptors, step_length=10)
 
-        with pytest.warns(UserWarning, match="Small step length may slow down searching"):
+        with pytest.warns(
+            UserWarning, match="Small step length may slow down searching"
+        ):
             builder.build_adaptive(descriptors, step_length=0.09)
 
         # Test invalid number of descriptors
-        with pytest.raises(ValueError, match="Expect two descriptors for adaptive method"):
+        with pytest.raises(
+            ValueError, match="Expect two descriptors for adaptive method"
+        ):
             descriptors = Descriptors(
                 {
                     "*A": None,
