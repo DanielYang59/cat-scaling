@@ -213,6 +213,36 @@ class Test_DeltaERelation:
         )
 
         delta_E_relation.eval_limit_potential_2D(
-            x = np.arange(0, 10, 10),
-            y = np.arange(0, 10, 10),
+            x=np.arange(0, 10, 10),
+            y=np.arange(0, 10, 10),
         )
+
+    def test_invalid_eval_limit_potential_2D(self):
+        # Test invalid dim
+        with pytest.raises(
+            ValueError, match="Expect a Relation with two descriptors"
+        ):
+            delta_E_relation = DeltaERelation(
+                coefficients=[np.random.rand(4), np.random.rand(4)]
+            )
+
+            delta_E_relation.eval_limit_potential_2D(
+                x=np.arange(0, 10, 10),
+                y=np.arange(0, 10, 10),
+            )
+
+        # Test invalid base arrays
+        delta_E_relation = DeltaERelation(
+            coefficients=[np.random.rand(3), np.random.rand(3)]
+        )
+        with pytest.raises(TypeError, match="Expect 1D x array"):
+            delta_E_relation.eval_limit_potential_2D(
+                x=list(range(10)),
+                y=np.arange(0, 10, 10),
+            )
+
+        with pytest.raises(TypeError, match="Expect 1D y array"):
+            delta_E_relation.eval_limit_potential_2D(
+                x=np.arange(0, 10, 10),
+                y=np.random.rand(0, 10, 10, 2),  # should be 1D
+            )
