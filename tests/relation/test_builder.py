@@ -153,11 +153,12 @@ class Test_builder:
         with pytest.warns(
             UserWarning, match="Large step length may harm accuracy"
         ):
-            builder.build_adaptive(descriptors, step_length=10)
+            builder.build_adaptive(descriptors, step_length=20)
 
         with pytest.warns(
             UserWarning, match="Small step length may slow down searching"
         ):
+            # NOTE: warning: this may slow down unit test
             builder.build_adaptive(descriptors, step_length=0.09)
 
         # Test invalid number of descriptors
