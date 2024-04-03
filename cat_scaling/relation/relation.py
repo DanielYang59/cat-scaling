@@ -1,10 +1,6 @@
 # NOTE (need consider): EadsRelation does NOT carry complete information:
 # descriptors are missing, should info be duplicate?
 
-# TODO: unit test needs update to test properties for EadsRelation
-
-# TODO: unit test completely missing for DeltaERelation
-
 # TODO: module docstring needs clean up (or move to separate docs)
 
 """Describe linear scaling relations with a coefficient matrix.
