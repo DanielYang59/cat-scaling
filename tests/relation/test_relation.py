@@ -207,6 +207,7 @@ class Test_DeltaERelation:
             DeltaERelation(coefficients=[np.random.rand(3), np.random.rand(4)])
 
     def test_eval_limit_potential_2D(self):
+        # TODO: improve the unit test to assert value in generate grid points
         delta_E_relation = DeltaERelation(
             coefficients=[np.random.rand(3), np.random.rand(3)]
         )
