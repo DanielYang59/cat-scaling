@@ -1,5 +1,3 @@
-# TODO: add unit test for property: method
-
 import pytest
 
 from cat_scaling.relation import Descriptors
@@ -29,7 +27,38 @@ class Test_descriptors:
         assert des_adap.descriptors == ["*CO", "*OH"]
         assert len(des_adap) == 2
 
-    def test_member_overlap(self):
+    def test_groups_invalid(self):
+        # Test invalid groups dtype
+        with pytest.raises(TypeError, match="Expect groups as dict"):
+            Descriptors("Groups", method="traditional")
+
+        # Test invalid groups key dtype
+        with pytest.raises(
+            TypeError, match="Keys in groups dictionary must be strings"
+        ):
+            Descriptors(
+                {
+                    0: ["*COOH", "*CHO", "*CH2O"],
+                    "*OH": ["*OCH3", "*O", "*CH2O"],
+                },
+                method="traditional",
+            )
+
+        # Test invalid groups value dtype
+        with pytest.raises(
+            TypeError, match="Group members must be lists of strings or None"
+        ):
+            Descriptors(
+                {
+                    "*CO": "*COOH",
+                    "*OH": [
+                        "*OCH3",
+                    ],
+                },
+                method="traditional",
+            )
+
+        # Test group members overlap
         groups = {
             "*CO": ["*COOH", "*CHO", "*CH2O"],
             "*OH": ["*OCH3", "*O", "*CH2O"],
@@ -39,3 +68,12 @@ class Test_descriptors:
             UserWarning, match="Descriptor group members overlap."
         ):
             Descriptors(groups, method="traditional")
+
+    def test_property_method(self):
+        with pytest.raises(ValueError, match="Invalid method"):
+            groups = {
+                "*CO": ["*COOH", "*CHO", "*CH2O"],
+                "*OH": ["*OCH3", "*O"],
+            }
+
+            Descriptors(groups, method="invalid")
