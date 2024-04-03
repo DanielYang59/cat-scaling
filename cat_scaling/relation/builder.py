@@ -171,8 +171,8 @@ class Builder:
         return coefs, intercept, metrics
 
     def build_traditional(self, descriptors: Descriptors) -> EadsRelation:
-        """Build scaling relations the traditional way, where each adsorbate is
-        approximated by a single descriptor within each group.
+        """Build scaling relations the traditional way, where each adsorbate
+        is approximated by a single descriptor within each group.
 
         Returns:
             Relation: A Relation object containing coefficients and metrics
@@ -181,8 +181,6 @@ class Builder:
 
         # Get "groups" property from data
         groups = descriptors.groups
-        if groups is None:
-            raise ValueError("Must set groups before build traditional.")
 
         coefficients_dict = {}
         intercepts_dict = {}

@@ -18,13 +18,9 @@ class Test_builder:
         test_df = pd.read_csv(self.test_data_csv, index_col=[0], header=[0])
         self.eads = Eads(test_df)
 
-    def test_properties(self):
-        # TODO: need update
-        pass
-
-    def test_invalid_properties(self):
-        # TODO
-        pass
+    def test_invalid_data(self):
+        with pytest.raises(TypeError, match="Expect data as 'Eads' type"):
+            Builder(data="data")
 
     def test_build_composite_descriptor(self):
         builder = Builder(self.eads)
@@ -48,6 +44,11 @@ class Test_builder:
         comp_des_2 = builder._build_composite_descriptor(ratios)
 
         assert np.allclose(comp_des_2, np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5]))
+
+        # Test invalid ratio sum (should sum to 1.0)
+        with pytest.raises(ValueError, match="Ratios should sum to 1.0"):
+            builder._build_composite_descriptor({"*A": 0.5, "*D": 0})
+
 
     def test_builder(self):
         # Prepare Builder
@@ -76,7 +77,7 @@ class Test_builder:
         builder = Builder(self.eads)
 
         # Define descriptors
-        descriptors = Descriptors({"*A": ["*B"]})
+        descriptors = Descriptors(groups={"*A": ["*B"]})
 
         # Test build *B with descriptor *A
         relation = builder.build_traditional(descriptors)
@@ -89,6 +90,13 @@ class Test_builder:
 
         # Check descriptor ratio
         assert isclose(relation.ratios["*B"]["*A"], 1.0, abs_tol=0.01)
+
+    def test_build_traditional_invalid(self):
+        with pytest.raises(ValueError, match="Group member for traditional builder cannot be None"):
+            descriptors = Descriptors(groups={"*A": None})
+
+            builder = Builder(self.eads)
+            builder.build_traditional(descriptors)
 
     def test_build_adaptive(self):
         """Test build with adaptive descriptor method.
